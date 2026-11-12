@@ -62,15 +62,15 @@ Scientists have studied these processes in detail for many years. They understan
 
 ## **Stage 3: Common explanation 1 (all conditions)**
 
-A construction team is building apartments on this planet. The construction team needs technology that can produce  heat to keep apartments warm. The planet has four seasons: warm, cool, moderately cold, and extremely cold. 
+A construction team is building apartments on this planet. The construction team needs technology that can produce heat to keep apartments warm. The planet has four seasons: warm, cool, moderately cold, and extremely cold. 
 
 An energy company suggests one of their technologies that uses a small organism found on the planet. Scientists found that this organism is typical of other organisms on the planet in terms of how simple or complex it is. The company understands very well how the organism works because it has closely studied the organism with scientists.
 
-The company explains the process that the technology relies on. In this process, the organism uses a certain gas from the air to produce heat and a purple substance called a pigment. More pigment makes the organism looks more purple. The pigment is harmless and has no known practical use. When more of this gas is available, the organism produces more heat and more purple pigment.
+The company explains the process that the technology relies on. In this process, the organism uses a certain gas from the air to produce heat and a purple substance called a pigment. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. When more of this gas is available, the organism produces more heat and more purple pigment.
 
 The company also explains that the planet's air holds more of this gas when the weather is colder. So in colder weather, there is more gas around the organism.
 
-*Figure: vignette1\_img3\_explanation 1.png*
+*Figure: vignette1\_img3\_explanation1.png*
 
 ### **Stage 3 potential measurements**
 
@@ -106,19 +106,19 @@ The team tests the sample in a laboratory at four different temperatures. These 
 
 ### **High-goal-relevance condition (heat anomaly, cond 1, 3\)**
 
-As it gets colder, from warm to moderately cold, the organism produces more heat and more purple pigment. This is expected.
+As it gets colder, from warm to moderately cold, the organism produces more heat and more purple pigment. <ins>This is expected.</ins>
 
-But when it is extremely cold, the organism produces less heat than when it is moderately cold. This is unexpected, because more gas is available for the organism to use. The organism keeps producing more purple pigment, as expected.
+But when it is extremely cold, the organism produces less heat than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins> The organism keeps producing more purple pigment<ins>, as expected</ins>.
 
-*Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png (randomize the two versions).*
+*Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
 ### **Low-goal-relevance condition (pigment anomaly, cond 2, 4\)**
 
-As it gets colder, from warm to moderately cold, the organism produces more heat and more purple pigment. This is expected.
+As it gets colder, from warm to moderately cold, the organism produces more heat and more purple pigment. <ins>This is expected.</ins>
 
-But when it is extremely cold, the organism produces less purple pigment than when it is moderately cold. This is unexpected, because more gas is available for the organism to use. The organism keeps producing more heat, as expected.
+But when it is extremely cold, the organism produces less purple pigment than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins> The organism keeps producing more heat<ins>, as expected</ins>.
 
-*Figure: vignette1\_img4\_evidence\_color\_anomaly.png* or *vignette1\_img4\_evidence\_color\_anomaly\_line.png (randomize the two versions).*
+*Figure: vignette1\_img4\_evidence\_pigment\_anomaly.png* or *vignette1\_img4\_evidence\_pigment\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
 ### **Stage 4 potential measurements (evidence-first)**
 
@@ -152,7 +152,7 @@ But when it is extremely cold, most of the water available to the algae freezes.
 
 The organism produces purple pigment on its own, without the algae. So it keeps producing more purple pigment as the weather gets colder.
 
-*Figure: vignette1\_img5\_explanation2\_heat\_anomaly*
+*Figure: vignette1\_img5\_explanation2\_heat\_anomaly.png*
 
 ### **Low-goal-relevance condition (pigment anomaly, cond 2, 4\)**
 
@@ -166,7 +166,7 @@ But when it is extremely cold, most of the water available to the algae freezes.
 
 The organism produces heat on its own, without the algae. So it keeps producing more heat as the weather gets colder.
 
-*Figure: vignette1\_img5\_explanation2\_color\_anomaly.png*
+*Figure: vignette1\_img5\_explanation2\_pigment\_anomaly.png*
 
 ### **Stage 5 potential measurements (evidence-first)**
 
@@ -228,7 +228,7 @@ But when it is extremely cold, most of the water available to the algae freezes.
 
 The organism produces heat on its own, without the algae. So it keeps producing more heat as the weather gets colder.
 
-*Figure: vignette1\_img5\_explanation2\_color\_anomaly.png*
+*Figure: vignette1\_img5\_explanation2\_pigment\_anomaly.png*
 
 ### **Stage 4 potential measurements (elaboration-first)**
 
@@ -263,7 +263,7 @@ As it gets colder, from warm to moderately cold, the organism produces more heat
 
 When it is extremely cold, the organism produces less heat than when it is moderately cold, but it keeps producing more purple pigment.
 
-*Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png (randomize the two versions).*
+*Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
 ### **Low-goal-relevance condition (pigment anomaly, cond 6, 8\)**
 
@@ -271,7 +271,7 @@ As it gets colder, from warm to moderately cold, the organism produces more heat
 
 When it is extremely cold, the organism produces less purple pigment than when it is moderately cold, but it keeps producing more heat.
 
-*Figure: vignette1\_img4\_evidence\_color\_anomaly.png* or *vignette1\_img4\_evidence\_color\_anomaly\_line.png (randomize the two versions).*
+*Figure: vignette1\_img4\_evidence\_pigment\_anomaly.png* or *vignette1\_img4\_evidence\_pigment\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
 ### **Stage 5 potential measurements (elaboration-first)**
 
@@ -295,10 +295,10 @@ When it is extremely cold, the organism produces less purple pigment than when i
 | Main | Further measure: explanation 2 evaluations | How likely is it that the company's explanation about the algae is true? (1 \= Very unlikely; 7 \= Very likely) |
 | Main | Further measure: explanation 1 counterfactual evaluations | How necessary was it for the company to add its explanation about the algae? (1 \= Not at all necessary; 7 \= Absolutely necessary) |
 | Main | Further measure: explanation 1 counterfactual evaluations | Suppose the company had not mentioned the algae. How acceptable would that have been? (1 \= Not at all acceptable; 7 \= Completely acceptable) |
+| Main | Observed heat production | How much heat did the organism produce when it was extremely cold, compared with when it was moderately cold? (Less heat; About the same amount of heat; More heat; I don't remember) |
+| Main | Observed purple pigment | How much purple pigment did the organism produce when it was extremely cold, compared with when it was moderately cold? (Less purple pigment; About the same amount of purple pigment; More purple pigment; I don't remember) |
 | Pilot | Difference from expectations / Surprise | How different are these results from what you expected based on the company's explanation? (1 \= Not at all different; 7 \= Extremely different) |
 | Pilot | Gas availability | How much gas was available when it was extremely cold, compared with when it was moderately cold? (Less gas; About the same amount of gas; More gas; I don't remember) |
-| Pilot | Observed heat production | How much heat did the organism produce when it was extremely cold, compared with when it was moderately cold? (Less heat; About the same amount of heat; More heat; I don't remember) |
-| Pilot | Observed purple pigment | How much purple pigment did the organism produce when it was extremely cold, compared with when it was moderately cold? (Less purple pigment; About the same amount of purple pigment; More purple pigment; I don't remember) |
 | Pilot | Anomaly relevance, heat anomaly version (cond 5, 7\) | The organism produces less heat when it is extremely cold. How much does this matter for the team's goal of keeping apartments warm? (1 \= Not at all; 7 \= Very much) |
 | Pilot | Anomaly relevance, pigment anomaly version (cond 6, 8\) | The organism produces less purple pigment when it is extremely cold. How much does this matter for the team's goal of keeping apartments warm? (1 \= Not at all; 7 \= Very much) |
 | Pilot | Knowledge check | How well does the company understand how the organism works? (1 \= Not well at all; 7 \= Very well) |
