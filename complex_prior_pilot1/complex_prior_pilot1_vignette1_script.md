@@ -64,7 +64,7 @@ Scientists have studied these processes in detail for many years. They understan
 
 A construction team is building apartments on this planet. The construction team needs technology that can produce heat to keep apartments warm. The planet has four seasons: warm, cool, moderately cold, and extremely cold.
 
-An energy company suggests one of their technologies that uses a small organism found on the planet. Scientists found that this organism is typical of other organisms on the planet in terms of how simple or complex it is. The company understands very well how the organism works because it has closely studied the organism with scientists.
+An energy company suggests one of its technologies that uses a small organism found on the planet. Scientists found that this organism is typical of other organisms on the planet in terms of how simple or complex it is. The company understands very well how the organism works because it has closely studied the organism with scientists.
 
 The company explains the process that the technology relies on. In this process, the organism uses a certain gas from the air to produce heat and a purple substance called a pigment. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. When more of this gas is available, the organism produces more heat and more purple pigment.
 
@@ -246,8 +246,8 @@ The organism produces heat on its own, without the algae. So it keeps producing 
 | Pilot | Causal knowledge: algae activity | According to the company, what happens to the algae when there is too little liquid water? (They become less active; They stay about as active; They become more active; I don't remember) |
 | Pilot | Alternative measure of causal knowledge: explain the decrease, heat anomaly version (cond 5, 7\) | Why does the organism produce less heat when it is extremely cold, even though more gas is available? (Open response) |
 | Pilot | Alternative measure of causal knowledge: explain the decrease, color anomaly version (cond 6, 8\) | Why does the organism produce less purple pigment when it is extremely cold, even though more gas is available? (Open response) |
-| Pilot | Alternative measure of causal knowledge: explain the continuing increase, heat anomaly version (cond 5, 7\) | Why can the organism keep producing more purple pigment when it is extremely cold? (Open response) |
-| Pilot | Alternative measure of causal knowledge: explain the continuing increase, color anomaly version (cond 6, 8\) | Why can the organism keep producing more heat when it is extremely cold? (Open response) |
+| Pilot | Alternative measure of causal knowledge: explain the continuing increase, heat anomaly version (cond 5, 7\) | Why does the organism keep producing more purple pigment when it is extremely cold? (Open response) |
+| Pilot | Alternative measure of causal knowledge: explain the continuing increase, color anomaly version (cond 6, 8\) | Why does the organism keep producing more heat when it is extremely cold? (Open response) |
 
 ## **Stage 5, elaboration-first conditions (cond 5, 6, 7, 8): Evidence**
 
