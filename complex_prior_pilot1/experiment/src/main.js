@@ -14,8 +14,10 @@
  * URL flags: ?debug=1  no read-locks, no protections, loads the dev bot (__autoplay)
  *            ?nofs=1   no fullscreen requirement and no viewport lock (dev only)
  *            ?condition=k   forces assignment cell k (0-31) when DataPipe is disabled
- *            with ?debug=1 also: ?cond=1..8, ?fig=table|line, ?surprise=shown|hidden,
- *            ?mode=pilot|main
+ * With ?debug=1 the first screen is a test-setup screen where the tester picks the
+ * condition, the figure version, the surprise text, pilot / main questions and
+ * read-locks; ?cond=1..8, ?fig=table|line, ?surprise=shown|hidden, ?mode=pilot|main
+ * and ?locks=1 prefill it.
  */
 import { initJsPsych } from "jspsych";
 import jsPsychPreload from "@jspsych/plugin-preload";
@@ -32,14 +34,14 @@ import "./styles.css";
 
 import PagePlugin from "./page-plugin.js";
 import { CONFIG, DATAPIPE, PROLIFIC, STUDY, WELCOME_HTML, INSTRUCTIONS_HTML, FEEDBACK_PROMPT, DEBRIEF_HTML, CONSENT_HTML } from "./config.js";
-import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, story, questionPages } from "./content.js";
+import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, story, questionPages } from "./content.js";
 import { imageUrl } from "./images.js";
-import { state, integrityProps, DEBUG, DEV_FLAGS, NOFS, MODE, URL_PARAMS, prolificPID, studyID, sessionID, subjectId } from "./state.js";
+import { state, integrityProps, DEBUG, DEV_FLAGS, NOFS, URL_PARAMS, prolificPID, studyID, sessionID, subjectId } from "./state.js";
 import { buildFrame, setPhase, updateProgress, card, lockButton, questionsHtml, bindQuestions, N_STAGES } from "./ui.js";
 import { requestFullscreenSafe, isFullscreen, hideFullscreenOverlay, checkViewport, isMobileDevice, applyProductionProtections, installIntegrityListeners } from "./integrity.js";
 
 document.title = STUDY.title;
-const lock = (seconds) => (DEBUG ? 0 : seconds);
+const lock = (seconds) => (state.locks ? seconds : 0);
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const eyebrow = (text) => `<div class="eyebrow">${text}</div>`;
 
@@ -71,7 +73,6 @@ jsPsych.data.addProperties({
   session_id: sessionID,
   experiment_name: CONFIG.experiment_name,
   experiment_version: CONFIG.experiment_version,
-  mode: MODE,
   start_time: new Date().toISOString(),
   debug_mode: DEBUG,
   nofs_mode: NOFS,
@@ -87,11 +88,14 @@ jsPsych.data.addProperties({
 // ============================================================================
 function applyAssignment(index, source) {
   const a = assignmentFromIndex(index);
-  if (DEBUG) {   // dev overrides
-    const cond = parseInt(URL_PARAMS.get("cond"));
-    if (CONDITIONS[cond]) a.cond = cond;
-    if (["table", "line"].includes(URL_PARAMS.get("fig"))) a.figureVersion = URL_PARAMS.get("fig");
-    if (["shown", "hidden"].includes(URL_PARAMS.get("surprise"))) a.surpriseText = URL_PARAMS.get("surprise") === "shown";
+  // testing mode: whatever was fixed on the test-setup screen replaces the draw
+  const t = state.test;
+  if (DEBUG && (t.cond || t.figureVersion || t.surpriseText)) {
+    if (t.cond) a.cond = t.cond;
+    if (t.figureVersion) a.figureVersion = t.figureVersion;
+    if (t.surpriseText) a.surpriseText = t.surpriseText === "shown";
+    index = indexFromAssignment(a);
+    source = "test_setup";
   }
   const c = CONDITIONS[a.cond];
   Object.assign(state, {
@@ -107,7 +111,8 @@ function applyAssignment(index, source) {
   });
   jsPsych.data.addProperties({
     condition_index: index,
-    condition_source: source,       // "datapipe" | "url" | "random" | "random_fallback" (DataPipe did not answer)
+    condition_source: source,       // "datapipe" | "url" | "random" | "random_fallback" (DataPipe did not answer) | "test_setup"
+    mode: state.mode,
     cond: state.cond,
     order: state.order,
     complexity: state.complexity,
@@ -118,7 +123,7 @@ function applyAssignment(index, source) {
     stage_order: JSON.stringify(state.stages),
   });
   // welcome, consent, instructions + (story + question screens) per stage + comments, debrief
-  const screens = state.stages.reduce((n, s) => n + 1 + questionPages(s, state.cond, MODE).length, 0);
+  const screens = state.stages.reduce((n, s) => n + 1 + questionPages(s, state.cond, state.mode).length, 0);
   state.totalSteps = 3 + screens + 2;
 }
 
@@ -151,7 +156,80 @@ const assignCondition = {
 };
 
 // ============================================================================
-// 3. WELCOME, CONSENT, INSTRUCTIONS
+// 3. TEST SETUP (testing mode only, never shown to participants)
+//    Lets the tester fix the condition, the two independent randomizations, the
+//    question set and the read-locks before the study starts.
+// ============================================================================
+const titleCase = (s) => s.charAt(0).toUpperCase() + s.slice(1).replace("_", " ");
+function setupGroups() {
+  return [
+    { key: "cond", title: "Condition", cols: 2,
+      options: [{ value: "", label: "Random", wide: true }, ...Object.entries(CONDITIONS).map(([k, c]) => (
+        { value: k, label: `<b>${k}</b> · ${titleCase(c.order)} · ${titleCase(c.complexity)} complexity · ${titleCase(c.anomaly)} anomaly` }))] },
+    { key: "fig", title: "Evidence figure", cols: 3,
+      options: [{ value: "", label: "Random" }, { value: "table", label: "Table only" }, { value: "line", label: "Table + line graphs" }] },
+    { key: "surprise", title: "Surprise text", cols: 3,
+      note: "The sentences that highlight the surprise in the evidence part. They exist only in the evidence-first conditions (1–4).",
+      options: [{ value: "", label: "Random" }, { value: "shown", label: "Shown" }, { value: "hidden", label: "Hidden" }] },
+    { key: "mode", title: "Questions", cols: 2,
+      options: [{ value: "pilot", label: "Pilot · all questions" }, { value: "main", label: "Main · Main questions only" }] },
+    { key: "locks", title: "Read-locks", cols: 2,
+      options: [{ value: "off", label: "Off · Continue works at once" }, { value: "on", label: "On · as for participants" }] },
+  ];
+}
+
+const testSetup = {
+  type: PagePlugin,
+  data: { task: "test_setup" },
+  on_start: () => setPhase("intro"),
+  render: function (el, done) {
+    const groups = setupGroups();
+    const sel = {
+      cond: state.test.cond ? String(state.test.cond) : "",
+      fig: state.test.figureVersion || "",
+      surprise: state.test.surpriseText || "",
+      mode: state.mode,
+      locks: state.locks ? "on" : "off",
+    };
+    el.innerHTML = card(`${eyebrow("Test setup · not shown to participants")}
+      <h2>Choose what to test</h2>
+      <p class="muted">You see this screen because the address contains <code>debug=1</code>. “Random” assigns that setting as it is for participants.${NOFS ? "" : " Full screen is on; add <code>&amp;nofs=1</code> to the address to turn it off."}</p>
+      ${groups.map((g) => `
+        <div class="setup-group" data-group="${g.key}">
+          <div class="setup-title">${g.title}</div>
+          ${g.note ? `<p class="small setup-note">${g.note}</p>` : ""}
+          <div class="opt-grid" style="--cols:${g.cols}">${g.options.map((o) => `
+            <button type="button" class="opt ${o.wide ? "wide" : ""}" data-value="${o.value}">${o.label}</button>`).join("")}</div>
+        </div>`).join("")}
+      <div class="btn-row"><button class="btn btn-lg" id="setup-start">Start</button></div>`, "card-narrow setup-card");
+
+    const refresh = () => {
+      groups.forEach((g) => el.querySelectorAll(`.setup-group[data-group="${g.key}"] .opt`).forEach((b) =>
+        b.classList.toggle("selected", b.dataset.value === sel[g.key])));
+      // the surprise text does not apply when an elaboration-first condition is fixed
+      const c = CONDITIONS[sel.cond];
+      el.querySelector('.setup-group[data-group="surprise"]').classList.toggle("disabled", !!c && c.order !== "evidence_first");
+    };
+    el.querySelectorAll(".opt").forEach((b) => b.addEventListener("click", () => {
+      sel[b.closest(".setup-group").dataset.group] = b.dataset.value;
+      refresh();
+    }));
+    refresh();
+
+    el.querySelector("#setup-start").addEventListener("click", () => {
+      state.test = { cond: sel.cond ? parseInt(sel.cond) : null, figureVersion: sel.fig || null, surpriseText: sel.surprise || null };
+      state.mode = sel.mode;
+      state.locks = sel.locks === "on";
+      done({
+        test_cond: sel.cond || "random", test_figure: sel.fig || "random", test_surprise: sel.surprise || "random",
+        test_mode: sel.mode, test_locks: sel.locks,
+      });
+    });
+  },
+};
+
+// ============================================================================
+// 4. WELCOME, CONSENT, INSTRUCTIONS
 // ============================================================================
 // A card with one in-card button.
 function cardButtonPage({ task, html, label = "Continue", cls = "card-narrow", phase, lockSeconds = 0, onStart = null, onRender = null, onClick = null }) {
@@ -194,7 +272,7 @@ const instructions = cardButtonPage({
 });
 
 // ============================================================================
-// 4. STAGES: story screen, then question screens
+// 5. STAGES: story screen, then question screens
 // ============================================================================
 const stageEyebrow = (i, extra = "") => eyebrow(`Part ${i + 1} of ${N_STAGES}${extra}`);
 const stagePhase = (i) => `part${i + 1}`;
@@ -206,7 +284,7 @@ function makeStage(i) {
     on_start: function () {
       const stage = state.stages[i];
       state.stageIdx = i;
-      state.pages = questionPages(stage, state.cond, MODE);
+      state.pages = questionPages(stage, state.cond, state.mode);
       state.pageIdx = 0;
       state.currentItems = [];
       setPhase(stagePhase(i), { now: 1, total: 1 + state.pages.length });
@@ -277,7 +355,7 @@ function makeStage(i) {
 }
 
 // ============================================================================
-// 5. COMMENTS, SAVE, DEBRIEF
+// 6. COMMENTS, SAVE, DEBRIEF
 // ============================================================================
 const generalFeedback = {
   type: PagePlugin,
@@ -363,9 +441,9 @@ const debrief = cardButtonPage({
 });
 
 // ============================================================================
-// 6. TIMELINE
+// 7. TIMELINE
 // ============================================================================
-const timeline = [welcome, consent, assignCondition];
+const timeline = [...(DEBUG ? [testSetup] : []), welcome, consent, assignCondition];
 timeline.push({
   type: jsPsychPreload,
   images: () => state.stages.map((s) => imageUrl(storyOf(s).figure)),
@@ -380,7 +458,7 @@ if (DATAPIPE.enabled) timeline.push(saveData);
 timeline.push(debrief);
 
 // ============================================================================
-// 7. START
+// 8. START
 // ============================================================================
 installIntegrityListeners();
 if (CONFIG.block_mobile && isMobileDevice() && !NOFS) {

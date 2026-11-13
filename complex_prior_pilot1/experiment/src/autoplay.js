@@ -54,6 +54,7 @@ window.__autoplay = function (opts = {}) {
         }
       }
       let b;
+      if ((b = $("#setup-start"))) return b.click();              // test setup: keep the prefilled choices
       if ((b = $("#q-submit"))) {
         state.currentItems.forEach(answer);
         if (!b.disabled) b.click();

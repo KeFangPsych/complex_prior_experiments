@@ -170,6 +170,22 @@ p.muted, .muted { color: var(--ink-2); font-size: 15px; }
 .open-textarea:focus { outline: none; border-color: var(--ink-2); box-shadow: 0 0 0 3px rgba(44,42,36,0.08); }
 .open-hint { margin: 6px 0 0; }
 
+/* ── Test setup (testing mode only) ────────────────────────── */
+.setup-card code { font-size: 0.92em; background: var(--bg-2); border: 1px solid var(--line); border-radius: 5px; padding: 1px 5px; }
+.setup-group { margin-top: 22px; }
+.setup-title { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; margin-bottom: 8px; }
+.setup-note { margin: -2px 0 8px; }
+.opt-grid { display: grid; grid-template-columns: repeat(var(--cols, 2), 1fr); gap: 8px; }
+.opt {
+  padding: 10px 14px; text-align: left; font-size: 14.5px; line-height: 1.4; color: var(--ink);
+  background: var(--surface); border: 1.5px solid var(--line); border-radius: var(--radius-sm);
+  transition: all var(--t-fast) var(--ease);
+}
+.opt.wide { grid-column: 1 / -1; }
+.opt:hover { border-color: var(--ink-3); }
+.opt.selected { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
+.setup-group.disabled .opt-grid { opacity: 0.4; pointer-events: none; }
+
 /* ── Overlays ──────────────────────────────────────────────── */
 #fullscreen-overlay, #viewport-lock-overlay {
   position: fixed; inset: 0; z-index: 99999; display: none; align-items: center; justify-content: center; padding: 32px;

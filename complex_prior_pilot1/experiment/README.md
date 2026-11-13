@@ -20,18 +20,31 @@ npm install
 npm run dev
 ```
 
-Then open <http://localhost:8765/?debug=1&nofs=1>. Without the flags you get the
-experiment exactly as a participant does (fullscreen, read-locks, no shortcuts).
+Then open <http://localhost:8765/?debug=1&nofs=1> for testing, or
+<http://localhost:8765/> for the experiment exactly as a participant gets it
+(fullscreen, read-locks, random assignment, no shortcuts).
+
+### Testing mode
+
+With `debug=1` in the address, the first screen is a **test setup** screen that
+participants never see. On it you choose:
+
+- **Condition**: one of the 8 conditions of the script's design table, or Random.
+- **Evidence figure**: table only, table + line graphs, or Random.
+- **Surprise text**: shown, hidden, or Random (evidence-first conditions only).
+- **Questions**: Pilot (all questions) or Main (Main questions only).
+- **Read-locks**: off (Continue works at once) or on (as for participants).
+
+"Random" leaves that setting to the normal assignment. Testing mode also turns
+off the copy / devtools protections and loads the test bot (`__autoplay()` in the
+browser console). Runs made this way have `debug_mode = true` in the data.
 
 | URL flag | effect |
 |---|---|
-| `debug=1` | no read-locks, no copy / devtools protections, loads the test bot (`__autoplay()` in the console) |
+| `debug=1` | testing mode: shows the test setup screen |
 | `nofs=1` | no fullscreen requirement and no viewport lock |
+| `cond=1..8`, `fig=table\|line`, `surprise=shown\|hidden`, `mode=pilot\|main`, `locks=1` | with `debug=1`: prefill the test setup screen |
 | `condition=k` | forces assignment cell `k` (0–31) when DataPipe is disabled |
-| `cond=1..8` | with `debug=1`: forces the condition of the script's design table |
-| `fig=table\|line` | with `debug=1`: forces the evidence-figure version |
-| `surprise=shown\|hidden` | with `debug=1`: forces the surprise text |
-| `mode=pilot\|main` | with `debug=1`: overrides `CONFIG.mode` |
 
 The flags always work on the dev server. On the built site they work only while
 `CONFIG.allow_dev_flags` is `true`.
@@ -94,7 +107,8 @@ Crossing these gives **32 assignment cells**. Cell `k` maps to condition
 text shown for `k` in 0–15 (else hidden). With DataPipe enabled, `k` is its
 condition counter, so consecutive participants fill every cell once per 32.
 Without DataPipe, or if DataPipe does not answer within 8 s, `k` is drawn at
-random (`condition_source` records which).
+random. `condition_source` records which: `datapipe`, `random`,
+`random_fallback`, `url`, or `test_setup` when a tester fixed it.
 
 **Timeline.** welcome → consent (enters fullscreen) → assignment → picture
 preload → one instruction page → five parts → optional comments → save →
@@ -102,7 +116,8 @@ debrief. Each part is one **story screen** (text + picture, Continue locked for
 `CONFIG.story_lock_seconds`) followed by its **question screens**.
 
 **Pilot and main mode.** `CONFIG.mode = "pilot"` asks every question of the
-script; `"main"` asks only those tagged Main. Pilot mode has 42 questions in the
+script; `"main"` asks only those tagged Main. Participants always get
+`CONFIG.mode`; in testing mode it is chosen on the test setup screen. Pilot mode has 42 questions in the
 evidence-first conditions and 41 in the elaboration-first ones; main mode has 22
 and 21.
 
@@ -168,6 +183,7 @@ Row-level detail, by `task`:
 | `story` | `stage_index`, `stage`, `figure`, `n_words`, `lock_seconds`, `rt` (reading time, ms) |
 | `questions` | `stage_index`, `stage`, `page`, `page_index`, `item_ids`, `rt`, and `responses`: JSON with one entry per item (`id`, `use`, `type`, `measure`, `response`, `response_index`, `correct`, `first_ms`, `last_ms`, `n_changes`) |
 | `consent` | `consented`, `fullscreen_ok` |
+| `test_setup` | testing mode only: `test_cond`, `test_figure`, `test_surprise`, `test_mode`, `test_locks` |
 | `save_data` | `success`, `attempts` |
 
 Predictions (`pred_heat`, `pred_pigment`) are asked after part 3 in the
@@ -197,7 +213,8 @@ npm run test:integrity
 ```
 
 - `test:walk` runs the whole experiment with the test bot in all 8 conditions ×
-  pilot / main mode and checks the data against `content.js`: assignment columns,
+  pilot / main mode, plus two runs that pick their settings by clicking on the
+  test setup screen, and checks the data against `content.js`: assignment columns,
   story order and figures, exactly the expected question screens, a valid answer
   for every question, the scoring of the memory questions, and no page errors.
   `node dev/walk.cjs --shots 3` also saves a screenshot of every screen of

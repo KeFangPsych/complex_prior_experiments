@@ -2,6 +2,7 @@
  * state.js — run-time state shared by the modules.
  */
 import { CONFIG } from "./config.js";
+import { CONDITIONS } from "./content.js";
 
 const urlParams = new URLSearchParams(window.location.search);
 export const URL_PARAMS = urlParams;
@@ -9,7 +10,8 @@ export const URL_PARAMS = urlParams;
 export const DEV_FLAGS = import.meta.env.DEV || CONFIG.allow_dev_flags;
 export const DEBUG = DEV_FLAGS && urlParams.get("debug") === "1";
 export const NOFS = (DEV_FLAGS && urlParams.get("nofs") === "1") || !CONFIG.require_fullscreen;
-export const MODE = DEBUG && ["pilot", "main"].includes(urlParams.get("mode")) ? urlParams.get("mode") : CONFIG.mode;
+// a testing flag's value, if it is one of `allowed` (testing mode only)
+const flag = (name, allowed) => (DEBUG && allowed.includes(urlParams.get(name)) ? urlParams.get(name) : null);
 
 export const prolificPID = urlParams.get("PROLIFIC_PID") || null;
 export const studyID = urlParams.get("STUDY_ID") || null;
@@ -18,6 +20,18 @@ export const subjectId = prolificPID || "test_" + Math.random().toString(36).sub
 
 export const state = {
   phase: "intro",
+  // "pilot" (all questions) | "main" (Main only). Fixed by CONFIG.mode for
+  // participants; in testing mode it is chosen on the test-setup screen.
+  mode: flag("mode", ["pilot", "main"]) || CONFIG.mode,
+  // read-locks on the instruction and story pages (off by default in testing mode)
+  locks: !DEBUG || urlParams.get("locks") === "1",
+  // testing mode: what the tester fixed on the test-setup screen (null = assign as
+  // usual). The URL flags ?cond= ?fig= ?surprise= ?mode= ?locks=1 prefill that screen.
+  test: {
+    cond: DEBUG && CONDITIONS[parseInt(urlParams.get("cond"))] ? parseInt(urlParams.get("cond")) : null,
+    figureVersion: flag("fig", ["table", "line"]),
+    surpriseText: flag("surprise", ["shown", "hidden"]),
+  },
   consented: false,
   finished: false,
   // assignment (set by applyAssignment in main.js)

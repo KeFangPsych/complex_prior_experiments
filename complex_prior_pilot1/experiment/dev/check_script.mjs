@@ -16,7 +16,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, story, questions, questionPages, scriptText } from "../src/content.js";
+import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, story, questions, questionPages, scriptText } from "../src/content.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.join(here, "../../complex_prior_pilot1_vignette1_script.md");
@@ -149,7 +149,10 @@ md.filter((l) => /^\| \d \|/.test(l)).forEach((l) => {
 const cells = Array.from({ length: N_CELLS }, (_, k) => assignmentFromIndex(k));
 same("assignment cells", "distinct cells", new Set(cells.map((a) => `${a.cond}|${a.figureVersion}|${a.surpriseText}`)).size, 8 * 2 * 2);
 same("assignment cells", "wrap-around", JSON.stringify(assignmentFromIndex(N_CELLS + 5)), JSON.stringify(assignmentFromIndex(5)));
-cells.forEach((a, k) => { if (!CONDITIONS[a.cond]) fail("assignment cells", `cell ${k} has no condition`); });
+cells.forEach((a, k) => {
+  if (!CONDITIONS[a.cond]) fail("assignment cells", `cell ${k} has no condition`);
+  same("assignment cells", `index of cell ${k}`, indexFromAssignment(a), k);
+});
 
 if (errors.length) {
   console.error(`check:script FAILED — ${errors.length} mismatch(es) in ${checked} comparisons\n`);

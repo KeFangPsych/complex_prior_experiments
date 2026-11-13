@@ -39,6 +39,11 @@ export function assignmentFromIndex(index) {
   };
 }
 
+/** The cell index of an assignment (inverse of assignmentFromIndex). */
+export function indexFromAssignment({ cond, figureVersion, surpriseText }) {
+  return (cond - 1) + (figureVersion === "line" ? 8 : 0) + (surpriseText ? 0 : 16);
+}
+
 // Stage keys in presentation order (stages 1-5 of the script).
 export const STAGE_SEQUENCE = {
   evidence_first: ["planet", "complexity", "explanation1", "evidence", "elaboration"],

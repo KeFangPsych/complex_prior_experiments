@@ -30,8 +30,8 @@ const shotDir = path.join(__dirname, "shots");
   const problems = [];
   let runs = 0;
 
-  async function run({ cond, mode, fig, surprise, checks = "correct", shots = false }) {
-    const tag = `cond ${cond} ${mode} ${fig} ${surprise} checks=${checks}`;
+  async function run({ cond, mode, fig, surprise, checks = "correct", shots = false, clickSetup = false }) {
+    const tag = `cond ${cond} ${mode} ${fig} ${surprise} checks=${checks}${clickSetup ? " (chosen on the setup screen)" : ""}`;
     const bad = (msg) => problems.push(`${tag}: ${msg}`);
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: shots ? 2 : 1 });
     page.on("pageerror", (e) => bad("pageerror: " + e.message));
@@ -43,8 +43,17 @@ const shotDir = path.join(__dirname, "shots");
         await page.screenshot({ path: path.join(shotDir, label.replace(/[^a-z0-9]+/gi, "_").slice(0, 70) + ".png"), fullPage: true });
       });
     }
-    await page.goto(`${BASE}/?debug=1&nofs=1&cond=${cond}&mode=${mode}&fig=${fig}&surprise=${surprise}`);
-    await page.waitForFunction(() => typeof window.__autoplay === "function" && document.querySelector("#card-btn"));
+    await page.goto(clickSetup ? `${BASE}/?debug=1&nofs=1` : `${BASE}/?debug=1&nofs=1&cond=${cond}&mode=${mode}&fig=${fig}&surprise=${surprise}`);
+    await page.waitForFunction(() => typeof window.__autoplay === "function" && document.querySelector("#setup-start"));
+    // either the URL flags prefill the test-setup screen, or the choices are clicked on it
+    if (clickSetup) {
+      for (const [group, value] of Object.entries({ cond, fig, surprise, mode })) {
+        const opt = page.locator(`.setup-group[data-group="${group}"] .opt[data-value="${value}"]`);
+        if (group === "surprise" && content.CONDITIONS[cond].order !== "evidence_first") {
+          if (!(await page.locator('.setup-group[data-group="surprise"].disabled').count())) bad("surprise group is not disabled for an elaboration-first condition");
+        } else await opt.click();
+      }
+    }
     const data = await page.evaluate((o) => window.__autoplay(o), { checks, shot: shots });
     await page.close();
     runs++;
@@ -62,6 +71,8 @@ const shotDir = path.join(__dirname, "shots");
     expect("evidence_figure", last.evidence_figure, fig);
     expect("surprise_text", last.surprise_text, c.order === "evidence_first" ? surprise : "not_applicable");
     expect("completion_status", last.completion_status, "completed");
+    expect("condition_source", last.condition_source, "test_setup");
+    expect("condition_index", content.assignmentFromIndex(last.condition_index).cond, cond);
 
     const stories = data.filter((r) => r.task === "story");
     expect("story stages", stories.map((r) => r.stage), stages);
@@ -98,6 +109,9 @@ const shotDir = path.join(__dirname, "shots");
     }
   }
   out.push(await run({ cond: 1, mode: "pilot", fig: "table", surprise: "shown", checks: "wrong" }));
+  // the same settings chosen by clicking on the test-setup screen instead of URL flags
+  out.push(await run({ cond: 3, mode: "main", fig: "line", surprise: "hidden", clickSetup: true }));
+  out.push(await run({ cond: 6, mode: "pilot", fig: "table", surprise: "shown", clickSetup: true }));
   if (shotCond) out.push(await run({ cond: shotCond, mode: "pilot", fig: "line", surprise: "shown", shots: true }));
   await browser.close();
 
