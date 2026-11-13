@@ -221,10 +221,13 @@ p.muted, .muted { color: var(--ink-2); font-size: 15px; }
 .overlay-box .btn { margin-top: 12px; }
 
 /* ── Consent / debrief ─────────────────────────────────────── */
-.consent-container h2 { font-size: 26px; }
+/* the whole form is shown; the page scrolls if the window is too short for it */
+.consent-card { max-width: 1000px; margin: 0 auto; padding: 26px 48px 22px; }
+.consent-container h2 { font-size: 25px; margin-bottom: 10px; }
+.consent-section { border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 12px 0 4px; margin: 0; }
+.consent-section p { font-size: 14.5px; line-height: 1.5; margin-bottom: 8px; }
+.consent-card .btn-row { margin-top: 16px; }
 .consent-note { margin: 12px 0 0; text-align: center; }
-.consent-section { max-height: 46vh; overflow-y: auto; padding: 4px 16px 4px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin: 6px 0 14px; }
-.consent-section p { font-size: 15px; line-height: 1.6; margin-bottom: 10px; }
 .download-box { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 20px; margin: 18px 0 4px; text-align: center; }
 .download-box p { margin-bottom: 10px; }
 .spinner { width: 42px; height: 42px; border: 4px solid var(--line); border-top-color: var(--ink); border-radius: 50%; margin: 18px auto 20px; animation: spin 0.9s linear infinite; }

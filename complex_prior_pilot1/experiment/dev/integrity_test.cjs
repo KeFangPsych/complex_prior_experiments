@@ -28,7 +28,9 @@ const BASE = process.env.BASE_URL || "http://localhost:8765";
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(`${BASE}/?condition=0`);
   await page.click("#card-btn");                                         // welcome
-  // the consent form can be saved as a PDF with the safeguards on
+  // the whole consent form is on the page (no scrolling box), and can be saved as a PDF with the safeguards on
+  await page.waitForSelector("#consent-pdf");
+  check("consent form is shown in full", await page.evaluate(() => { const s = document.querySelector(".consent-section"); return s.querySelectorAll("p").length === 9 && s.scrollHeight <= s.clientHeight + 1; }));
   const [download] = await Promise.all([page.waitForEvent("download"), page.click("#consent-pdf")]);
   const pdf = require("fs").readFileSync(await download.path());
   check("consent page saves a PDF", download.suggestedFilename() === "informed_consent.pdf" && pdf.subarray(0, 5).toString() === "%PDF-" && pdf.length > 3000, `${download.suggestedFilename()}, ${pdf.length} bytes`);

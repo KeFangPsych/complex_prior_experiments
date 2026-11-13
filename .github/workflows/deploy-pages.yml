@@ -1,0 +1,61 @@
+# Builds the pilot 1 / vignette 1 experiment and publishes it with GitHub Pages at
+#   https://kefangpsych.github.io/complex_prior_experiments/pilot1_vignette1/
+#
+# One-time setup: repository Settings -> Pages -> Build and deployment -> Source:
+# "GitHub Actions". Runs on every push to main that touches the experiment, the
+# pictures or the script, and can be started by hand from the Actions tab.
+name: Deploy experiment to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "complex_prior_pilot1/**"
+      - ".github/workflows/deploy-pages.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: complex_prior_pilot1/experiment
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: complex_prior_pilot1/experiment/package-lock.json
+      - run: npm ci
+      # the experiment must match the vignette script before it is published
+      - run: npm run check:script
+      - run: npm run build
+      - name: Assemble the site
+        working-directory: .
+        run: |
+          mkdir -p _site/pilot1_vignette1
+          cp -r complex_prior_pilot1/experiment/dist/. _site/pilot1_vignette1/
+          touch _site/.nojekyll
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}pilot1_vignette1/
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

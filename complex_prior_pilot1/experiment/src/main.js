@@ -262,7 +262,7 @@ function cardButtonPage({ task, html, label = "Continue", cls = "card-narrow", p
 
 const welcome = cardButtonPage({
   task: "welcome", phase: "intro",
-  html: `${eyebrow(STUDY.title)}<h1>${rich(WELCOME.title)}</h1>
+  html: `${eyebrow("Welcome")}<h1>${rich(WELCOME.title)}</h1>
     ${WELCOME.paragraphs.map((p, k) => `<p${k === 0 ? ' class="lead"' : ""}>${rich(fillStudyValues(p))}</p>`).join("")}`,
 });
 
@@ -283,7 +283,7 @@ const consent = {
       <div class="btn-row">
         <button class="btn btn-lg btn-secondary" id="consent-pdf" type="button">Save a copy (PDF)</button>
         <button class="btn btn-lg" id="card-btn">I consent — begin the study</button>
-      </div>`, "card-narrow");
+      </div>`, "consent-card");
     let pdfSaves = 0;
     const pdfBtn = el.querySelector("#consent-pdf");
     pdfBtn.addEventListener("click", async () => {

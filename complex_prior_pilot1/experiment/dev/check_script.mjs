@@ -158,10 +158,10 @@ for (const cond of Object.keys(CONDITIONS).map(Number)) {
       same(where, `question ${k + 1} (${q.id}) measure`, q.measure, w.measure);
       if (q.type === "choice" && q.correct !== null && !(q.correct >= 0 && q.correct < q.options.length)) fail(where, `${q.id}: correct index out of range`);
     });
-    sameList(where, "presentation-order notes", orderNotes(stage), want.notes);
+    sameList(where, "presentation-order notes", orderNotes(stage, cond), want.notes);
     // every randomization flag in content.js is covered by a note, and vice versa
     const flagged = got.some((q) => q.pageShuffle || q.itemShuffle || q.shuffleOptions);
-    if (flagged !== orderNotes(stage).length > 0) fail(where, "randomization flags and presentation-order notes do not agree");
+    if (flagged !== orderNotes(stage, cond).length > 0) fail(where, "randomization flags and presentation-order notes do not agree");
     // main mode keeps exactly the Main rows
     const mainIds = questionPages(stage, cond, "main").flatMap((p) => p.items.map((q) => q.id));
     same(where, "Main-only questions", mainIds.length, want.rows.filter((w) => w.use === "main").length);
@@ -233,8 +233,27 @@ for (const mode of ["pilot", "main"]) {
   roughlyEven(`randomization, goal options (${mode})`, goalOrders, 24);
   if (mode === "pilot") roughlyEven("randomization, relevance questions", tally(() => randomizePages(canon3).orders.order_relevance), 2);
 }
+// end evaluations: the complexity, trust and utility blocks swap places; nothing else moves
+for (const [cond, stage] of [[1, "elaboration"], [5, "evidence"]]) for (const mode of ["pilot", "main"]) {
+  const canon = questionPages(stage, cond, mode);
+  const blocks = ["complexity", "trust", "utility"];
+  const where = `randomization, end evaluations (cond ${cond}, ${mode})`;
+  roughlyEven(where, tally(() => {
+    const r = randomizePages(canon);
+    const keys = r.pages.map((p) => p.key);
+    // (a screen key can occur twice in a stage, so other screens are compared by position)
+    r.pages.forEach((p, k) => {
+      const ref = blocks.includes(p.key) ? canon.find((x) => x.key === p.key) : canon[k];
+      if (p.items.map((q) => q.id).join() !== ref.items.map((q) => q.id).join()) fail(where, `order inside ${p.key} changed`);
+    });
+    // the three blocks stay in the same three places, and every other screen keeps its place
+    canon.forEach((p, k) => { if (blocks.includes(p.key) ? !blocks.includes(keys[k]) : keys[k] !== p.key) fail(where, `screen ${k + 1} (${p.key}) moved`); });
+    if (r.orders.order_final_blocks !== keys.filter((k) => blocks.includes(k)).join(",")) fail(where, "recorded order differs from the order used");
+    return r.orders.order_final_blocks;
+  }), 6);
+}
 // no randomization anywhere else
-for (const cond of [1, 5]) for (const stage of ["planet", "evidence", "elaboration"]) {
+for (const [cond, stage] of [[1, "planet"], [1, "evidence"], [5, "planet"], [5, "elaboration"]]) {
   const canon = questionPages(stage, cond, "pilot");
   const r = randomizePages(canon);
   same(`randomization, ${stage} (cond ${cond})`, "order", JSON.stringify(r.pages), JSON.stringify(canon));

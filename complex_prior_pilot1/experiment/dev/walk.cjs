@@ -31,7 +31,7 @@ const shotDir = path.join(__dirname, "shots");
   const browser = await chromium.launch(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {});
   const problems = [];
   let runs = 0;
-  const orders = { planet: new Set(), goal: new Set(), relevance: new Set() };   // randomized orders seen across runs
+  const orders = { planet: new Set(), final: new Set(), goal: new Set(), relevance: new Set() };   // randomized orders seen across runs
   const scrolled = new Set();                                                    // scenario pages that did not fit the window
 
   async function run({ cond, mode, fig, surprise, checks = "correct", shots = false, clickSetup = false }) {
@@ -87,17 +87,24 @@ const shotDir = path.join(__dirname, "shots");
     // question screens: the script's order, except where the script says the order is random
     const canon = stages.flatMap((s) => content.questionPages(s, cond, mode).map((p) => ({ stage: s, key: p.key, ids: p.items.map((q) => q.id) })));
     const gotPages = data.filter((r) => r.task === "questions").map((r) => ({ stage: r.stage, key: r.page, ids: JSON.parse(r.item_ids) }));
-    // put the randomized parts back into script order before comparing
+    // put the randomized parts back into script order before comparing: the two
+    // planet blocks, the three end-evaluation blocks, and the relevance questions
+    const GROUPS = [["planet_complexity", "planet_understanding"], ["complexity", "trust", "utility"]];
     const unshuffle = (pages) => {
       const out = pages.map((p) => ({ ...p, ids: p.key === "goal" ? ["team_goal", ...p.ids.filter((x) => x !== "team_goal").sort()] : p.ids }));
-      const k = out.findIndex((p) => p.key.startsWith("planet_"));
-      if (k >= 0 && out[k + 1] && out[k].key > out[k + 1].key) [out[k], out[k + 1]] = [out[k + 1], out[k]];
+      GROUPS.forEach((group) => {
+        const at = out.map((p, k) => (group.includes(p.key) ? k : -1)).filter((k) => k >= 0);
+        const sorted = at.map((k) => out[k]).sort((a, b) => group.indexOf(a.key) - group.indexOf(b.key));
+        at.forEach((k, n) => { out[k] = sorted[n]; });
+      });
       return out;
     };
     expect("question screens", unshuffle(gotPages), unshuffle(canon));
     // the recorded orders are the orders that were shown
     expect("order_planet_blocks", last.order_planet_blocks, gotPages.filter((p) => p.key.startsWith("planet_")).map((p) => p.key).join(","));
     orders.planet.add(last.order_planet_blocks);
+    expect("order_final_blocks", last.order_final_blocks, gotPages.filter((p) => GROUPS[1].includes(p.key)).map((p) => p.key).join(","));
+    orders.final.add(last.order_final_blocks);
     const goalRow = data.filter((r) => r.task === "questions").flatMap((r) => JSON.parse(r.responses)).find((a) => a.id === "team_goal");
     const goalItem = content.questions("explanation1", cond).find((q) => q.id === "team_goal");
     expect("team_goal_option_order", last.team_goal_option_order, goalRow.option_order.map((k) => goalItem.options[k]).join(" | "));

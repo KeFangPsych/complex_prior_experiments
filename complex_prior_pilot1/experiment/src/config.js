@@ -38,7 +38,7 @@ export const PROLIFIC = {
 // page is drawn (and in the consent PDF), so the script keeps the placeholders.
 // ============================================================================
 export const STUDY = {
-  title: "Planet Settlement Study",   // shown to participants (eyebrow, browser tab)
+  title: "Decision-Making Study",     // shown to participants (browser tab, end screens)
   minutes: "XX",                      // REPLACE, e.g. "12"
   payment: "$X",                      // REPLACE, e.g. "$2.50"
 };
@@ -47,7 +47,7 @@ export const fillStudyValues = (text) => text.replace(/\bXX\b/g, STUDY.minutes).
 
 export const CONFIG = {
   experiment_name: "complex_prior_pilot1_vignette1",
-  experiment_version: "0.2.0",
+  experiment_version: "0.3.0",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.
@@ -78,10 +78,10 @@ export const CONFIG = {
 // TEXT AROUND THE SCENARIO. Plain text; **double asterisks** mark bold.
 // ============================================================================
 export const WELCOME = {
-  title: "A scenario on another planet",
+  title: "Decision-Making Study",
   paragraphs: [
-    "In this study you will read about a scenario that takes place on another planet. It is presented in **five parts**, each with a short text and a picture. After each part you will answer questions about it.",
-    "**Please act as if the scenario is true**, and take it as seriously as you would a real situation.",
+    "In this study you will read about a hypothetical scenario. It is presented in **five parts**, each with a short text and a picture. After each part you will answer questions about it.",
+    "We are interested in what decisions you will make in the scenario, so **please act as if the scenario is true**, and make your decisions as you would in real life.",
     "The study takes about XX minutes. Please complete it in one sitting, in full-screen mode, without switching to other windows.",
   ],
 };
@@ -91,8 +91,8 @@ export const INSTRUCTIONS = {
   bullets: [
     "Each part has a **short text and a picture**. Please read the text and look at the picture carefully.",
     "After each part you will answer questions about the text you read and the picture you saw. The text and the picture are **not shown while you answer**, and you **cannot go back** to earlier parts.",
-    "Some questions ask what you remember from the scenario; please try to answer them correctly.",
-    "Other questions may ask for your own judgment; for those, there are no right or wrong answers.",
+    "Some questions ask what you **remember from the scenario**; please try to answer them correctly.",
+    "Other questions may ask for **your own judgment**; for those, there are no right or wrong answers.",
   ],
 };
 
@@ -113,7 +113,7 @@ export const DEBRIEF = {
 export const CONSENT = {
   title: "Informed Consent",
   sections: [
-    { label: "Purpose of the research", text: "To understand more about individuals' understanding and evaluation of explanations from other people. This study will specifically ask participants to read, understand and evaluate explanations in a hypothetical setting." },
+    { label: "Purpose of the research", text: "To understand more about how individuals evaluate explanations from other people and make decisions. This study will specifically ask participants to read, understand and evaluate explanations in a hypothetical setting." },
     { label: "Procedures", text: "Participation in this study will involve answering a series of questions in an online survey. This study is being conducted online using a web browser and internet." },
     { label: "Time required", text: "This survey will take about XX mins. The task will last the amount of time advertised on Prolific. You are free to withdraw from the study at any time." },
     { label: "Compensation", text: "You will receive a payment of $X for completing this study. If you do not complete this study or fail to answer most of the attention checks, compensation may not be granted." },

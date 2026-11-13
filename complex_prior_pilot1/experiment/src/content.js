@@ -77,8 +77,8 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
 
   if (stage === "planet") {
     return { pages: [page([
-      "Scientists are planning a place for people to live on an alien planet. The planet has water, air, and some small living things called organisms.",
-      "Scientists have closely studied the planet and its living things and understand them very well.",
+      "Scientists are planning a place for people to live on an alien planet. The planet has water, air, and some small living things called **organisms**.",
+      "Scientists have closely studied the planet and its living things and **understand them very well**.",
     ], `${IMG}1_planet_scene.png`,
     "Two people in space suits look over a planet with water and red rocks. An inset shows small organisms.", "side")] };
   }
@@ -86,11 +86,11 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
   if (stage === "complexity") {
     const low = c.complexity === "low";
     return { pages: [page([
-      `Scientists found that biological processes (the ways living things work) on this planet are usually ${low ? "simple" : "complex"}.`,
+      `Scientists found that biological processes (the ways living things work) on this planet are **usually ${low ? "simple" : "complex"}**.`,
       low
-        ? "These processes usually involve a few chemical reactions and only a few factors that affect what happens. The factors affect each other in limited ways. The effect of one factor usually stays the same, even when other factors change."
-        : "These processes usually involve many chemical reactions and many different factors that affect what happens. The factors affect each other in complicated ways. The effect of one factor often changes when other factors change.",
-      "Scientists have studied these processes in detail for many years. They understand them very well.",
+        ? "These processes usually involve **a few chemical reactions** and **only a few factors** that affect what happens. The factors affect each other in **limited ways**. The effect of one factor **usually stays the same**, even when other factors change."
+        : "These processes usually involve **many chemical reactions** and **many different factors** that affect what happens. The factors affect each other in **complicated ways**. The effect of one factor **often changes** when other factors change.",
+      "Scientists have studied these processes in detail for many years. They **understand them very well**.",
     ], `${IMG}2_${low ? "low" : "high"}_complex.png`,
     low
       ? "Diagram of the planet's biology: a few elements, simple chemistry and simple organisms, with few links between them."
@@ -100,13 +100,13 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
   if (stage === "explanation1") {
     return { pages: [
       page([
-        "A construction team is building apartments on this planet. The construction team needs technology that can produce heat to keep apartments warm. The planet has four seasons: warm, cool, moderately cold, and extremely cold.",
-        "An energy company suggests one of its technologies that uses a small organism found on the planet. Scientists found that this organism is typical of other organisms on the planet in terms of how simple or complex it is.",
-        "The company understands very well how the organism works because it has closely studied the organism with scientists.",
+        "A construction team is building apartments on this planet. The construction team needs technology that can **produce heat to keep apartments warm**. The planet has **four seasons**: warm, cool, moderately cold, and extremely cold.",
+        "An energy company suggests one of its technologies that uses a **small organism** found on the planet. Scientists found that this organism is **typical of other organisms on the planet** in terms of how simple or complex it is.",
+        "The company **understands very well how the organism works** because it has closely studied the organism with scientists.",
       ]),
       page([
-        "The company explains the process that the technology relies on. In this process, the organism uses a certain gas from the air to produce heat and a purple substance called a pigment. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. When more of this gas is available, the organism produces more heat and more purple pigment.",
-        "The company also explains that the planet's air holds more of this gas when the weather is colder. So in colder weather, there is more gas around the organism.",
+        "The company explains the process that the technology relies on. In this process, the organism uses a certain **gas** from the air to produce **heat** and a purple substance called a **pigment**. More pigment makes the organism look more purple. The pigment is harmless and has **no known practical use**. When **more of this gas** is available, the organism produces **more heat and more purple pigment**.",
+        "The company also explains that the planet's air holds more of this gas when the weather is colder. So **in colder weather, there is more gas** around the organism.",
       ], `${IMG}3_explanation1.png`,
       "The company explains: with more gas, the organism can produce more heat and more purple pigment. Colder weather means more gas in the air.", "stacked"),
     ] };
@@ -117,11 +117,11 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
     const s = evidenceFirst && surpriseText;
     return { pages: [page([
       "Before deciding whether to use the technology, the construction team gets a sample of the organism from the company.",
-      "The team mainly wants to know if the organism can produce heat as explained.",
-      "The team tests the sample in a laboratory at four temperatures matching the average temperatures of the seasons. During the tests, more of the gas is available when it is colder, just as on the planet.",
-      "As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment." + (s ? " This is expected." : ""),
-      `When it is extremely cold, the organism still produces more ${other}` + (s ? ", as expected" : "") +
-        `. But it produces less ${anom} than when it is moderately cold.` +
+      "The team **mainly wants to know if the organism can produce heat** as explained.",
+      "The team tests the sample in a laboratory at four temperatures matching the average temperatures of the seasons. During the tests, **more of the gas is available when it is colder**, just as on the planet.",
+      "As it gets colder, from warm to cool to moderately cold, the organism produces **more heat and more purple pigment**." + (s ? " This is expected." : ""),
+      `When it is **extremely cold**, the organism still produces **more ${other}**` + (s ? ", as expected" : "") +
+        `. But it produces **less ${anom}** than when it is moderately cold.` +
         (s ? " This is unexpected, because more gas is available for the organism to use." : ""),
     ], `${IMG}4_evidence_${c.anomaly}_anomaly${figureVersion === "line" ? "_line" : ""}.png`,
     "Laboratory observations at four temperatures, from warm to extremely cold: gas available, organism color and heat output.", "stacked")] };
@@ -130,11 +130,11 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
   if (stage === "elaboration") {
     return { pages: [page([
       ...(evidenceFirst ? ["The construction team asks the company about this unexpected result."] : []),
-      `The company ${evidenceFirst ? "explains" : "further explains"} that even smaller living things called algae live inside the organism. The organism can produce ${anom} only with the help of the algae.`,
-      `The algae need liquid water to stay active. When they are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.`,
+      `The company ${evidenceFirst ? "explains" : "further explains"} that even smaller living things called **algae** live inside the organism. The organism can produce **${anom} only with the help of the algae**.`,
+      `The algae **need liquid water to stay active**. When they are active, more gas leads them to produce more ${anom}. When there is **too little liquid water**, they become **less active and produce less ${anom}**.`,
       `As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more ${anom}.`,
-      `But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less ${anom}, even though more gas is available.`,
-      `The organism produces ${other} on its own, without the algae. So it keeps producing more ${other} as the weather gets colder.`,
+      `But when it is **extremely cold**, most of the **water** available to the algae **freezes**. As a result, the algae become less active and **produce less ${anom}**, even though more gas is available.`,
+      `The organism produces **${other} on its own, without the algae**. So it keeps producing more ${other} as the weather gets colder.`,
     ], `${IMG}5_explanation2_${c.anomaly}_anomaly.png`,
     "The company explains what happens inside the organism when it is moderately cold and when it is extremely cold.", "stacked")] };
   }
@@ -173,8 +173,10 @@ function predictionItems() {
   ];
 }
 
-// Primary and secondary measures asked after the last stage, in both orders.
+// Primary and secondary measures asked after the last stage, in both orders. The
+// complexity, trust and utility blocks (one screen each) come in random order.
 function finalMeasures() {
+  const blocks = ["complexity", "trust", "utility"];
   return [
     likert("complexity_overall", "main", "Complexity (primary)", "complexity",
       "How simple or complex is the way this organism works?", "Very simple", "Very complex"),
@@ -196,7 +198,7 @@ function finalMeasures() {
       "How well does the company's explanation about the algae explain the test results?", "Not well at all", "Very well"),
     likert("expl2_real_reason", "main", "Further measure: explanation 2 evaluations", "explanation2",
       "How likely is it that the algae processes are the real reason for the test results when it was extremely cold?", "Very unlikely", "Very likely"),
-  ];
+  ].map((q) => (blocks.includes(q.page) ? { ...q, pageShuffle: "final_blocks" } : q));
 }
 
 function observedItems(c) {
@@ -358,7 +360,12 @@ export function questionPages(stage, cond, mode) {
  * check:script compares these with the script, so a randomization cannot be added
  * here (or in the script) without the other.
  */
-export function orderNotes(stage) {
+export function orderNotes(stage, cond) {
+  // the end evaluations follow the last stage: elaboration when the evidence came first, evidence otherwise
+  const lastStage = STAGE_SEQUENCE[CONDITIONS[cond].order][4];
+  if (stage === lastStage) {
+    return ["The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table."];
+  }
   if (stage === "complexity") {
     return ["The two question blocks (perceived complexity, perceived scientific understanding) are shown in random order. The order of the questions within a block is fixed. In the main study each block has one question, so this randomizes the order of the two questions."];
   }

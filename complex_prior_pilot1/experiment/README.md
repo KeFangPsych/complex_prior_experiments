@@ -64,6 +64,19 @@ npm run build
 npm run preview
 ```
 
+## Online version (GitHub Pages)
+
+Every push to `main` that touches `complex_prior_pilot1/` rebuilds the experiment
+and publishes it (workflow `.github/workflows/deploy-pages.yml`; it runs
+`npm run check:script` first and does not publish if that fails):
+
+- participant version: <https://kefangpsych.github.io/complex_prior_experiments/pilot1_vignette1/>
+- testing mode: <https://kefangpsych.github.io/complex_prior_experiments/pilot1_vignette1/?debug=1>
+
+One-time setup in the repository: Settings → Pages → Build and deployment →
+Source: **GitHub Actions**. Until DataPipe is enabled nothing is uploaded; the
+last screen offers the data as a CSV download instead.
+
 ## Files
 
 | file | role |
@@ -124,15 +137,19 @@ random. `condition_source` records which: `datapipe`, `random`,
 preload → one instruction page → five parts → optional comments → save →
 debrief. Each part is one **scenario screen** (two in part 3; Continue locked for
 `CONFIG.scenario_lock_seconds`) followed by its **question screens**. The
-consent page has a **Save a copy (PDF)** button, which also works with the
-safeguards on.
+consent form is shown in full (the page scrolls only if the window is too short
+for it) and has a **Save a copy (PDF)** button, which also works with the
+safeguards on. Key phrases of the scenario text are bold, as marked with
+`**…**` in the script.
 
 **Randomized order.** As the script's "Presentation order" notes say: in part 2
 the two question blocks (perceived complexity, perceived scientific
 understanding) come in random order; in part 3 the answer options of the
 construction team's goal question are shuffled with "I don't remember" kept last,
-and the two relevance questions come in random order. Everything else follows
-the order of the script's tables.
+and the two relevance questions come in random order; in the end evaluations
+after part 5 the complexity, source-trust and utility blocks come in random
+order. The order within a block is fixed, and everything else follows the order
+of the script's tables.
 
 **Page layout.** Parts 1 and 2 show the text on the left and the picture on the
 right. Part 3 is two pages: text only, then text above the picture. Parts 4 and 5
@@ -161,8 +178,8 @@ and 21.
 - No feedback is given on the memory questions and nobody is screened out;
   correctness is recorded only.
 - The stepper shows neutral labels (Part 1 … Part 5).
-- The study title shown to participants ("Planet Settlement Study") is set in
-  `src/config.js`.
+- The title in the browser tab and on the end screens ("Decision-Making Study")
+  is `STUDY.title` in `src/config.js`.
 
 ## Integrity measures
 
@@ -202,6 +219,7 @@ Other participant-level columns: `subject_id`, `prolific_pid`, `study_id`,
 `general_feedback`, `completion_status`, `debug_mode`, `nofs_mode`, `safeguards`, and the
 integrity counters above. The random orders that were drawn are recorded in
 `order_planet_blocks` (for example `planet_understanding,planet_complexity`),
+`order_final_blocks` (for example `trust,complexity,utility`),
 `order_relevance` (pilot mode) and `team_goal_option_order` (the options as
 displayed, separated by ` | `). `response_index` and `<id>_correct` always refer
 to the option's position in the script, not on the screen.

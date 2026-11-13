@@ -23,11 +23,11 @@ The materials are called a "scenario" throughout; the word "story" is not shown 
 
 ## **Welcome screen (all conditions)**
 
-**A scenario on another planet**
+**Decision-Making Study**
 
-In this study you will read about a scenario that takes place on another planet. It is presented in **five parts**, each with a short text and a picture. After each part you will answer questions about it.
+In this study you will read about a hypothetical scenario. It is presented in **five parts**, each with a short text and a picture. After each part you will answer questions about it.
 
-**Please act as if the scenario is true**, and take it as seriously as you would a real situation.
+We are interested in what decisions you will make in the scenario, so **please act as if the scenario is true**, and make your decisions as you would in real life.
 
 The study takes about XX minutes. Please complete it in one sitting, in full-screen mode, without switching to other windows.
 
@@ -37,7 +37,7 @@ The study takes about XX minutes. Please complete it in one sitting, in full-scr
 
 **Informed Consent**
 
-**Purpose of the research:** To understand more about individuals' understanding and evaluation of explanations from other people. This study will specifically ask participants to read, understand and evaluate explanations in a hypothetical setting.
+**Purpose of the research:** To understand more about how individuals evaluate explanations from other people and make decisions. This study will specifically ask participants to read, understand and evaluate explanations in a hypothetical setting.
 
 **Procedures:** Participation in this study will involve answering a series of questions in an online survey. This study is being conducted online using a web browser and internet.
 
@@ -61,14 +61,14 @@ The study takes about XX minutes. Please complete it in one sitting, in full-scr
 
 * Each part has a **short text and a picture**. Please read the text and look at the picture carefully.
 * After each part you will answer questions about the text you read and the picture you saw. The text and the picture are **not shown while you answer**, and you **cannot go back** to earlier parts.
-* Some questions ask what you remember from the scenario; please try to answer them correctly.
-* Other questions may ask for your own judgment; for those, there are no right or wrong answers.
+* Some questions ask what you **remember from the scenario**; please try to answer them correctly.
+* Other questions may ask for **your own judgment**; for those, there are no right or wrong answers.
 
 ## **Stage 1: Common planet introduction (all conditions)**
 
-Scientists are planning a place for people to live on an alien planet. The planet has water, air, and some small living things called organisms.
+Scientists are planning a place for people to live on an alien planet. The planet has water, air, and some small living things called **organisms**.
 
-Scientists have closely studied the planet and its living things and understand them very well.
+Scientists have closely studied the planet and its living things and **understand them very well**.
 
 *Figure: vignette1\_img1\_planet\_scene.png*
 
@@ -76,21 +76,21 @@ Scientists have closely studied the planet and its living things and understand 
 
 ### **Low-complexity condition (cond 1, 2, 5, 6\)**
 
-Scientists found that biological processes (the ways living things work) on this planet are usually simple.
+Scientists found that biological processes (the ways living things work) on this planet are **usually simple**.
 
-These processes usually involve a few chemical reactions and only a few factors that affect what happens. The factors affect each other in limited ways. The effect of one factor usually stays the same, even when other factors change.
+These processes usually involve **a few chemical reactions** and **only a few factors** that affect what happens. The factors affect each other in **limited ways**. The effect of one factor **usually stays the same**, even when other factors change.
 
-Scientists have studied these processes in detail for many years. They understand them very well.
+Scientists have studied these processes in detail for many years. They **understand them very well**.
 
 *Figure: vignette1\_img2\_low\_complex.png*
 
 ### **High-complexity condition (cond 3, 4, 7, 8\)**
 
-Scientists found that biological processes (the ways living things work) on this planet are usually complex.
+Scientists found that biological processes (the ways living things work) on this planet are **usually complex**.
 
-These processes usually involve many chemical reactions and many different factors that affect what happens. The factors affect each other in complicated ways. The effect of one factor often changes when other factors change.
+These processes usually involve **many chemical reactions** and **many different factors** that affect what happens. The factors affect each other in **complicated ways**. The effect of one factor **often changes** when other factors change.
 
-Scientists have studied these processes in detail for many years. They understand them very well.
+Scientists have studied these processes in detail for many years. They **understand them very well**.
 
 *Figure: vignette1\_img2\_high\_complex.png*
 
@@ -111,17 +111,17 @@ Presentation order:
 
 ## **Stage 3: Common explanation 1 (all conditions)**
 
-A construction team is building apartments on this planet. The construction team needs technology that can produce heat to keep apartments warm. The planet has four seasons: warm, cool, moderately cold, and extremely cold.
+A construction team is building apartments on this planet. The construction team needs technology that can **produce heat to keep apartments warm**. The planet has **four seasons**: warm, cool, moderately cold, and extremely cold.
 
-An energy company suggests one of its technologies that uses a small organism found on the planet. Scientists found that this organism is typical of other organisms on the planet in terms of how simple or complex it is.
+An energy company suggests one of its technologies that uses a **small organism** found on the planet. Scientists found that this organism is **typical of other organisms on the planet** in terms of how simple or complex it is.
 
-The company understands very well how the organism works because it has closely studied the organism with scientists.
+The company **understands very well how the organism works** because it has closely studied the organism with scientists.
 
 *Page break*
 
-The company explains the process that the technology relies on. In this process, the organism uses a certain gas from the air to produce heat and a purple substance called a pigment. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. When more of this gas is available, the organism produces more heat and more purple pigment.
+The company explains the process that the technology relies on. In this process, the organism uses a certain **gas** from the air to produce **heat** and a purple substance called a **pigment**. More pigment makes the organism look more purple. The pigment is harmless and has **no known practical use**. When **more of this gas** is available, the organism produces **more heat and more purple pigment**.
 
-The company also explains that the planet's air holds more of this gas when the weather is colder. So in colder weather, there is more gas around the organism.
+The company also explains that the planet's air holds more of this gas when the weather is colder. So **in colder weather, there is more gas** around the organism.
 
 *Figure: vignette1\_img3\_explanation1.png*
 
@@ -158,23 +158,23 @@ Presentation order:
 
 Before deciding whether to use the technology, the construction team gets a sample of the organism from the company.
 
-The team mainly wants to know if the organism can produce heat as explained.
+The team **mainly wants to know if the organism can produce heat** as explained.
 
-The team tests the sample in a laboratory at four temperatures matching the average temperatures of the seasons. During the tests, more of the gas is available when it is colder, just as on the planet.
+The team tests the sample in a laboratory at four temperatures matching the average temperatures of the seasons. During the tests, **more of the gas is available when it is colder**, just as on the planet.
 
 ### **High-goal-relevance condition (heat anomaly, cond 1, 3\)**
 
-As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment. <ins>This is expected.</ins>
+As it gets colder, from warm to cool to moderately cold, the organism produces **more heat and more purple pigment**. <ins>This is expected.</ins>
 
-When it is extremely cold, the organism still produces more purple pigment<ins>, as expected</ins>. But it produces less heat than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins>
+When it is **extremely cold**, the organism still produces **more purple pigment**<ins>, as expected</ins>. But it produces **less heat** than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins>
 
 *Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
 ### **Low-goal-relevance condition (color anomaly, cond 2, 4\)**
 
-As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment. <ins>This is expected.</ins>
+As it gets colder, from warm to cool to moderately cold, the organism produces **more heat and more purple pigment**. <ins>This is expected.</ins>
 
-When it is extremely cold, the organism still produces more heat<ins>, as expected</ins>. But it produces less purple pigment than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins>
+When it is **extremely cold**, the organism still produces **more heat**<ins>, as expected</ins>. But it produces **less purple pigment** than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins>
 
 *Figure: vignette1\_img4\_evidence\_color\_anomaly.png* or *vignette1\_img4\_evidence\_color\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
@@ -200,29 +200,29 @@ The construction team asks the company about this unexpected result.
 
 ### **High-goal-relevance condition (heat anomaly, cond 1, 3\)**
 
-The company explains that even smaller living things called algae live inside the organism. The organism can produce heat only with the help of the algae.
+The company explains that even smaller living things called **algae** live inside the organism. The organism can produce **heat only with the help of the algae**.
 
-The algae need liquid water to stay active. When they are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
+The algae **need liquid water to stay active**. When they are active, more gas leads them to produce more heat. When there is **too little liquid water**, they become **less active and produce less heat**.
 
 As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more heat.
 
-But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less heat, even though more gas is available.
+But when it is **extremely cold**, most of the **water** available to the algae **freezes**. As a result, the algae become less active and **produce less heat**, even though more gas is available.
 
-The organism produces purple pigment on its own, without the algae. So it keeps producing more purple pigment as the weather gets colder.
+The organism produces **purple pigment on its own, without the algae**. So it keeps producing more purple pigment as the weather gets colder.
 
 *Figure: vignette1\_img5\_explanation2\_heat\_anomaly.png*
 
 ### **Low-goal-relevance condition (color anomaly, cond 2, 4\)**
 
-The company explains that even smaller living things called algae live inside the organism. The organism can produce purple pigment only with the help of the algae.
+The company explains that even smaller living things called **algae** live inside the organism. The organism can produce **purple pigment only with the help of the algae**.
 
-The algae need liquid water to stay active. When they are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
+The algae **need liquid water to stay active**. When they are active, more gas leads them to produce more purple pigment. When there is **too little liquid water**, they become **less active and produce less purple pigment**.
 
 As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more purple pigment.
 
-But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less purple pigment, even though more gas is available.
+But when it is **extremely cold**, most of the **water** available to the algae **freezes**. As a result, the algae become less active and **produce less purple pigment**, even though more gas is available.
 
-The organism produces heat on its own, without the algae. So it keeps producing more heat as the weather gets colder.
+The organism produces **heat on its own, without the algae**. So it keeps producing more heat as the weather gets colder.
 
 *Figure: vignette1\_img5\_explanation2\_color\_anomaly.png*
 
@@ -258,33 +258,37 @@ The organism produces heat on its own, without the algae. So it keeps producing 
 | Pilot | Alternative measure of causal knowledge: explain the continuing increase, color anomaly version (cond 2, 4\) | Why does the organism keep producing more heat when it is extremely cold? (Open response) |
 | Pilot | Knowledge check | How likely is it that the company already knew about the algae when it first explained the organism? (1 \= Very unlikely; 7 \= Very likely) |
 
+Presentation order:
+
+* The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table.
+
 ## **Stage 4, elaboration-first conditions (cond 5, 6, 7, 8): Elaboration (explanation 2)**
 
 ### **High-goal-relevance condition (heat anomaly, cond 5, 7\)**
 
-The company further explains that even smaller living things called algae live inside the organism. The organism can produce heat only with the help of the algae.
+The company further explains that even smaller living things called **algae** live inside the organism. The organism can produce **heat only with the help of the algae**.
 
-The algae need liquid water to stay active. When they are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
+The algae **need liquid water to stay active**. When they are active, more gas leads them to produce more heat. When there is **too little liquid water**, they become **less active and produce less heat**.
 
 As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more heat.
 
-But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less heat, even though more gas is available.
+But when it is **extremely cold**, most of the **water** available to the algae **freezes**. As a result, the algae become less active and **produce less heat**, even though more gas is available.
 
-The organism produces purple pigment on its own, without the algae. So it keeps producing more purple pigment as the weather gets colder.
+The organism produces **purple pigment on its own, without the algae**. So it keeps producing more purple pigment as the weather gets colder.
 
 *Figure: vignette1\_img5\_explanation2\_heat\_anomaly.png*
 
 ### **Low-goal-relevance condition (color anomaly, cond 6, 8\)**
 
-The company further explains that even smaller living things called algae live inside the organism. The organism can produce purple pigment only with the help of the algae.
+The company further explains that even smaller living things called **algae** live inside the organism. The organism can produce **purple pigment only with the help of the algae**.
 
-The algae need liquid water to stay active. When they are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
+The algae **need liquid water to stay active**. When they are active, more gas leads them to produce more purple pigment. When there is **too little liquid water**, they become **less active and produce less purple pigment**.
 
 As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more purple pigment.
 
-But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less purple pigment, even though more gas is available.
+But when it is **extremely cold**, most of the **water** available to the algae **freezes**. As a result, the algae become less active and **produce less purple pigment**, even though more gas is available.
 
-The organism produces heat on its own, without the algae. So it keeps producing more heat as the weather gets colder.
+The organism produces **heat on its own, without the algae**. So it keeps producing more heat as the weather gets colder.
 
 *Figure: vignette1\_img5\_explanation2\_color\_anomaly.png*
 
@@ -311,23 +315,23 @@ The organism produces heat on its own, without the algae. So it keeps producing 
 
 Before deciding whether to use the technology, the construction team gets a sample of the organism from the company.
 
-The team mainly wants to know if the organism can produce heat as explained.
+The team **mainly wants to know if the organism can produce heat** as explained.
 
-The team tests the sample in a laboratory at four temperatures matching the average temperatures of the seasons. During the tests, more of the gas is available when it is colder, just as on the planet.
+The team tests the sample in a laboratory at four temperatures matching the average temperatures of the seasons. During the tests, **more of the gas is available when it is colder**, just as on the planet.
 
 ### **High-goal-relevance condition (heat anomaly, cond 5, 7\)**
 
-As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment.
+As it gets colder, from warm to cool to moderately cold, the organism produces **more heat and more purple pigment**.
 
-When it is extremely cold, the organism still produces more purple pigment. But it produces less heat than when it is moderately cold.
+When it is **extremely cold**, the organism still produces **more purple pigment**. But it produces **less heat** than when it is moderately cold.
 
 *Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
 ### **Low-goal-relevance condition (color anomaly, cond 6, 8\)**
 
-As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment.
+As it gets colder, from warm to cool to moderately cold, the organism produces **more heat and more purple pigment**.
 
-When it is extremely cold, the organism still produces more heat. But it produces less purple pigment than when it is moderately cold.
+When it is **extremely cold**, the organism still produces **more heat**. But it produces **less purple pigment** than when it is moderately cold.
 
 *Figure: vignette1\_img4\_evidence\_color\_anomaly.png* or *vignette1\_img4\_evidence\_color\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
@@ -360,6 +364,10 @@ When it is extremely cold, the organism still produces more heat. But it produce
 | Pilot | Anomaly relevance, heat anomaly version (cond 5, 7\) | The organism produces less heat when it is extremely cold. How much does this matter for the team's goal of keeping apartments warm? (1 \= Not at all; 7 \= Very much) |
 | Pilot | Anomaly relevance, color anomaly version (cond 6, 8\) | The organism produces less purple pigment when it is extremely cold. How much does this matter for the team's goal of keeping apartments warm? (1 \= Not at all; 7 \= Very much) |
 | Pilot | Company knowledge | How well does the company understand how the organism works? (1 \= Not well at all; 7 \= Very well) |
+
+Presentation order:
+
+* The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table.
 
 ## **Final comments (all conditions)**
 
