@@ -23,10 +23,15 @@ export const state = {
   // "pilot" (all questions) | "main" (Main only). Fixed by CONFIG.mode for
   // participants; in testing mode it is chosen on the test-setup screen.
   mode: flag("mode", ["pilot", "main"]) || CONFIG.mode,
+  // Safeguards: fullscreen, viewport lock, blocked text selection / copy / paste /
+  // context menu / devtools shortcuts, and the leave-page warning. Always on for
+  // participants; off in testing mode unless switched on on the test-setup screen.
+  safeguards: !DEBUG || urlParams.get("safeguards") === "1",
   // read-locks on the instruction and story pages (off by default in testing mode)
   locks: !DEBUG || urlParams.get("locks") === "1",
   // testing mode: what the tester fixed on the test-setup screen (null = assign as
-  // usual). The URL flags ?cond= ?fig= ?surprise= ?mode= ?locks=1 prefill that screen.
+  // usual). The URL flags ?cond= ?fig= ?surprise= ?mode= ?locks=1 ?safeguards=1
+  // prefill that screen.
   test: {
     cond: DEBUG && CONDITIONS[parseInt(urlParams.get("cond"))] ? parseInt(urlParams.get("cond")) : null,
     figureVersion: flag("fig", ["table", "line"]),
@@ -53,6 +58,9 @@ export const state = {
   totalSteps: 30,
   saveFailed: false,
 };
+
+/** Whether fullscreen and the viewport lock apply right now. */
+export const fullscreenRequired = () => state.safeguards && !NOFS;
 
 // Integrity counters; written to the data at the end (see integrityProps).
 export const integrity = {

@@ -8,8 +8,10 @@
  * Checks: consent enters fullscreen; leaving it shows the blocking overlay and
  * returning hides it; the instruction and story pages are read-locked; a question
  * screen cannot be submitted until every item is answered; an open response
- * needs the minimum length; the context menu is blocked; the viewport lock and
- * the mobile block appear. Takes about 30 s because it waits out the read-locks.
+ * needs the minimum length; the context menu, text selection and copy are
+ * blocked; the viewport lock and the mobile block appear. It also checks testing
+ * mode (?debug=1): all of those safeguards are off unless switched on on the
+ * test-setup screen. Takes about 30 s because it waits out the read-locks.
  * Needs Playwright (see dev/walk.cjs).
  */
 const { chromium, devices } = require("playwright");
@@ -89,6 +91,50 @@ const BASE = process.env.BASE_URL || "http://localhost:8765";
   check("leave-page warning is armed", await page.evaluate(() => typeof window.onbeforeunload() === "string"));
   check("no page errors", errors.length === 0, errors.join("; "));
   await page.close();
+
+  // ---- 1b. participant view: text cannot be selected or copied ----
+  const copyAllowed = () => document.dispatchEvent(new ClipboardEvent("copy", { cancelable: true, bubbles: true }));
+  const selectable = () => getComputedStyle(document.querySelector(".card p")).userSelect !== "none";
+  const pp = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  await pp.goto(`${BASE}/`);
+  await pp.waitForSelector("#card-btn");
+  check("participants: no test-setup screen", (await pp.locator("#setup-start").count()) === 0);
+  check("participants: text cannot be selected", !(await pp.evaluate(selectable)));
+  check("participants: copy is blocked", !(await pp.evaluate(copyAllowed)));
+  await pp.close();
+
+  // ---- 1c. testing mode: safeguards off by default, on when chosen ----
+  const pt = await browser.newPage({ viewport: { width: 900, height: 560 } });   // below the minimum window size
+  await pt.goto(`${BASE}/?debug=1`);
+  await pt.waitForSelector("#setup-start");
+  await pt.click("#setup-start");
+  await pt.waitForSelector("#card-btn");
+  check("testing: text can be selected", await pt.evaluate(selectable));
+  check("testing: copy is allowed", await pt.evaluate(copyAllowed));
+  check("testing: paste is allowed", await pt.evaluate(() => document.dispatchEvent(new ClipboardEvent("paste", { cancelable: true, bubbles: true }))));
+  check("testing: context menu is allowed", await pt.evaluate(() => document.body.dispatchEvent(new MouseEvent("contextmenu", { cancelable: true, bubbles: true }))));
+  check("testing: no viewport lock in a small window", (await pt.locator("#viewport-lock-overlay").count()) === 0);
+  await pt.click("#card-btn");                                           // welcome
+  check("testing: consent does not mention full screen", !/full-screen/.test(await pt.textContent(".card")));
+  await pt.click("#card-btn");                                           // consent
+  await pt.waitForSelector(".eyebrow:text('Instructions')");
+  check("testing: consent does not enter fullscreen", !(await pt.evaluate(() => !!document.fullscreenElement)));
+  check("testing: no leave-page warning", await pt.evaluate(() => window.onbeforeunload() === undefined));
+  await pt.close();
+
+  const ps = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  await ps.goto(`${BASE}/?debug=1`);
+  await ps.waitForSelector("#setup-start");
+  await ps.locator('.setup-group[data-group="safeguards"] .opt[data-value="on"]').click();
+  await ps.click("#setup-start");
+  await ps.waitForSelector("#card-btn");
+  check("testing with safeguards on: copy is blocked", !(await ps.evaluate(copyAllowed)));
+  check("testing with safeguards on: text cannot be selected", !(await ps.evaluate(selectable)));
+  await ps.click("#card-btn");
+  await ps.click("#card-btn");
+  await ps.waitForSelector(".eyebrow:text('Instructions')");
+  check("testing with safeguards on: consent enters fullscreen", await ps.evaluate(() => !!document.fullscreenElement));
+  await ps.close();
 
   // ---- 2. viewport lock ----
   const p2 = await browser.newPage({ viewport: { width: 1280, height: 900 } });

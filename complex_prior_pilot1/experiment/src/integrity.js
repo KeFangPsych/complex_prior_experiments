@@ -5,7 +5,7 @@
  * analysis time (see integrityProps in state.js).
  */
 import { CONFIG } from "./config.js";
-import { state, integrity, NOFS } from "./state.js";
+import { state, integrity, fullscreenRequired } from "./state.js";
 
 function makeOverlay(id, inner) {
   let el = document.getElementById(id);
@@ -53,7 +53,7 @@ function onFullscreenChange() {
     hideFullscreenOverlay();
     return;
   }
-  if (NOFS || !state.consented || state.finished) return;
+  if (!fullscreenRequired() || !state.consented || state.finished) return;
   if (integrity.fullscreen_entered) {
     integrity.fullscreen_exit_count++;
     integrity.fullscreen_exit_log.push({ t: new Date().toISOString(), phase: state.phase });
@@ -63,7 +63,7 @@ function onFullscreenChange() {
 
 // ---- viewport ----
 export function checkViewport() {
-  if (NOFS || state.finished) return;
+  if (!fullscreenRequired() || state.finished) return;
   const min = CONFIG.min_viewport;
   const tooSmall = window.innerWidth < min.width || window.innerHeight < min.height;
   let el = document.getElementById("viewport-lock-overlay");
@@ -85,8 +85,11 @@ export function isMobileDevice() {
     (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
 }
 
-// ---- protections (production only) ----
-export function applyProductionProtections() {
+// ---- protections ----
+let protectionsApplied = false;
+function applyProductionProtections() {
+  if (protectionsApplied) return;
+  protectionsApplied = true;
   document.addEventListener("contextmenu", (e) => e.preventDefault());
   // copy / cut / paste are blocked everywhere, including the free-text boxes (typing only)
   ["copy", "cut", "paste"].forEach((ev) => document.addEventListener(ev, (e) => {
@@ -103,7 +106,21 @@ export function applyProductionProtections() {
   });
 }
 
-// ---- listeners that are always on ----
+/**
+ * Switches the safeguards on: text cannot be selected, copy / cut / paste, the
+ * context menu and devtools shortcuts are blocked, and the viewport lock applies.
+ * (Fullscreen is entered on consent; see fullscreenRequired in state.js.)
+ * Called at start for participants, and from the test-setup screen if the tester
+ * asks for it. In testing mode it is otherwise never called.
+ */
+export function enableSafeguards() {
+  state.safeguards = true;
+  document.documentElement.classList.add("no-select");
+  if (CONFIG.production_protections) applyProductionProtections();
+  checkViewport();
+}
+
+// ---- listeners that are always on (logging only) ----
 export function installIntegrityListeners() {
   document.addEventListener("fullscreenchange", onFullscreenChange);
   document.addEventListener("webkitfullscreenchange", onFullscreenChange);
@@ -119,7 +136,7 @@ export function installIntegrityListeners() {
   });
   window.addEventListener("blur", () => { integrity.window_blur_count++; });
   window.onbeforeunload = function () {
-    if (state.consented && !state.finished) return "The study is not finished. If you leave now your progress will be lost.";
+    if (state.safeguards && state.consented && !state.finished) return "The study is not finished. If you leave now your progress will be lost.";
     return undefined;
   };
 }

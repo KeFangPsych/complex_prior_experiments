@@ -20,7 +20,7 @@ npm install
 npm run dev
 ```
 
-Then open <http://localhost:8765/?debug=1&nofs=1> for testing, or
+Then open <http://localhost:8765/?debug=1> for testing, or
 <http://localhost:8765/> for the experiment exactly as a participant gets it
 (fullscreen, read-locks, random assignment, no shortcuts).
 
@@ -34,16 +34,21 @@ participants never see. On it you choose:
 - **Surprise text**: shown, hidden, or Random (evidence-first conditions only).
 - **Questions**: Pilot (all questions) or Main (Main questions only).
 - **Read-locks**: off (Continue works at once) or on (as for participants).
+- **Safeguards**: off or on (as for participants).
 
-"Random" leaves that setting to the normal assignment. Testing mode also turns
-off the copy / devtools protections and loads the test bot (`__autoplay()` in the
-browser console). Runs made this way have `debug_mode = true` in the data.
+"Random" leaves that setting to the normal assignment. With the safeguards off,
+which is the default in testing mode, you can select, copy and paste text,
+right-click, use devtools shortcuts, save the pictures, use any window size or a
+phone, stay out of full screen, and leave the page without a warning. Testing
+mode also loads the test bot (`__autoplay()` in the browser console). Runs made
+this way have `debug_mode = true` in the data, and `safeguards = false` unless
+you switched them on.
 
 | URL flag | effect |
 |---|---|
 | `debug=1` | testing mode: shows the test setup screen |
-| `nofs=1` | no fullscreen requirement and no viewport lock |
-| `cond=1..8`, `fig=table\|line`, `surprise=shown\|hidden`, `mode=pilot\|main`, `locks=1` | with `debug=1`: prefill the test setup screen |
+| `cond=1..8`, `fig=table\|line`, `surprise=shown\|hidden`, `mode=pilot\|main`, `locks=1`, `safeguards=1` | with `debug=1`: prefill the test setup screen |
+| `nofs=1` | without `debug=1`: the participant version, but with no fullscreen requirement and no viewport lock |
 | `condition=k` | forces assignment cell `k` (0–31) when DataPipe is disabled |
 
 The flags always work on the dev server. On the built site they work only while
@@ -173,7 +178,7 @@ Other participant-level columns: `subject_id`, `prolific_pid`, `study_id`,
 `session_id`, `mode`, `condition_index`, `condition_source`, `cond` (1–8),
 `order`, `complexity`, `anomaly`, `goal_relevance`, `evidence_figure`,
 `surprise_text` (`shown` / `hidden` / `not_applicable`), `stage_order`,
-`general_feedback`, `completion_status`, `debug_mode`, `nofs_mode`, and the
+`general_feedback`, `completion_status`, `debug_mode`, `nofs_mode`, `safeguards`, and the
 integrity counters above.
 
 Row-level detail, by `task`:
@@ -183,7 +188,7 @@ Row-level detail, by `task`:
 | `story` | `stage_index`, `stage`, `figure`, `n_words`, `lock_seconds`, `rt` (reading time, ms) |
 | `questions` | `stage_index`, `stage`, `page`, `page_index`, `item_ids`, `rt`, and `responses`: JSON with one entry per item (`id`, `use`, `type`, `measure`, `response`, `response_index`, `correct`, `first_ms`, `last_ms`, `n_changes`) |
 | `consent` | `consented`, `fullscreen_ok` |
-| `test_setup` | testing mode only: `test_cond`, `test_figure`, `test_surprise`, `test_mode`, `test_locks` |
+| `test_setup` | testing mode only: `test_cond`, `test_figure`, `test_surprise`, `test_mode`, `test_locks`, `test_safeguards` |
 | `save_data` | `success`, `attempts` |
 
 Predictions (`pred_heat`, `pred_pigment`) are asked after part 3 in the
@@ -221,8 +226,9 @@ npm run test:integrity
   condition 3 to `dev/shots/`.
 - `test:integrity` uses the page as a participant gets it, with real clicks:
   fullscreen on consent and the overlay on leaving it, read-locks, Continue
-  locked until every item is answered, the open-response minimum, the viewport
-  lock and the mobile block.
+  locked until every item is answered, the open-response minimum, blocked
+  selection and copy, the viewport lock and the mobile block. It also checks that
+  testing mode has all of these off unless they are switched on.
 
 Set `BASE_URL` to test another address (for example the built site under
 `npm run preview`), and `CHROME_PATH` to use an existing Chrome.

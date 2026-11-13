@@ -11,13 +11,14 @@
  * instructions -> five stages, each a story screen (text + picture, read-locked)
  * followed by its question screens (story hidden) -> comments -> save -> debrief.
  *
- * URL flags: ?debug=1  no read-locks, no protections, loads the dev bot (__autoplay)
+ * URL flags: ?debug=1  testing mode: test-setup screen first, safeguards and
+ *                      read-locks off unless switched on there, loads the dev bot
  *            ?nofs=1   no fullscreen requirement and no viewport lock (dev only)
  *            ?condition=k   forces assignment cell k (0-31) when DataPipe is disabled
  * With ?debug=1 the first screen is a test-setup screen where the tester picks the
- * condition, the figure version, the surprise text, pilot / main questions and
- * read-locks; ?cond=1..8, ?fig=table|line, ?surprise=shown|hidden, ?mode=pilot|main
- * and ?locks=1 prefill it.
+ * condition, the figure version, the surprise text, pilot / main questions,
+ * read-locks and safeguards; ?cond=1..8, ?fig=table|line, ?surprise=shown|hidden,
+ * ?mode=pilot|main, ?locks=1 and ?safeguards=1 prefill it.
  */
 import { initJsPsych } from "jspsych";
 import jsPsychPreload from "@jspsych/plugin-preload";
@@ -36,9 +37,9 @@ import PagePlugin from "./page-plugin.js";
 import { CONFIG, DATAPIPE, PROLIFIC, STUDY, WELCOME_HTML, INSTRUCTIONS_HTML, FEEDBACK_PROMPT, DEBRIEF_HTML, CONSENT_HTML } from "./config.js";
 import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, story, questionPages } from "./content.js";
 import { imageUrl } from "./images.js";
-import { state, integrityProps, DEBUG, DEV_FLAGS, NOFS, URL_PARAMS, prolificPID, studyID, sessionID, subjectId } from "./state.js";
+import { state, integrityProps, fullscreenRequired, DEBUG, DEV_FLAGS, NOFS, URL_PARAMS, prolificPID, studyID, sessionID, subjectId } from "./state.js";
 import { buildFrame, setPhase, updateProgress, card, lockButton, questionsHtml, bindQuestions, N_STAGES } from "./ui.js";
-import { requestFullscreenSafe, isFullscreen, hideFullscreenOverlay, checkViewport, isMobileDevice, applyProductionProtections, installIntegrityListeners } from "./integrity.js";
+import { requestFullscreenSafe, isFullscreen, hideFullscreenOverlay, isMobileDevice, enableSafeguards, installIntegrityListeners } from "./integrity.js";
 
 document.title = STUDY.title;
 const lock = (seconds) => (state.locks ? seconds : 0);
@@ -113,6 +114,7 @@ function applyAssignment(index, source) {
     condition_index: index,
     condition_source: source,       // "datapipe" | "url" | "random" | "random_fallback" (DataPipe did not answer) | "test_setup"
     mode: state.mode,
+    safeguards: state.safeguards,   // false only in testing mode with the safeguards left off
     cond: state.cond,
     order: state.order,
     complexity: state.complexity,
@@ -175,6 +177,9 @@ function setupGroups() {
       options: [{ value: "pilot", label: "Pilot · all questions" }, { value: "main", label: "Main · Main questions only" }] },
     { key: "locks", title: "Read-locks", cols: 2,
       options: [{ value: "off", label: "Off · Continue works at once" }, { value: "on", label: "On · as for participants" }] },
+    { key: "safeguards", title: "Safeguards", cols: 2,
+      note: `Full screen, the minimum window size, blocked text selection, copy and paste, right-click and devtools shortcuts, and the leave-page warning.${NOFS && CONFIG.require_fullscreen ? " The address contains <code>nofs=1</code>, so full screen and the window-size lock stay off either way." : ""}`,
+      options: [{ value: "off", label: "Off · copy, paste and any window allowed" }, { value: "on", label: "On · as for participants" }] },
   ];
 }
 
@@ -190,10 +195,11 @@ const testSetup = {
       surprise: state.test.surpriseText || "",
       mode: state.mode,
       locks: state.locks ? "on" : "off",
+      safeguards: state.safeguards ? "on" : "off",
     };
     el.innerHTML = card(`${eyebrow("Test setup · not shown to participants")}
       <h2>Choose what to test</h2>
-      <p class="muted">You see this screen because the address contains <code>debug=1</code>. “Random” assigns that setting as it is for participants.${NOFS ? "" : " Full screen is on; add <code>&amp;nofs=1</code> to the address to turn it off."}</p>
+      <p class="muted">You see this screen because the address contains <code>debug=1</code>. “Random” assigns that setting as it is for participants.</p>
       ${groups.map((g) => `
         <div class="setup-group" data-group="${g.key}">
           <div class="setup-title">${g.title}</div>
@@ -220,9 +226,11 @@ const testSetup = {
       state.test = { cond: sel.cond ? parseInt(sel.cond) : null, figureVersion: sel.fig || null, surpriseText: sel.surprise || null };
       state.mode = sel.mode;
       state.locks = sel.locks === "on";
+      state.safeguards = sel.safeguards === "on";
+      if (state.safeguards) enableSafeguards();
       done({
         test_cond: sel.cond || "random", test_figure: sel.fig || "random", test_surprise: sel.surprise || "random",
-        test_mode: sel.mode, test_locks: sel.locks,
+        test_mode: sel.mode, test_locks: sel.locks, test_safeguards: sel.safeguards,
       });
     });
   },
@@ -255,12 +263,12 @@ const welcome = cardButtonPage({ task: "welcome", phase: "intro", html: `${eyebr
 const consent = cardButtonPage({
   task: "consent", phase: "intro",
   label: "I consent — begin the study",
-  html: `${eyebrow("Before you begin")}${CONSENT_HTML}
-    ${NOFS ? "" : `<p class="small" style="margin-top:14px;">Clicking the button switches your browser to full-screen mode for the rest of the study.</p>`}`,
+  html: () => `${eyebrow("Before you begin")}${CONSENT_HTML}
+    ${fullscreenRequired() ? `<p class="small" style="margin-top:14px;">Clicking the button switches your browser to full-screen mode for the rest of the study.</p>` : ""}`,
   onClick: function (done) {
     state.consented = true;
     const finish = () => done({ consented: true, fullscreen_ok: isFullscreen() });
-    if (NOFS) return finish();
+    if (!fullscreenRequired()) return finish();
     requestFullscreenSafe().then(() => setTimeout(finish, 150));
   },
 });
@@ -295,7 +303,7 @@ function makeStage(i) {
       const label = state.pages.length ? "Continue to the questions" : "Continue";
       el.innerHTML = card(`${stageEyebrow(i)}
         <div class="story-text">${s.paragraphs.map((p) => `<p>${p}</p>`).join("")}</div>
-        <div class="story-figure"><img src="${imageUrl(s.figure)}" alt="${s.alt}" draggable="false"></div>
+        <div class="story-figure"><img src="${imageUrl(s.figure)}" alt="${s.alt}" draggable="${state.safeguards ? "false" : "true"}"></div>
         <div class="btn-row"><button class="btn btn-lg" id="card-btn">${label}</button></div>
         <p class="small story-note">You will not be able to come back to this page.</p>`, "story-card");
       const btn = el.querySelector("#card-btn");
@@ -461,14 +469,14 @@ timeline.push(debrief);
 // 8. START
 // ============================================================================
 installIntegrityListeners();
-if (CONFIG.block_mobile && isMobileDevice() && !NOFS) {
+if (CONFIG.block_mobile && isMobileDevice() && !NOFS && !DEBUG) {
   document.getElementById("frame-top").style.display = "none";
   target.innerHTML = `<div class="end-wrap">${card(`${eyebrow(STUDY.title)}
     <h1>Please use a desktop or laptop computer</h1>
     <p>This study cannot be completed on a phone or tablet. Please return on a computer with a full-size browser window.</p>`, "card-narrow")}</div>`;
 } else {
-  if (CONFIG.production_protections && !DEBUG) applyProductionProtections();
-  checkViewport();
+  // participants get the safeguards from the start; a tester chooses on the test-setup screen
+  if (!DEBUG) enableSafeguards();
   const start = () => jsPsych.run(timeline);
   if (DEBUG) {
     // dev only: expose internals and load the bot (a separate chunk, never fetched in production)

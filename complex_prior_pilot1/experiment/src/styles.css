@@ -15,7 +15,9 @@ body {
 }
 button { font-family: inherit; cursor: pointer; }
 img { display: block; max-width: 100%; }
-p, li, label, h1, h2, h3, .choice, .statement { user-select: none; -webkit-user-select: none; }
+/* text selection is blocked while the safeguards are on (enableSafeguards in integrity.js) */
+.no-select :is(p, li, label, h1, h2, h3, .choice, .statement) { user-select: none; -webkit-user-select: none; }
+.no-select .story-figure img { pointer-events: none; }
 textarea, input { user-select: text; -webkit-user-select: text; }
 
 :root, [data-theme="playful"] {
@@ -121,7 +123,7 @@ p.muted, .muted { color: var(--ink-2); font-size: 15px; }
 .story-text { max-width: 760px; margin: 0 auto; }
 .story-text p { font-size: 17.5px; line-height: 1.7; margin-bottom: 14px; }
 .story-figure { margin: 22px auto 0; background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 10px; }
-.story-figure img { width: 100%; height: auto; border-radius: 8px; pointer-events: none; }
+.story-figure img { width: 100%; height: auto; border-radius: 8px; }
 .story-note { text-align: center; margin: 12px 0 0; }
 
 /* ── Question screens ──────────────────────────────────────── */
