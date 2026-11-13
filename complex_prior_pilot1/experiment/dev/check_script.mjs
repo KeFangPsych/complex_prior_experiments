@@ -71,7 +71,7 @@ function parseQuestions(sec, cond) {
   const rows = [], notes = [];
   sec.subs.filter((s) => /questions/i.test(s.title)).forEach((s) => s.lines.forEach((line) => {
     if (line.startsWith("* ")) { notes.push(unescape(line.slice(2).trim())); return; }
-    const m = line.match(/^\| (Main|Pilot) \| (.*?) \| (.*) \|$/);
+    const m = line.match(/^\| (Main|Pilot|Alternative) \| (.*?) \| (.*) \|$/);
     if (!m) return;
     const label = unescape(m[2]);
     const conds = condsIn(label);
@@ -111,6 +111,8 @@ sameList("informed consent", "lines", [`**${CONSENT.title}**`, ...CONSENT.sectio
 sameList("instructions", "lines", [`**${INSTRUCTIONS.title}**`, ...INSTRUCTIONS.bullets.map((b) => `* ${b}`)], plainLines(/^Instructions/));
 sameList("final comments", "lines", [`${FEEDBACK_PROMPT} (Open response, optional)`], plainLines(/^Final comments/));
 sameList("debrief", "lines", [`**${DEBRIEF.title}**`, ...DEBRIEF.paragraphs], plainLines(/^Debrief/));
+// the scales in the script are 5-point: no anchor above 5
+if (md.some((l) => /^\| (Main|Pilot|Alternative) \|/.test(l) && /; [6-9] \\= /.test(l))) fail("scales", "the script has a scale anchor above 5");
 // the word "story" is not shown to participants
 const shown = JSON.stringify([WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF]);
 if (/\bstor(y|ies)\b/i.test(shown)) fail("text around the scenario", 'contains the word "story"');
@@ -160,9 +162,11 @@ for (const cond of Object.keys(CONDITIONS).map(Number)) {
     });
     sameList(where, "presentation-order notes", orderNotes(stage, cond), want.notes);
     // every randomization flag in content.js is covered by a note, and vice versa
-    const flagged = got.some((q) => q.pageShuffle || q.itemShuffle || q.shuffleOptions);
+    const flagged = got.some((q) => q.pageShuffle || q.itemShuffle || q.shuffleOptions || q.randomPresence !== undefined);
     if (flagged !== orderNotes(stage, cond).length > 0) fail(where, "randomization flags and presentation-order notes do not agree");
-    // main mode keeps exactly the Main rows
+    // alternatives are documented but never asked; main mode keeps exactly the Main rows
+    const pilotIds = questionPages(stage, cond, "pilot").flatMap((p) => p.items.map((q) => q.id));
+    same(where, "questions asked in pilot mode", pilotIds.length, want.rows.filter((w) => w.use !== "alternative").length);
     const mainIds = questionPages(stage, cond, "main").flatMap((p) => p.items.map((q) => q.id));
     same(where, "Main-only questions", mainIds.length, want.rows.filter((w) => w.use === "main").length);
   });
@@ -226,12 +230,26 @@ for (const mode of ["pilot", "main"]) {
     if (goal.optionOrder[goal.optionOrder.length - 1] !== goal.options.length - 1) fail("randomization, goal options", '"I don\'t remember" is not last');
     if ([...goal.optionOrder].sort().join() !== goal.options.map((_, k) => k).join()) fail("randomization, goal options", "an option is missing or repeated");
     if (r.pages.map((p) => p.key).join() !== canon3.map((p) => p.key).join()) fail("randomization, stage 3", "the order of the screens changed");
-    const fixed = (pages) => pages.flatMap((p) => p.items.map((q) => q.id)).filter((id) => !id.startsWith("relevance_")).join();
+    if (r.pages.some((p) => p.items.some((q) => q.use === "alternative"))) fail("randomization, stage 3", "an alternative question is asked");
+    const fixed = (pages) => pages.flatMap((p) => p.items.map((q) => q.id)).filter((id) => !id.startsWith("relevance_") && id !== "explanation1_left_out").join();
     if (fixed(r.pages) !== fixed(canon3)) fail("randomization, stage 3", "a question other than the relevance pair moved");
     return goal.optionOrder.join("");
   });
   roughlyEven(`randomization, goal options (${mode})`, goalOrders, 24);
-  if (mode === "pilot") roughlyEven("randomization, relevance questions", tally(() => randomizePages(canon3).orders.order_relevance), 2);
+  if (mode === "pilot") {
+    roughlyEven("randomization, relevance questions", tally(() => randomizePages(canon3).orders.order_relevance), 2);
+    // the left-out-details question is shown to about half, and the record matches what is shown
+    roughlyEven("randomization, left-out-details question", tally(() => {
+      const r = randomizePages(canon3);
+      const there = r.pages.flatMap((p) => p.items).some((q) => q.id === "explanation1_left_out");
+      if (r.orders.explanation1_left_out_shown !== there) fail("randomization, left-out-details question", "recorded value differs from what is shown");
+      return String(there);
+    }), 2);
+    for (const fix of [true, false]) {
+      const r = randomizePages(canon3, Math.random, { explanation1_left_out: fix });
+      same("randomization, left-out-details question", `fixed to ${fix}`, r.pages.flatMap((p) => p.items).some((q) => q.id === "explanation1_left_out"), fix);
+    }
+  }
 }
 // end evaluations: the complexity, trust and utility blocks swap places; nothing else moves
 for (const [cond, stage] of [[1, "elaboration"], [5, "evidence"]]) for (const mode of ["pilot", "main"]) {

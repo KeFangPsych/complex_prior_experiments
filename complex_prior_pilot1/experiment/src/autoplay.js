@@ -27,7 +27,7 @@ window.__autoplay = function (opts = {}) {
   function answer(q) {
     const el = $(`.q-item[data-id="${q.id}"]`);
     if (q.type === "likert") {
-      if (!el.querySelector(".likert-opt.selected")) el.querySelectorAll(".likert-opt")[rand(7)].click();
+      if (!el.querySelector(".likert-opt.selected")) { const opts = el.querySelectorAll(".likert-opt"); opts[rand(opts.length)].click(); }
     } else if (q.type === "choice") {
       if (el.querySelector(".choice.selected")) return;
       let idx = rand(q.options.length);

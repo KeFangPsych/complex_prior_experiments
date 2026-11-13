@@ -31,10 +31,10 @@ const shotDir = path.join(__dirname, "shots");
   const browser = await chromium.launch(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {});
   const problems = [];
   let runs = 0;
-  const orders = { planet: new Set(), final: new Set(), goal: new Set(), relevance: new Set() };   // randomized orders seen across runs
+  const orders = { planet: new Set(), final: new Set(), goal: new Set(), relevance: new Set(), leftout: new Set() };   // randomized orders seen across runs
   const scrolled = new Set();                                                    // scenario pages that did not fit the window
 
-  async function run({ cond, mode, fig, surprise, checks = "correct", shots = false, clickSetup = false }) {
+  async function run({ cond, mode, fig, surprise, checks = "correct", shots = false, clickSetup = false, leftout = null }) {
     const tag = `cond ${cond} ${mode} ${fig} ${surprise} checks=${checks}${clickSetup ? " (chosen on the setup screen)" : ""}`;
     const bad = (msg) => problems.push(`${tag}: ${msg}`);
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, deviceScaleFactor: shots ? 2 : 1 });
@@ -51,7 +51,7 @@ const shotDir = path.join(__dirname, "shots");
     await page.waitForFunction(() => typeof window.__autoplay === "function" && document.querySelector("#setup-start"));
     // either the URL flags prefill the test-setup screen, or the choices are clicked on it
     if (clickSetup) {
-      for (const [group, value] of Object.entries({ cond, fig, surprise, mode })) {
+      for (const [group, value] of Object.entries({ cond, fig, surprise, mode, ...(leftout ? { leftout } : {}) })) {
         const opt = page.locator(`.setup-group[data-group="${group}"] .opt[data-value="${value}"]`);
         if (group === "surprise" && content.CONDITIONS[cond].order !== "evidence_first") {
           if (!(await page.locator('.setup-group[data-group="surprise"].disabled').count())) bad("surprise group is not disabled for an elaboration-first condition");
@@ -85,7 +85,16 @@ const shotDir = path.join(__dirname, "shots");
     scenarios.filter((r) => r.needed_scrolling).forEach((r) => scrolled.add(`${r.stage} p${r.scenario_page} (${r.figure})`));
 
     // question screens: the script's order, except where the script says the order is random
-    const canon = stages.flatMap((s) => content.questionPages(s, cond, mode).map((p) => ({ stage: s, key: p.key, ids: p.items.map((q) => q.id) })));
+    // (the left-out-details question of part 3 is shown to a random half in pilot mode)
+    const LEFT_OUT = "explanation1_left_out";
+    const leftOutShown = last[`${LEFT_OUT}_shown`];
+    if (mode === "pilot") {
+      if (typeof leftOutShown !== "boolean") bad(`${LEFT_OUT}_shown is not recorded`);
+      if (leftout && leftOutShown !== (leftout === "shown")) bad(`${LEFT_OUT}: chosen ${leftout} on the setup screen, got shown=${leftOutShown}`);
+      orders.leftout.add(String(leftOutShown));
+    } else if (`${LEFT_OUT}_shown` in last) bad(`${LEFT_OUT}_shown recorded in main mode`);
+    const asked = (q) => q.id !== LEFT_OUT || leftOutShown === true;
+    const canon = stages.flatMap((s) => content.questionPages(s, cond, mode).map((p) => ({ stage: s, key: p.key, ids: p.items.filter(asked).map((q) => q.id) })));
     const gotPages = data.filter((r) => r.task === "questions").map((r) => ({ stage: r.stage, key: r.page, ids: JSON.parse(r.item_ids) }));
     // put the randomized parts back into script order before comparing: the two
     // planet blocks, the three end-evaluation blocks, and the relevance questions
@@ -115,20 +124,20 @@ const shotDir = path.join(__dirname, "shots");
       orders.relevance.add(last.order_relevance);
     } else if ("order_relevance" in last) bad("order_relevance recorded in main mode");
 
-    const items = stages.flatMap((s) => content.questionPages(s, cond, mode).flatMap((p) => p.items));
+    const items = stages.flatMap((s) => content.questionPages(s, cond, mode).flatMap((p) => p.items)).filter(asked);
     const answered = data.filter((r) => r.task === "questions").flatMap((r) => JSON.parse(r.responses));
     expect("answered ids", answered.map((a) => a.id).sort(), items.map((q) => q.id).sort());
     items.forEach((q) => {
       const v = last[q.id];
-      if (q.type === "likert" && !(Number.isInteger(v) && v >= 1 && v <= 7)) bad(`${q.id}: scale answer ${JSON.stringify(v)}`);
+      if (q.type === "likert" && !(Number.isInteger(v) && v >= 1 && v <= content.SCALE_POINTS)) bad(`${q.id}: scale answer ${JSON.stringify(v)}`);
       if (q.type === "choice" && !q.options.includes(v)) bad(`${q.id}: choice answer ${JSON.stringify(v)}`);
       if (q.type === "open" && !(typeof v === "string" && v.length >= 10)) bad(`${q.id}: open answer ${JSON.stringify(v)}`);
       if (q.type === "choice" && q.correct !== null && checks !== "random") expect(`${q.id}_correct`, last[`${q.id}_correct`], checks === "correct");
     });
     // no answer column for a question that was not asked
     const all = new Set(Object.keys(content.CONDITIONS).flatMap((k) => content.STAGE_SEQUENCE[content.CONDITIONS[k].order].flatMap((s) => content.questions(s, Number(k)).map((q) => q.id))));
-    const asked = new Set(items.map((q) => q.id));
-    [...all].filter((id) => !asked.has(id) && id in last).forEach((id) => bad(`${id}: has a column but was not asked`));
+    const askedIds = new Set(items.map((q) => q.id));
+    [...all].filter((id) => !askedIds.has(id) && id in last).forEach((id) => bad(`${id}: has a column but was not asked`));
     return { tag, rows: data.length, screens: scenarios.length + gotPages.length, questions: items.length };
   }
 
@@ -144,7 +153,8 @@ const shotDir = path.join(__dirname, "shots");
   out.push(await run({ cond: 1, mode: "pilot", fig: "table", surprise: "shown", checks: "wrong" }));
   // the same settings chosen by clicking on the test-setup screen instead of URL flags
   out.push(await run({ cond: 3, mode: "main", fig: "line", surprise: "hidden", clickSetup: true }));
-  out.push(await run({ cond: 6, mode: "pilot", fig: "table", surprise: "shown", clickSetup: true }));
+  out.push(await run({ cond: 6, mode: "pilot", fig: "table", surprise: "shown", clickSetup: true, leftout: "shown" }));
+  out.push(await run({ cond: 2, mode: "pilot", fig: "line", surprise: "hidden", clickSetup: true, leftout: "hidden" }));
   if (shotCond) out.push(await run({ cond: shotCond, mode: "pilot", fig: "line", surprise: "shown", shots: true }));
   await browser.close();
 

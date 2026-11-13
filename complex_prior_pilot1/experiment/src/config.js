@@ -47,7 +47,7 @@ export const fillStudyValues = (text) => text.replace(/\bXX\b/g, STUDY.minutes).
 
 export const CONFIG = {
   experiment_name: "complex_prior_pilot1_vignette1",
-  experiment_version: "0.3.1",
+  experiment_version: "0.4.0",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.
@@ -80,8 +80,8 @@ export const CONFIG = {
 export const WELCOME = {
   title: "Decision-Making Study",
   paragraphs: [
-    "In this study you will read about a hypothetical scenario. It is presented in **five parts**, each with a short text and a picture. After each part you will answer questions about it.",
-    "We are interested in what decisions you will make in the scenario, so **please act as if the scenario is true**, and make your decisions as you would in real life.",
+    "In this study you will read about a hypothetical scenario. It is presented in five parts, each with a short text and a picture. After each part you will answer questions about it.",
+    "We are interested in what decisions you will make in the scenario, so make your decisions as you would in real life.",
     "The study takes about XX minutes. Please complete it in one sitting, in full-screen mode, without switching to other windows.",
   ],
 };
@@ -89,10 +89,9 @@ export const WELCOME = {
 export const INSTRUCTIONS = {
   title: "How the study works",
   bullets: [
-    "Each part has a **short text and a picture**. Please read the text and look at the picture carefully.",
-    "After each part you will answer questions about the text you read and the picture you saw. The text and the picture are **not shown while you answer**, and you **cannot go back** to earlier parts.",
-    "Some questions ask what you **remember from the scenario**; please try to answer them correctly.",
-    "Other questions may ask for **your own judgment**; for those, there are no right or wrong answers.",
+    "Each part has a short text and a picture. Please read the text and look at the picture carefully.",
+    "After each part you will answer questions about the text you read and the picture you saw. The text and the picture are not shown while you answer, and you cannot go back to earlier parts.",
+    "Please answer the questions to the best of your ability.",
   ],
 };
 

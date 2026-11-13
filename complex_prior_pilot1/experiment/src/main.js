@@ -23,8 +23,9 @@
  *            ?condition=k   forces assignment cell k (0-31) when DataPipe is disabled
  * With ?debug=1 the first screen is a test-setup screen where the tester picks the
  * condition, the figure version, the surprise text, pilot / main questions,
- * read-locks and safeguards; ?cond=1..8, ?fig=table|line, ?surprise=shown|hidden,
- * ?mode=pilot|main, ?locks=1 and ?safeguards=1 prefill it.
+ * the randomly shown question, read-locks and safeguards; ?cond=1..8,
+ * ?fig=table|line, ?surprise=shown|hidden, ?leftout=shown|hidden, ?mode=pilot|main,
+ * ?locks=1 and ?safeguards=1 prefill it.
  */
 import { initJsPsych } from "jspsych";
 import jsPsychPreload from "@jspsych/plugin-preload";
@@ -142,7 +143,9 @@ function buildScreens() {
   const orders = {};
   state.stages.forEach((stage, stageIdx) => {
     const pages = scenarioOf(stage).pages;
-    const drawn = randomizePages(questionPages(stage, state.cond, state.mode));
+    // a tester may have fixed whether the randomly shown question of part 3 appears
+    const presence = DEBUG && state.test.leftOut ? { explanation1_left_out: state.test.leftOut === "shown" } : {};
+    const drawn = randomizePages(questionPages(stage, state.cond, state.mode), Math.random, presence);
     Object.assign(orders, drawn.orders);
     const total = pages.length + drawn.pages.length;
     pages.forEach((page, n) => screens.push({ kind: "scenario", stage, stageIdx, page, pageNo: n + 1, nPages: pages.length, lastPage: n === pages.length - 1, hasQuestions: drawn.pages.length > 0, sub: { now: n + 1, total } }));
@@ -245,6 +248,9 @@ function showTestBar(current) {
       ["Condition", cond ? `${cond} · ${titleCase(c.order)} · ${titleCase(c.complexity)} · ${titleCase(c.anomaly)} anomaly` : pending],
       ["Figure", fig ? (fig === "line" ? "table + line" : "table only") : pending],
       ["Surprise text", surprise || pending],
+      ["Left-out question", state.mode === "main" ? "n/a" : assigned
+        ? (state.screens.some((x) => x.kind === "questions" && x.page.items.some((q) => q.id === "explanation1_left_out")) ? "shown" : "hidden")
+        : state.test.leftOut || pending],
       ["Questions", state.mode],
       ["Read-locks", state.locks ? "on" : "off"],
       ["Safeguards", state.safeguards ? "on" : "off"],
@@ -270,6 +276,9 @@ function setupGroups() {
     { key: "surprise", title: "Surprise text", cols: 3,
       note: "The sentences that highlight the surprise in the evidence part. They exist only in the evidence-first conditions (1–4).",
       options: [{ value: "", label: "Random" }, { value: "shown", label: "Shown" }, { value: "hidden", label: "Hidden" }] },
+    { key: "leftout", title: "Randomly shown question", cols: 3,
+      note: "Part 3, pilot questions only: “How likely is it that the company's explanation left out other details…”, shown to a random half of the participants.",
+      options: [{ value: "", label: "Random" }, { value: "shown", label: "Shown" }, { value: "hidden", label: "Hidden" }] },
     { key: "mode", title: "Questions", cols: 2,
       options: [{ value: "pilot", label: "Pilot · all questions" }, { value: "main", label: "Main · Main questions only" }] },
     { key: "locks", title: "Read-locks", cols: 2,
@@ -287,6 +296,7 @@ function showSetup(el) {
     cond: state.test.cond ? String(state.test.cond) : "",
     fig: state.test.figureVersion || "",
     surprise: state.test.surpriseText || "",
+    leftout: state.test.leftOut || "",
     mode: state.mode,
     locks: state.locks ? "on" : "off",
     safeguards: state.safeguards ? "on" : "off",
@@ -306,9 +316,11 @@ function showSetup(el) {
   const refresh = () => {
     groups.forEach((g) => el.querySelectorAll(`.setup-group[data-group="${g.key}"] .opt`).forEach((b) =>
       b.classList.toggle("selected", b.dataset.value === sel[g.key])));
-    // the surprise text does not apply when an elaboration-first condition is fixed
+    // the surprise text does not apply when an elaboration-first condition is fixed,
+    // and the randomly shown question is a pilot question
     const c = CONDITIONS[sel.cond];
     el.querySelector('.setup-group[data-group="surprise"]').classList.toggle("disabled", !!c && c.order !== "evidence_first");
+    el.querySelector('.setup-group[data-group="leftout"]').classList.toggle("disabled", sel.mode === "main");
   };
   el.querySelectorAll(".opt").forEach((b) => b.addEventListener("click", () => {
     sel[b.closest(".setup-group").dataset.group] = b.dataset.value;
@@ -317,7 +329,7 @@ function showSetup(el) {
   refresh();
 
   el.querySelector("#setup-start").addEventListener("click", () => {
-    state.test = { cond: sel.cond ? parseInt(sel.cond) : null, figureVersion: sel.fig || null, surpriseText: sel.surprise || null };
+    state.test = { cond: sel.cond ? parseInt(sel.cond) : null, figureVersion: sel.fig || null, surpriseText: sel.surprise || null, leftOut: sel.leftout || null };
     state.mode = sel.mode;
     state.locks = sel.locks === "on";
     state.safeguards = sel.safeguards === "on";
@@ -325,7 +337,7 @@ function showSetup(el) {
     state.needsAssignment = true;          // (re)assign with these settings after consent
     go(+1, {
       task: "test_setup",
-      test_cond: sel.cond || "random", test_figure: sel.fig || "random", test_surprise: sel.surprise || "random",
+      test_cond: sel.cond || "random", test_figure: sel.fig || "random", test_surprise: sel.surprise || "random", test_leftout: sel.leftout || "random",
       test_mode: sel.mode, test_locks: sel.locks, test_safeguards: sel.safeguards,
     });
   });

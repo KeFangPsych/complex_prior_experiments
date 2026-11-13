@@ -3,6 +3,7 @@
  * and the question components (7-point scale, multiple choice, open response).
  */
 import { CONFIG } from "./config.js";
+import { SCALE_POINTS } from "./content.js";
 import { state } from "./state.js";
 
 // ============================================================================
@@ -110,7 +111,7 @@ function itemHtml(q) {
   let body = "";
   if (q.type === "likert") {
     body = `<div class="likert">
-      <div class="likert-scale">${[1, 2, 3, 4, 5, 6, 7].map((v) => `
+      <div class="likert-scale" style="--points:${SCALE_POINTS}">${Array.from({ length: SCALE_POINTS }, (_, k) => k + 1).map((v) => `
         <button type="button" class="likert-opt" data-val="${v}" aria-label="${v}"><span class="likert-dot"></span><span class="likert-num">${v}</span></button>`).join("")}
       </div>
       <div class="likert-anchors"><span class="low">${esc(q.low)}</span><span class="mid">${q.mid ? esc(q.mid) : ""}</span><span class="high">${esc(q.high)}</span></div>
