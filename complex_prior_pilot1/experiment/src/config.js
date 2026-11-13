@@ -47,7 +47,7 @@ export const fillStudyValues = (text) => text.replace(/\bXX\b/g, STUDY.minutes).
 
 export const CONFIG = {
   experiment_name: "complex_prior_pilot1_vignette1",
-  experiment_version: "0.3.0",
+  experiment_version: "0.3.1",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.

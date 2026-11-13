@@ -24,7 +24,8 @@ export function buildFrame() {
       ${PHASES.map((p, i) => `${i > 0 ? '<div class="step-sep"></div>' : ""}
         <div class="step" data-phase="${p.key}"><span class="step-dot"></span><span class="step-label">${p.label}</span><span class="sub-steps" data-sub="${p.key}"></span></div>`).join("")}
     </div></div>
-    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>`;
+    <div class="progress-track"><div class="progress-fill" id="progress-fill" style="width:0%"></div></div>
+    <div class="test-bar" id="test-bar" hidden></div>`;
   document.body.prepend(frame);
 }
 
@@ -46,11 +47,27 @@ export function setPhase(key, sub) {
   }
 }
 
-export function updateProgress() {
-  state.completedSteps++;
-  const frac = Math.min(state.completedSteps / state.totalSteps, 1);
+/** Sets the progress bar to a fraction between 0 and 1. */
+export function setProgress(frac) {
   const fill = document.getElementById("progress-fill");
-  if (fill) fill.style.width = `${Math.round(frac * 1000) / 10}%`;
+  if (fill) fill.style.width = `${Math.round(Math.max(0, Math.min(frac, 1)) * 1000) / 10}%`;
+}
+
+/**
+ * Testing mode only: the bar under the progress bar. `items` are [label, value]
+ * pairs (value may contain HTML); onBack / onChange are the two buttons.
+ */
+export function setTestBar({ visible, items, canGoBack, canChange, onBack, onChange }) {
+  const bar = document.getElementById("test-bar");
+  if (!bar) return;
+  bar.hidden = !visible;
+  if (!visible) return;
+  bar.innerHTML = `
+    <button type="button" class="test-btn" id="test-back" ${canGoBack ? "" : "disabled"}>← Back</button>
+    <div class="test-items"><span class="test-tag">Testing</span>${items.map(([k, v]) => `<span class="test-item"><span class="k">${k}</span> ${v}</span>`).join("")}</div>
+    <button type="button" class="test-btn" id="test-change" ${canChange ? "" : "disabled"}>Change settings</button>`;
+  bar.querySelector("#test-back").addEventListener("click", onBack);
+  bar.querySelector("#test-change").addEventListener("click", onChange);
 }
 
 // ============================================================================
@@ -114,16 +131,27 @@ export function questionsHtml(items) { return items.map(itemHtml).join(""); }
 
 /**
  * Wires the items rendered by questionsHtml inside `root`. Calls onChange() after
- * every answer. Returns { isComplete(), results() }; results() has one entry per
+ * every answer. `initial` optionally pre-fills answers. Returns { isComplete(), results() }; results() has one entry per
  * item: { id, use, type, measure, response, response_index, correct, position,
  * option_order, first_ms, last_ms, n_changes } (times since the screen appeared;
  * response_index is the option's index in the script, option_order the display
  * order of those indices, position the item's place on the screen).
  */
-export function bindQuestions(root, items, onChange) {
+export function bindQuestions(root, items, onChange, initial = {}) {
   const t0 = performance.now();
   const answers = {};
   items.forEach((q) => { answers[q.id] = { value: null, index: null, first_ms: null, last_ms: null, n_changes: 0 }; });
+  // `initial` ({ id: { value, index } }) fills in earlier answers (testing mode, after going back)
+  items.forEach((q) => {
+    const was = initial[q.id];
+    if (!was || was.value === null || was.value === undefined) return;
+    const el = root.querySelector(`.q-item[data-id="${q.id}"]`);
+    const mark = q.type === "likert" ? el.querySelector(`.likert-opt[data-val="${was.value}"]`)
+      : q.type === "choice" ? el.querySelector(`.choice[data-idx="${was.index}"]`) : null;
+    if (mark) mark.classList.add("selected");
+    if (q.type === "open") el.querySelector("textarea").value = was.value;
+    Object.assign(answers[q.id], { value: was.value, index: was.index ?? null });
+  });
   const record = (id, value, index = null) => {
     const a = answers[id], now = Math.round(performance.now() - t0);
     if (a.first_ms === null) a.first_ms = now;

@@ -48,16 +48,15 @@ export const state = {
   figureVersion: null,      // "table" | "line"
   surpriseText: null,       // true | false in evidence-first conditions, null otherwise
   stages: [],               // stage keys in presentation order
-  // current stage
-  stageIdx: 0,
-  scenarioPages: [],        // scenario screens of the current stage
-  scenarioIdx: 0,
-  pages: [],                // question screens of the current stage, in presentation order
-  pageIdx: 0,
+  // navigation (see sections 3-5 of main.js)
+  position: "pre",          // "pre" (before the assignment) | "main" | "end"
+  preCursor: 0,             // index into the screens before the assignment
+  screens: [],              // the screens after the assignment, built by buildScreens
+  cursor: 0,                // index into `screens`
+  backToPre: false,         // testing mode: go back from the instructions to consent / setup
+  needsAssignment: true,    // false once assigned; a tester's "Start" on the setup screen sets it again
+  answers: {},              // { item id: { value, index } }, to refill a screen a tester returns to
   currentItems: [],         // items on the screen being shown (used by the dev bot)
-  // progress bar
-  completedSteps: 0,
-  totalSteps: 30,
   saveFailed: false,
 };
 

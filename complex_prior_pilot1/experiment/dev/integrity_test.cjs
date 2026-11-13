@@ -11,7 +11,7 @@
  * needs the minimum length; the context menu, text selection and copy are
  * blocked; the viewport lock and the mobile block appear. It also checks testing
  * mode (?debug=1): all of those safeguards are off unless switched on on the
- * test-setup screen. Takes about 30 s because it waits out the read-locks.
+ * test-setup screen, and that the settings bar, Back and Change settings work. Takes about 30 s because it waits out the read-locks.
  * Needs Playwright (see dev/walk.cjs).
  */
 const { chromium, devices } = require("playwright");
@@ -142,6 +142,67 @@ const BASE = process.env.BASE_URL || "http://localhost:8765";
   await ps.waitForSelector(".eyebrow:text('Instructions')");
   check("testing with safeguards on: consent enters fullscreen", await ps.evaluate(() => !!document.fullscreenElement));
   await ps.close();
+
+  // ---- 1d. testing mode: the settings bar, Back, and Change settings ----
+  const pb = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  const backErrors = [];
+  pb.on("pageerror", (e) => backErrors.push(e.message));
+  await pb.goto(`${BASE}/?debug=1&cond=1&fig=table&surprise=shown`);
+  await pb.waitForSelector("#setup-start");
+  const barText = () => pb.locator("#test-bar").innerText();
+  const eyebrowIs = (text) => pb.waitForFunction((x) => (document.querySelector(".eyebrow") || {}).textContent === x, text);
+  check("no settings bar on the test-setup screen", await pb.locator("#test-bar").isHidden());
+  await pb.click("#setup-start");
+  await eyebrowIs("Welcome");
+  check("settings bar shows the chosen settings", /Condition 1 · Evidence first · Low · Heat anomaly/.test(await barText()) && /table only/.test(await barText()) && /Questions pilot/.test(await barText()), (await barText()).replace(/\s+/g, " "));
+  await pb.click("#card-btn");                                           // welcome -> consent
+  await pb.click("#card-btn");                                           // consent -> instructions
+  await eyebrowIs("Instructions");
+  await pb.click("#card-btn");                                           // -> part 1
+  await eyebrowIs("Part 1 of 5");
+  await pb.click("#card-btn");                                           // -> part 2 scenario
+  await eyebrowIs("Part 2 of 5");
+  await pb.click("#card-btn");                                           // -> part 2, first question screen
+  await pb.waitForSelector("#q-submit");
+  const firstLabel = await pb.locator(".q-label").first().textContent();
+  const nItems = await pb.locator(".q-item").count();
+  for (let i = 0; i < nItems; i++) await pb.locator(".q-item").nth(i).locator(".likert-opt").nth(4).click();
+  await pb.click("#q-submit");                                           // -> second question screen
+  await pb.waitForFunction((x) => document.querySelector(".q-label").textContent !== x, firstLabel);
+  await pb.click("#test-back");
+  await pb.waitForFunction((x) => document.querySelector(".q-label") && document.querySelector(".q-label").textContent === x, firstLabel);
+  check("Back returns to the previous question screen", true);
+  check("earlier answers are filled in again", (await pb.locator('.likert-opt.selected[data-val="5"]').count()) === nItems && await pb.isEnabled("#q-submit"));
+  await pb.click("#test-back");
+  await pb.waitForSelector(".scenario-text");
+  check("Back returns to the scenario page", (await pb.textContent(".eyebrow")) === "Part 2 of 5");
+  await pb.click("#test-back"); await eyebrowIs("Part 1 of 5");
+  await pb.click("#test-back"); await eyebrowIs("Instructions");
+  await pb.click("#test-back"); await pb.waitForSelector("#consent-pdf");
+  check("Back reaches the consent page", true);
+  await pb.click("#card-btn");                                           // consent -> instructions again
+  await eyebrowIs("Instructions");
+  check("the assignment is kept when going back and forth", await pb.evaluate(() => { const d = jsPsych.data.get().values(); return d[d.length - 1].cond === 1 && experimentState.cursor === 0; }));
+  // Change settings: back to the setup screen, pick condition 6, main questions
+  await pb.click("#test-change");
+  await pb.waitForSelector("#setup-start");
+  check("Change settings returns to the test-setup screen", await pb.locator("#test-bar").isHidden());
+  await pb.locator('.setup-group[data-group="cond"] .opt[data-value="6"]').click();
+  await pb.locator('.setup-group[data-group="mode"] .opt[data-value="main"]').click();
+  await pb.click("#setup-start");
+  await eyebrowIs("Welcome");
+  await pb.click("#card-btn");
+  await pb.click("#card-btn");
+  await eyebrowIs("Instructions");
+  check("the new settings are applied", /Condition 6 · Elaboration first · Low · Color anomaly/.test(await barText()) && /Questions main/.test(await barText())
+    && await pb.evaluate(() => { const d = jsPsych.data.get().values(); const l = d[d.length - 1]; return l.cond === 6 && l.mode === "main" && l.order === "elaboration_first"; }), (await barText()).replace(/\s+/g, " "));
+  await pb.click("#card-btn"); await eyebrowIs("Part 1 of 5");
+  await pb.click("#card-btn"); await eyebrowIs("Part 2 of 5");
+  await pb.click("#card-btn"); await pb.waitForSelector("#q-submit");
+  check("answers are cleared after a new setup", (await pb.locator(".likert-opt.selected").count()) === 0 && (await pb.locator(".q-item").count()) === 1 && await pb.isDisabled("#q-submit"));
+  check("no page errors while going back", backErrors.length === 0, backErrors.join("; "));
+  await pb.close();
+  check("participants have no Back button", await (async () => { const q = await browser.newPage(); await q.goto(`${BASE}/`); await q.waitForSelector("#card-btn"); const hidden = await q.locator("#test-bar").isHidden(); await q.close(); return hidden; })());
 
   // ---- 2. viewport lock ----
   const p2 = await browser.newPage({ viewport: { width: 1280, height: 900 } });

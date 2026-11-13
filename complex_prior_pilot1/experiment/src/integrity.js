@@ -90,14 +90,17 @@ let protectionsApplied = false;
 function applyProductionProtections() {
   if (protectionsApplied) return;
   protectionsApplied = true;
-  document.addEventListener("contextmenu", (e) => e.preventDefault());
+  // (each handler does nothing while a tester has the safeguards switched off)
+  document.addEventListener("contextmenu", (e) => { if (state.safeguards) e.preventDefault(); });
   // copy / cut / paste are blocked everywhere, including the free-text boxes (typing only)
   ["copy", "cut", "paste"].forEach((ev) => document.addEventListener(ev, (e) => {
+    if (!state.safeguards) return;
     e.preventDefault();
     if (ev === "paste") integrity.paste_attempts++;
   }, true));
-  document.addEventListener("drop", (e) => { if (e.target && e.target.tagName === "TEXTAREA") e.preventDefault(); }, true);
+  document.addEventListener("drop", (e) => { if (state.safeguards && e.target && e.target.tagName === "TEXTAREA") e.preventDefault(); }, true);
   document.addEventListener("keydown", (e) => {
+    if (!state.safeguards) return;
     const k = (e.key || "").toLowerCase();
     const mod = e.ctrlKey || e.metaKey;
     if (e.key === "F12" || (mod && e.shiftKey && ["i", "j", "c"].includes(k)) || (mod && ["u", "s", "p"].includes(k))) {
@@ -118,6 +121,16 @@ export function enableSafeguards() {
   document.documentElement.classList.add("no-select");
   if (CONFIG.production_protections) applyProductionProtections();
   checkViewport();
+}
+
+/** Testing mode: switches the safeguards off again (after "Change settings"). */
+export function disableSafeguards() {
+  state.safeguards = false;
+  document.documentElement.classList.remove("no-select");
+  hideFullscreenOverlay();
+  const lockEl = document.getElementById("viewport-lock-overlay");
+  if (lockEl) lockEl.style.display = "none";
+  if (isFullscreen() && document.exitFullscreen) document.exitFullscreen().catch(() => {});
 }
 
 // ---- listeners that are always on (logging only) ----

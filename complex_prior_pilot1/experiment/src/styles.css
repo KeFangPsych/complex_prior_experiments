@@ -69,6 +69,19 @@ textarea, input { user-select: text; -webkit-user-select: text; }
 .progress-fill { position: absolute; inset: 0 auto 0 0; background: var(--accent); transition: width var(--t-slow) var(--ease); }
 #jspsych-progressbar-container { display: none !important; }
 
+/* ── Testing bar (testing mode only): settings in use, Back, Change settings ── */
+.test-bar { display: flex; align-items: center; gap: 14px; padding: 6px 16px; background: #2C2A24; color: #FBF6EC; font-size: 12.5px; }
+.test-bar[hidden] { display: none; }
+.test-items { flex: 1; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 16px; min-width: 0; }
+.test-tag { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 700; color: #2C2A24; background: #E8B04B; border-radius: 4px; padding: 2px 7px; }
+.test-item .k { opacity: 0.6; }
+.test-item i { opacity: 0.75; }
+.test-btn { font-size: 12.5px; font-weight: 600; color: #FBF6EC; background: transparent; border: 1px solid rgba(251,246,236,0.45); border-radius: 6px; padding: 4px 10px; white-space: nowrap; }
+.test-btn:hover:not(:disabled) { background: rgba(251,246,236,0.14); }
+.test-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+/* the bar makes the fixed header taller */
+.testing #jspsych-content, .testing .end-wrap { padding-top: 96px; }
+
 /* ── Content area ──────────────────────────────────────────── */
 /* jsPsych's own stylesheet is not loaded (it embeds 0.5 MB of fonts); these are
    the layout rules of its display element that the experiment relies on. */

@@ -36,6 +36,19 @@ participants never see. On it you choose:
 - **Read-locks**: off (Continue works at once) or on (as for participants).
 - **Safeguards**: off or on (as for participants).
 
+While you test, a dark bar under the progress bar shows the settings in use
+(the condition and the two randomizations appear as "random" until they are
+assigned after consent) and has two buttons:
+
+- **← Back** goes to the previous screen, all the way back to the test setup
+  screen. Answers you gave are filled in again when you return to a question
+  screen, and the assignment and all random orders stay the same.
+- **Change settings** jumps to the test setup screen. Pressing Start there
+  assigns again with the new settings and clears the answers.
+
+Participants have neither the bar nor a way back. Every Back press is logged as
+a `test_back` row, and screens visited twice appear twice in the data.
+
 "Random" leaves that setting to the normal assignment. With the safeguards off,
 which is the default in testing mode, you can select, copy and paste text,
 right-click, use devtools shortcuts, save the pictures, use any window size or a
@@ -84,7 +97,7 @@ last screen offers the data as a CSV download instead.
 | `src/content.js` | the scenario text, page breaks, figure names, questions and randomization for every condition, transcribed from the script; also the design table and the assignment cells |
 | `src/config.js` | DataPipe and Prolific settings, pilot / main mode, read-lock times, and the text around the scenario (welcome, informed consent, instructions, final comments, debrief), also transcribed from the script |
 | `src/consent-pdf.js` | writes the consent form to a PDF when a participant clicks "Save a copy (PDF)" |
-| `src/main.js` | the jsPsych timeline |
+| `src/main.js` | the jsPsych timeline and the screens; the screens from welcome to the final comments are drawn from a cursor, which is what lets testing mode go back |
 | `src/ui.js` | stepper frame, cards, read-lock, and the question components (7-point scale, multiple choice, open response) |
 | `src/integrity.js` | fullscreen, viewport lock, mobile block, protections, tab / blur logging |
 | `src/page-plugin.js` | a small jsPsych plugin for hand-built screens |
@@ -231,6 +244,7 @@ Row-level detail, by `task`:
 | `scenario` | one row per scenario page: `stage_index`, `stage`, `scenario_page`, `n_scenario_pages`, `layout`, `figure`, `figure_width_px` (displayed width), `compact_text`, `needed_scrolling`, `viewport_width`, `viewport_height`, `n_words`, `lock_seconds`, `rt` (reading time, ms) |
 | `questions` | `stage_index`, `stage`, `page`, `page_index`, `item_ids`, `rt`, and `responses`: JSON with one entry per item (`id`, `use`, `type`, `measure`, `response`, `response_index`, `correct`, `position`, `option_order`, `first_ms`, `last_ms`, `n_changes`) |
 | `consent` | `consented`, `fullscreen_ok`, `consent_pdf_saves` |
+| `test_back` | testing mode only: a Back or Change settings press (`from_task`, or `to: "setup"`) |
 | `test_setup` | testing mode only: `test_cond`, `test_figure`, `test_surprise`, `test_mode`, `test_locks`, `test_safeguards` |
 | `save_data` | `success`, `attempts` |
 
@@ -275,7 +289,8 @@ npm run test:integrity
   read-locks, that text and picture fit the window, Continue
   locked until every item is answered, the open-response minimum, blocked
   selection and copy, the viewport lock and the mobile block. It also checks that
-  testing mode has all of these off unless they are switched on.
+  testing mode has all of these off unless they are switched on, and that its
+  settings bar, Back (with answers refilled) and Change settings work.
 
 Set `BASE_URL` to test another address (for example the built site under
 `npm run preview`), and `CHROME_PATH` to use an existing Chrome.
