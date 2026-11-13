@@ -90,7 +90,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
       `Scientific findings show that biological processes (the ways living things work) on this planet are usually ${low ? "simple" : "complex"}.`,
       low
         ? "These processes usually involve a few chemical reactions and only a few factors matter for what happens."
-        : "These processes usually involve many chemical reactions and many factors matter for what happens.",
+        : "These processes usually involve many chemical reactions and many different factors that affect what happens. The factors affect each other in complicated ways. The effect of one factor often changes when other factors change.",
       "In science, these processes have been studied for years and are now very well understood.",
     ], `${IMG}2_${low ? "low" : "high"}_complex.png`,
     low
@@ -238,19 +238,25 @@ function algaeDependenceItem(c) {
     c.anomaly === "heat" ? 0 : 1);
 }
 
-function algaePilotItems(c) {
+// The causal-knowledge measure for the algae explanation: two open responses.
+function algaeOpenItems(c) {
   const { anom, other } = outputs(c.anomaly);
   return [
-    choice("ck_liquid_water", "pilot", "Causal knowledge: liquid water", "algae",
+    open("open_decrease", "pilot", `Causal knowledge: explain the decrease, ${c.anomaly} anomaly version`, "algae_open",
+      `Why does the organism produce less ${anom} when it is extremely cold, even though more gas is available?`),
+    open("open_increase", "pilot", `Causal knowledge: explain the continuing increase, ${c.anomaly} anomaly version`, "algae_open",
+      `Why does the organism keep producing more ${other} when it is extremely cold?`),
+  ];
+}
+// Alternatives to those open responses; documented in the script, not asked.
+function algaeAlternativeItems() {
+  return [
+    choice("ck_liquid_water", "alternative", "Alternative measure of causal knowledge: liquid water", "algae",
       "According to the company, what happens to the amount of liquid water available to the algae when it is extremely cold?",
       ["There is less liquid water", "There is about the same amount of liquid water", "There is more liquid water", "I don't remember"], 0),
-    choice("ck_algae_activity", "pilot", "Causal knowledge: algae activity", "algae",
+    choice("ck_algae_activity", "alternative", "Alternative measure of causal knowledge: algae activity", "algae",
       "According to the company, what happens to the algae when there is too little liquid water?",
       ["They become less active", "They stay about as active", "They become more active", "I don't remember"], 0),
-    open("open_decrease", "pilot", `Alternative measure of causal knowledge: explain the decrease, ${c.anomaly} anomaly version`, "algae_open",
-      `Why does the organism produce less ${anom} when it is extremely cold, even though more gas is available?`),
-    open("open_increase", "pilot", `Alternative measure of causal knowledge: explain the continuing increase, ${c.anomaly} anomaly version`, "algae_open",
-      `Why does the organism keep producing more ${other} when it is extremely cold?`),
   ];
 }
 
@@ -329,7 +335,7 @@ export function questions(stage, cond) {
   }
 
   if (stage === "elaboration") {
-    if (!evidenceFirst) return [...predictionItems(), algaeDependenceItem(c), ...algaePilotItems(c)];
+    if (!evidenceFirst) return [...predictionItems(), algaeDependenceItem(c), ...algaeOpenItems(c), ...algaeAlternativeItems()];
     const e2 = "Further measure: explanation 2 evaluations", cf = "Further measure: explanation 1 counterfactual evaluations";
     return [
       algaeDependenceItem(c),
@@ -342,9 +348,10 @@ export function questions(stage, cond) {
         "Should the company have mentioned the algae in its first explanation?", "Definitely not", "Definitely yes"),
       likert("omission_acceptable", "main", cf, "counterfactual",
         "How acceptable was it for the company to leave the algae out of its first explanation?", "Not at all acceptable", "Completely acceptable"),
-      ...algaePilotItems(c),
+      ...algaeOpenItems(c),
       likert("company_knew_algae", "pilot", "Knowledge check", "company",
         "How likely is it that the company already knew about the algae when it first explained the organism?", "Very unlikely", "Very likely"),
+      ...algaeAlternativeItems(),
     ];
   }
 

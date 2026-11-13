@@ -87,7 +87,7 @@ In science, these processes have been studied for years and are now very well un
 
 Scientific findings show that biological processes (the ways living things work) on this planet are usually complex.
 
-These processes usually involve many chemical reactions and many factors matter for what happens.
+These processes usually involve many chemical reactions and many different factors that affect what happens. The factors affect each other in complicated ways. The effect of one factor often changes when other factors change.
 
 In science, these processes have been studied for years and are now very well understood.
 
@@ -252,13 +252,13 @@ The organism produces heat on its own, without the algae. So it keeps producing 
 | Main | Further measure: explanation 2 evaluations | How much do you agree or disagree with this statement? The company seems to be making excuses for the test results. (1 \= Strongly disagree; 5 \= Strongly agree) |
 | Main | Further measure: explanation 1 counterfactual evaluations | Should the company have mentioned the algae in its first explanation? (1 \= Definitely not; 5 \= Definitely yes) |
 | Main | Further measure: explanation 1 counterfactual evaluations | How acceptable was it for the company to leave the algae out of its first explanation? (1 \= Not at all acceptable; 5 \= Completely acceptable) |
-| Pilot | Causal knowledge: liquid water | According to the company, what happens to the amount of liquid water available to the algae when it is extremely cold? (There is less liquid water; There is about the same amount of liquid water; There is more liquid water; I don't remember) |
-| Pilot | Causal knowledge: algae activity | According to the company, what happens to the algae when there is too little liquid water? (They become less active; They stay about as active; They become more active; I don't remember) |
-| Pilot | Alternative measure of causal knowledge: explain the decrease, heat anomaly version (cond 1, 3\) | Why does the organism produce less heat when it is extremely cold, even though more gas is available? (Open response) |
-| Pilot | Alternative measure of causal knowledge: explain the decrease, color anomaly version (cond 2, 4\) | Why does the organism produce less purple pigment when it is extremely cold, even though more gas is available? (Open response) |
-| Pilot | Alternative measure of causal knowledge: explain the continuing increase, heat anomaly version (cond 1, 3\) | Why does the organism keep producing more purple pigment when it is extremely cold? (Open response) |
-| Pilot | Alternative measure of causal knowledge: explain the continuing increase, color anomaly version (cond 2, 4\) | Why does the organism keep producing more heat when it is extremely cold? (Open response) |
+| Pilot | Causal knowledge: explain the decrease, heat anomaly version (cond 1, 3\) | Why does the organism produce less heat when it is extremely cold, even though more gas is available? (Open response) |
+| Pilot | Causal knowledge: explain the decrease, color anomaly version (cond 2, 4\) | Why does the organism produce less purple pigment when it is extremely cold, even though more gas is available? (Open response) |
+| Pilot | Causal knowledge: explain the continuing increase, heat anomaly version (cond 1, 3\) | Why does the organism keep producing more purple pigment when it is extremely cold? (Open response) |
+| Pilot | Causal knowledge: explain the continuing increase, color anomaly version (cond 2, 4\) | Why does the organism keep producing more heat when it is extremely cold? (Open response) |
 | Pilot | Knowledge check | How likely is it that the company already knew about the algae when it first explained the organism? (1 \= Very unlikely; 5 \= Very likely) |
+| Alternative | Alternative measure of causal knowledge: liquid water | According to the company, what happens to the amount of liquid water available to the algae when it is extremely cold? (There is less liquid water; There is about the same amount of liquid water; There is more liquid water; I don't remember) |
+| Alternative | Alternative measure of causal knowledge: algae activity | According to the company, what happens to the algae when there is too little liquid water? (They become less active; They stay about as active; They become more active; I don't remember) |
 
 Presentation order:
 
@@ -306,12 +306,12 @@ The organism produces heat on its own, without the algae. So it keeps producing 
 | Main | Heat prediction | How much heat would you expect the organism to produce when it is extremely cold, compared with when it is moderately cold? (1 \= Much less heat; 3 \= About the same amount of heat; 5 \= Much more heat) |
 | Main | Pigment prediction | How much purple pigment would you expect the organism to produce when it is extremely cold, compared with when it is moderately cold? (1 \= Much less purple pigment; 3 \= About the same amount of purple pigment; 5 \= Much more purple pigment) |
 | Main | Causal knowledge: dependence on algae | Which of these can the organism produce only with the help of the algae? (Heat only; Purple pigment only; Both heat and purple pigment; Neither heat nor purple pigment; I don't remember) |
-| Pilot | Causal knowledge: liquid water | According to the company, what happens to the amount of liquid water available to the algae when it is extremely cold? (There is less liquid water; There is about the same amount of liquid water; There is more liquid water; I don't remember) |
-| Pilot | Causal knowledge: algae activity | According to the company, what happens to the algae when there is too little liquid water? (They become less active; They stay about as active; They become more active; I don't remember) |
-| Pilot | Alternative measure of causal knowledge: explain the decrease, heat anomaly version (cond 5, 7\) | Why does the organism produce less heat when it is extremely cold, even though more gas is available? (Open response) |
-| Pilot | Alternative measure of causal knowledge: explain the decrease, color anomaly version (cond 6, 8\) | Why does the organism produce less purple pigment when it is extremely cold, even though more gas is available? (Open response) |
-| Pilot | Alternative measure of causal knowledge: explain the continuing increase, heat anomaly version (cond 5, 7\) | Why does the organism keep producing more purple pigment when it is extremely cold? (Open response) |
-| Pilot | Alternative measure of causal knowledge: explain the continuing increase, color anomaly version (cond 6, 8\) | Why does the organism keep producing more heat when it is extremely cold? (Open response) |
+| Pilot | Causal knowledge: explain the decrease, heat anomaly version (cond 5, 7\) | Why does the organism produce less heat when it is extremely cold, even though more gas is available? (Open response) |
+| Pilot | Causal knowledge: explain the decrease, color anomaly version (cond 6, 8\) | Why does the organism produce less purple pigment when it is extremely cold, even though more gas is available? (Open response) |
+| Pilot | Causal knowledge: explain the continuing increase, heat anomaly version (cond 5, 7\) | Why does the organism keep producing more purple pigment when it is extremely cold? (Open response) |
+| Pilot | Causal knowledge: explain the continuing increase, color anomaly version (cond 6, 8\) | Why does the organism keep producing more heat when it is extremely cold? (Open response) |
+| Alternative | Alternative measure of causal knowledge: liquid water | According to the company, what happens to the amount of liquid water available to the algae when it is extremely cold? (There is less liquid water; There is about the same amount of liquid water; There is more liquid water; I don't remember) |
+| Alternative | Alternative measure of causal knowledge: algae activity | According to the company, what happens to the algae when there is too little liquid water? (They become less active; They stay about as active; They become more active; I don't remember) |
 
 ## **Stage 5, elaboration-first conditions (cond 5, 6, 7, 8): Evidence**
 

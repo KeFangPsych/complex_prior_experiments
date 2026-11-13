@@ -178,8 +178,8 @@ smallest allowed window (1024 × 600) the longer pages scroll a little.
 
 **Pilot and main mode.** `CONFIG.mode = "pilot"` asks every question of the
 script; `"main"` asks only those tagged Main. Participants always get
-`CONFIG.mode`; in testing mode it is chosen on the test setup screen. Pilot mode has 39 or 40
-questions in the evidence-first conditions and 38 or 39 in the elaboration-first
+`CONFIG.mode`; in testing mode it is chosen on the test setup screen. Pilot mode has 37 or 38
+questions in the evidence-first conditions and 36 or 37 in the elaboration-first
 ones (one pilot question is shown to a random half); main mode has 22 and 21.
 Rows tagged **Alternative** in the script are documented alternatives and are
 never asked.
