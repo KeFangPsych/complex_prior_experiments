@@ -32,6 +32,8 @@ participants never see. On it you choose:
 - **Condition**: one of the 8 conditions of the script's design table, or Random.
 - **Evidence figure**: table only, table + line graphs, or Random.
 - **Surprise text**: shown, hidden, or Random (evidence-first conditions only).
+- **Randomly shown question**: shown, hidden, or Random (the "left out other
+  details" question of part 3, pilot questions only).
 - **Questions**: Pilot (all questions) or Main (Main questions only).
 - **Read-locks**: off (Continue works at once) or on (as for participants).
 - **Safeguards**: off or on (as for participants).
@@ -60,7 +62,7 @@ you switched them on.
 | URL flag | effect |
 |---|---|
 | `debug=1` | testing mode: shows the test setup screen |
-| `cond=1..8`, `fig=table\|line`, `surprise=shown\|hidden`, `mode=pilot\|main`, `locks=1`, `safeguards=1` | with `debug=1`: prefill the test setup screen |
+| `cond=1..8`, `fig=table\|line`, `surprise=shown\|hidden`, `leftout=shown\|hidden`, `mode=pilot\|main`, `locks=1`, `safeguards=1` | with `debug=1`: prefill the test setup screen |
 | `nofs=1` | without `debug=1`: the participant version, but with no fullscreen requirement and no viewport lock |
 | `condition=k` | forces assignment cell `k` (0–31) when DataPipe is disabled |
 
@@ -98,7 +100,7 @@ last screen offers the data as a CSV download instead.
 | `src/config.js` | DataPipe and Prolific settings, pilot / main mode, read-lock times, and the text around the scenario (welcome, informed consent, instructions, final comments, debrief), also transcribed from the script |
 | `src/consent-pdf.js` | writes the consent form to a PDF when a participant clicks "Save a copy (PDF)" |
 | `src/main.js` | the jsPsych timeline and the screens; the screens from welcome to the final comments are drawn from a cursor, which is what lets testing mode go back |
-| `src/ui.js` | stepper frame, cards, read-lock, and the question components (7-point scale, multiple choice, open response) |
+| `src/ui.js` | stepper frame, cards, read-lock, and the question components (5-point rating scale, multiple choice, open response) |
 | `src/integrity.js` | fullscreen, viewport lock, mobile block, protections, tab / blur logging |
 | `src/page-plugin.js` | a small jsPsych plugin for hand-built screens |
 | `src/images.js` | resolves picture names to URLs; the pictures stay in `../complex_prior_pilot1_vignette1_images/` |
@@ -120,7 +122,7 @@ npm run check:script
 For all 8 conditions, both surprise-text settings and both figure versions, this
 renders the scenario and the questions from `content.js` and compares them with
 the script: every paragraph and page break, every figure name (and that the file
-exists), every question with its scale or options, measure label and Main / Pilot
+exists), every question with its scale or options, measure label and Main / Pilot / Alternative
 tag, the "Presentation order" notes that say what is randomized, the order of the
 stages, and the design table. It also compares the text in `config.js` with the
 script, and checks that the randomization does what the notes say. It exits with
@@ -159,7 +161,8 @@ safeguards on. Key phrases of the scenario text are bold, as marked with
 the two question blocks (perceived complexity, perceived scientific
 understanding) come in random order; in part 3 the answer options of the
 construction team's goal question are shuffled with "I don't remember" kept last,
-and the two relevance questions come in random order; in the end evaluations
+the two relevance questions come in random order, and the "left out other
+details" question is shown to a random half of the participants; in the end evaluations
 after part 5 the complexity, source-trust and utility blocks come in random
 order. The order within a block is fixed, and everything else follows the order
 of the script's tables.
@@ -175,9 +178,11 @@ smallest allowed window (1024 × 600) the longer pages scroll a little.
 
 **Pilot and main mode.** `CONFIG.mode = "pilot"` asks every question of the
 script; `"main"` asks only those tagged Main. Participants always get
-`CONFIG.mode`; in testing mode it is chosen on the test setup screen. Pilot mode has 42 questions in the
-evidence-first conditions and 41 in the elaboration-first ones; main mode has 22
-and 21.
+`CONFIG.mode`; in testing mode it is chosen on the test setup screen. Pilot mode has 39 or 40
+questions in the evidence-first conditions and 38 or 39 in the elaboration-first
+ones (one pilot question is shown to a random half); main mode has 22 and 21.
+Rows tagged **Alternative** in the script are documented alternatives and are
+never asked.
 
 **Choices that the script does not specify** (all easy to change):
 
@@ -220,7 +225,7 @@ screen when DataPipe is disabled or the upload failed).
 **Every answer is a participant-level column** named after the item's `id` in
 `content.js` (for example `complexity_overall`, `trust_tell`, `pred_heat`,
 `obs_heat`, `open_decrease`), so the **last row of the file holds the complete
-record**. Scales are stored as 1–7, multiple choice as the option text, open
+record**. Scales are stored as 1–5, multiple choice as the option text, open
 responses as text. Multiple-choice questions with a right answer also get
 `<id>_correct`. A question that was not asked in the participant's condition or
 mode has no value.
@@ -233,7 +238,8 @@ Other participant-level columns: `subject_id`, `prolific_pid`, `study_id`,
 integrity counters above. The random orders that were drawn are recorded in
 `order_planet_blocks` (for example `planet_understanding,planet_complexity`),
 `order_final_blocks` (for example `trust,complexity,utility`),
-`order_relevance` (pilot mode) and `team_goal_option_order` (the options as
+`order_relevance` (pilot mode), `explanation1_left_out_shown` (pilot mode;
+`true` / `false`) and `team_goal_option_order` (the options as
 displayed, separated by ` | `). `response_index` and `<id>_correct` always refer
 to the option's position in the script, not on the screen.
 
@@ -245,7 +251,7 @@ Row-level detail, by `task`:
 | `questions` | `stage_index`, `stage`, `page`, `page_index`, `item_ids`, `rt`, and `responses`: JSON with one entry per item (`id`, `use`, `type`, `measure`, `response`, `response_index`, `correct`, `position`, `option_order`, `first_ms`, `last_ms`, `n_changes`) |
 | `consent` | `consented`, `fullscreen_ok`, `consent_pdf_saves` |
 | `test_back` | testing mode only: a Back or Change settings press (`from_task`, or `to: "setup"`) |
-| `test_setup` | testing mode only: `test_cond`, `test_figure`, `test_surprise`, `test_mode`, `test_locks`, `test_safeguards` |
+| `test_setup` | testing mode only: `test_cond`, `test_figure`, `test_surprise`, `test_leftout`, `test_mode`, `test_locks`, `test_safeguards` |
 | `save_data` | `success`, `attempts` |
 
 Predictions (`pred_heat`, `pred_pigment`) are asked after part 3 in the
