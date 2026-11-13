@@ -1,0 +1,402 @@
+/**
+ * main.js — complexity-priors pilot 1, vignette 1.
+ *
+ * Three-factor between-participants design (order x complexity x evidence; the 8
+ * conditions of the script's design table). Two further things are randomized
+ * independently: which version of the evidence figure is shown (table / line),
+ * and, in the evidence-first conditions, whether the sentences that highlight
+ * the surprise are shown.
+ *
+ * Timeline: welcome -> consent (enters fullscreen) -> assignment -> preload ->
+ * instructions -> five stages, each a story screen (text + picture, read-locked)
+ * followed by its question screens (story hidden) -> comments -> save -> debrief.
+ *
+ * URL flags: ?debug=1  no read-locks, no protections, loads the dev bot (__autoplay)
+ *            ?nofs=1   no fullscreen requirement and no viewport lock (dev only)
+ *            ?condition=k   forces assignment cell k (0-31) when DataPipe is disabled
+ *            with ?debug=1 also: ?cond=1..8, ?fig=table|line, ?surprise=shown|hidden,
+ *            ?mode=pilot|main
+ */
+import { initJsPsych } from "jspsych";
+import jsPsychPreload from "@jspsych/plugin-preload";
+import jsPsychCallFunction from "@jspsych/plugin-call-function";
+import jsPsychPipe from "@jspsych-contrib/plugin-pipe";
+// fonts are bundled, so the page makes no third-party requests
+import "@fontsource/lora/latin-400.css";
+import "@fontsource/lora/latin-500.css";
+import "@fontsource/ibm-plex-sans/latin-400.css";
+import "@fontsource/ibm-plex-sans/latin-500.css";
+import "@fontsource/ibm-plex-sans/latin-600.css";
+import "@fontsource/ibm-plex-sans/latin-700.css";
+import "./styles.css";
+
+import PagePlugin from "./page-plugin.js";
+import { CONFIG, DATAPIPE, PROLIFIC, STUDY, WELCOME_HTML, INSTRUCTIONS_HTML, FEEDBACK_PROMPT, DEBRIEF_HTML, CONSENT_HTML } from "./config.js";
+import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, story, questionPages } from "./content.js";
+import { imageUrl } from "./images.js";
+import { state, integrityProps, DEBUG, DEV_FLAGS, NOFS, MODE, URL_PARAMS, prolificPID, studyID, sessionID, subjectId } from "./state.js";
+import { buildFrame, setPhase, updateProgress, card, lockButton, questionsHtml, bindQuestions, N_STAGES } from "./ui.js";
+import { requestFullscreenSafe, isFullscreen, hideFullscreenOverlay, checkViewport, isMobileDevice, applyProductionProtections, installIntegrityListeners } from "./integrity.js";
+
+document.title = STUDY.title;
+const lock = (seconds) => (DEBUG ? 0 : seconds);
+const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
+const eyebrow = (text) => `<div class="eyebrow">${text}</div>`;
+
+// ============================================================================
+// 1. JSPSYCH
+// ============================================================================
+// jsPsych replaces the content of its display element, so it gets its own
+// container and the fixed stepper frame lives outside it.
+const target = document.createElement("div");
+target.id = "jspsych-target";
+document.body.appendChild(target);
+buildFrame();
+
+const jsPsych = initJsPsych({
+  display_element: "jspsych-target",
+  on_finish: function () {
+    if (prolificPID) {
+      window.location.href = `https://app.prolific.com/submissions/complete?cc=${PROLIFIC.completion_code}`;
+    } else {
+      target.innerHTML = `<div class="end-wrap">${card(`${eyebrow(STUDY.title)}<h1>All done</h1><p>You can now close this window.</p>`, "card-narrow card-center")}</div>`;
+    }
+  },
+});
+
+jsPsych.data.addProperties({
+  subject_id: subjectId,
+  prolific_pid: prolificPID,
+  study_id: studyID,
+  session_id: sessionID,
+  experiment_name: CONFIG.experiment_name,
+  experiment_version: CONFIG.experiment_version,
+  mode: MODE,
+  start_time: new Date().toISOString(),
+  debug_mode: DEBUG,
+  nofs_mode: NOFS,
+  user_agent: navigator.userAgent,
+  screen_width: window.screen.width,
+  screen_height: window.screen.height,
+});
+
+// ============================================================================
+// 2. ASSIGNMENT
+//    A cell index 0-31 fixes the condition, the evidence-figure version and the
+//    surprise text (assignmentFromIndex in content.js).
+// ============================================================================
+function applyAssignment(index, source) {
+  const a = assignmentFromIndex(index);
+  if (DEBUG) {   // dev overrides
+    const cond = parseInt(URL_PARAMS.get("cond"));
+    if (CONDITIONS[cond]) a.cond = cond;
+    if (["table", "line"].includes(URL_PARAMS.get("fig"))) a.figureVersion = URL_PARAMS.get("fig");
+    if (["shown", "hidden"].includes(URL_PARAMS.get("surprise"))) a.surpriseText = URL_PARAMS.get("surprise") === "shown";
+  }
+  const c = CONDITIONS[a.cond];
+  Object.assign(state, {
+    conditionIndex: index,
+    cond: a.cond,
+    order: c.order,
+    complexity: c.complexity,
+    anomaly: c.anomaly,
+    figureVersion: a.figureVersion,
+    // the surprise sentences exist only where the evidence comes before the elaboration
+    surpriseText: c.order === "evidence_first" ? a.surpriseText : null,
+    stages: STAGE_SEQUENCE[c.order],
+  });
+  jsPsych.data.addProperties({
+    condition_index: index,
+    condition_source: source,       // "datapipe" | "url" | "random" | "random_fallback" (DataPipe did not answer)
+    cond: state.cond,
+    order: state.order,
+    complexity: state.complexity,
+    anomaly: state.anomaly,
+    goal_relevance: state.anomaly === "heat" ? "high" : "low",
+    evidence_figure: state.figureVersion,
+    surprise_text: state.surpriseText === null ? "not_applicable" : state.surpriseText ? "shown" : "hidden",
+    stage_order: JSON.stringify(state.stages),
+  });
+  // welcome, consent, instructions + (story + question screens) per stage + comments, debrief
+  const screens = state.stages.reduce((n, s) => n + 1 + questionPages(s, state.cond, MODE).length, 0);
+  state.totalSteps = 3 + screens + 2;
+}
+
+const storyOf = (stage) => story(stage, state.cond, { surpriseText: state.surpriseText !== false, figureVersion: state.figureVersion });
+
+const randomCell = () => randomInt(0, N_CELLS - 1);
+const assignCondition = {
+  type: jsPsychCallFunction,
+  async: true,
+  data: { task: "condition_assignment" },
+  func: function (done) {
+    if (!DATAPIPE.enabled) {
+      const forced = DEV_FLAGS ? parseInt(URL_PARAMS.get("condition")) : NaN;
+      const ok = Number.isFinite(forced) && forced >= 0;
+      applyAssignment(ok ? forced : randomCell(), ok ? "url" : "random");
+      return done();
+    }
+    // DataPipe's condition counter; a random cell if it does not answer in time
+    let settled = false;
+    const settle = (c) => {
+      if (settled) return;
+      settled = true;
+      const ok = Number.isInteger(c) && c >= 0;
+      applyAssignment(ok ? c : randomCell(), ok ? "datapipe" : "random_fallback");
+      done();
+    };
+    setTimeout(() => settle(null), DATAPIPE.condition_timeout_ms);
+    Promise.resolve().then(() => jsPsychPipe.getCondition(DATAPIPE.experiment_id)).then((c) => settle(parseInt(c)), () => settle(null));
+  },
+};
+
+// ============================================================================
+// 3. WELCOME, CONSENT, INSTRUCTIONS
+// ============================================================================
+// A card with one in-card button.
+function cardButtonPage({ task, html, label = "Continue", cls = "card-narrow", phase, lockSeconds = 0, onStart = null, onRender = null, onClick = null }) {
+  return {
+    type: PagePlugin,
+    data: { task },
+    on_start: function () { if (phase) setPhase(phase); if (onStart) onStart(); },
+    render: function (el, done) {
+      const inner = typeof html === "function" ? html() : html;
+      const lab = typeof label === "function" ? label() : label;
+      el.innerHTML = card(`${inner}<div class="btn-row"><button class="btn btn-lg" id="card-btn">${lab}</button></div>`, cls);
+      const btn = el.querySelector("#card-btn");
+      lockButton(btn, lock(lockSeconds), lab);
+      btn.addEventListener("click", () => (onClick ? onClick(done) : done()));
+      if (onRender) onRender(el);
+    },
+    on_finish: updateProgress,
+  };
+}
+
+const welcome = cardButtonPage({ task: "welcome", phase: "intro", html: `${eyebrow(STUDY.title)}${WELCOME_HTML}` });
+
+const consent = cardButtonPage({
+  task: "consent", phase: "intro",
+  label: "I consent — begin the study",
+  html: `${eyebrow("Before you begin")}${CONSENT_HTML}
+    ${NOFS ? "" : `<p class="small" style="margin-top:14px;">Clicking the button switches your browser to full-screen mode for the rest of the study.</p>`}`,
+  onClick: function (done) {
+    state.consented = true;
+    const finish = () => done({ consented: true, fullscreen_ok: isFullscreen() });
+    if (NOFS) return finish();
+    requestFullscreenSafe().then(() => setTimeout(finish, 150));
+  },
+});
+
+const instructions = cardButtonPage({
+  task: "instructions", phase: "intro", label: "Start the story",
+  lockSeconds: CONFIG.instruction_lock_seconds,
+  html: `${eyebrow("Instructions")}${INSTRUCTIONS_HTML}`,
+});
+
+// ============================================================================
+// 4. STAGES: story screen, then question screens
+// ============================================================================
+const stageEyebrow = (i, extra = "") => eyebrow(`Part ${i + 1} of ${N_STAGES}${extra}`);
+const stagePhase = (i) => `part${i + 1}`;
+
+function makeStage(i) {
+  const storyPage = {
+    type: PagePlugin,
+    data: { task: "story" },
+    on_start: function () {
+      const stage = state.stages[i];
+      state.stageIdx = i;
+      state.pages = questionPages(stage, state.cond, MODE);
+      state.pageIdx = 0;
+      state.currentItems = [];
+      setPhase(stagePhase(i), { now: 1, total: 1 + state.pages.length });
+    },
+    render: function (el, done) {
+      const stage = state.stages[i];
+      const s = storyOf(stage);
+      const label = state.pages.length ? "Continue to the questions" : "Continue";
+      el.innerHTML = card(`${stageEyebrow(i)}
+        <div class="story-text">${s.paragraphs.map((p) => `<p>${p}</p>`).join("")}</div>
+        <div class="story-figure"><img src="${imageUrl(s.figure)}" alt="${s.alt}" draggable="false"></div>
+        <div class="btn-row"><button class="btn btn-lg" id="card-btn">${label}</button></div>
+        <p class="small story-note">You will not be able to come back to this page.</p>`, "story-card");
+      const btn = el.querySelector("#card-btn");
+      lockButton(btn, lock(CONFIG.story_lock_seconds), label);
+      btn.addEventListener("click", () => done({
+        stage_index: i + 1, stage, figure: s.figure,
+        n_words: s.paragraphs.join(" ").split(/\s+/).length,
+        lock_seconds: lock(CONFIG.story_lock_seconds),
+      }));
+    },
+    on_finish: updateProgress,
+  };
+
+  const questionPage = {
+    type: PagePlugin,
+    data: { task: "questions" },
+    on_start: () => setPhase(stagePhase(i), { now: 2 + state.pageIdx, total: 1 + state.pages.length }),
+    render: function (el, done) {
+      const page = state.pages[state.pageIdx];
+      state.currentItems = page.items;
+      el.innerHTML = card(`${stageEyebrow(i, " · Questions")}
+        ${questionsHtml(page.items)}
+        <div class="btn-row"><button class="btn btn-lg" id="q-submit" disabled>Continue</button></div>`, "card-narrow question-card");
+      const btn = el.querySelector("#q-submit");
+      const q = bindQuestions(el, page.items, () => { btn.disabled = !q.isComplete(); });
+      btn.addEventListener("click", () => {
+        if (!q.isComplete()) return;
+        const results = q.results();
+        // every answer also becomes a participant-level column named after the item id
+        const props = {};
+        results.forEach((r) => {
+          props[r.id] = r.response;
+          if (r.correct !== null) props[`${r.id}_correct`] = r.correct;
+        });
+        jsPsych.data.addProperties(props);
+        done({
+          stage_index: i + 1, stage: state.stages[i],
+          page: page.key, page_index: state.pageIdx + 1,
+          item_ids: JSON.stringify(page.items.map((x) => x.id)),
+          responses: JSON.stringify(results),
+        });
+      });
+    },
+    on_finish: function () { state.pageIdx++; state.currentItems = []; updateProgress(); },
+  };
+
+  return {
+    timeline: [
+      storyPage,
+      {
+        timeline: [questionPage],
+        conditional_function: () => state.pages.length > 0,
+        loop_function: () => state.pageIdx < state.pages.length,
+      },
+    ],
+  };
+}
+
+// ============================================================================
+// 5. COMMENTS, SAVE, DEBRIEF
+// ============================================================================
+const generalFeedback = {
+  type: PagePlugin,
+  data: { task: "general_feedback" },
+  on_start: () => setPhase("wrap"),
+  render: function (el, done) {
+    el.innerHTML = card(`${eyebrow("Almost done")}
+      <p class="q-label">${FEEDBACK_PROMPT}</p>
+      <textarea class="open-textarea" id="text-answer" rows="5" placeholder="Type your answer here (optional)"></textarea>
+      <div class="btn-row"><button class="btn btn-lg" id="text-submit">Continue</button></div>`, "card-narrow");
+    const ta = el.querySelector("#text-answer");
+    el.querySelector("#text-submit").addEventListener("click", () => {
+      jsPsych.data.addProperties({ general_feedback: ta.value.trim() });
+      done({ response: ta.value.trim() });
+    });
+  },
+  on_finish: updateProgress,
+};
+
+const finalize = {
+  type: jsPsychCallFunction,
+  data: { task: "finalize" },
+  func: function () {
+    jsPsych.data.addProperties({
+      completion_status: "completed",
+      completion_time: new Date().toISOString(),
+      ...integrityProps(),
+    });
+  },
+};
+
+// Uploads the CSV to DataPipe, retrying on failure; if every attempt fails the
+// debrief screen offers the file as a download.
+const saveData = {
+  type: PagePlugin,
+  data: { task: "save_data" },
+  on_start: () => setPhase("wrap"),
+  render: function (el, done) {
+    el.innerHTML = card(`<h2>Saving your responses…</h2><div class="spinner"></div><p class="muted">Please do not close this window.</p>`, "card-narrow card-center");
+    const csv = jsPsych.data.get().csv();
+    const attempt = async (n) => {
+      let ok = false;
+      try {
+        const result = await jsPsychPipe.saveData(DATAPIPE.experiment_id, `${subjectId}.csv`, csv);
+        ok = !!result && !(result instanceof Error) && !result.error;
+      } catch (e) {
+        ok = false;
+      }
+      if (ok || n >= DATAPIPE.save_attempts) {
+        state.saveFailed = !ok;
+        done({ success: ok, attempts: n });
+      } else {
+        setTimeout(() => attempt(n + 1), DEBUG ? 100 : 1500);
+      }
+    };
+    attempt(1);
+  },
+};
+
+const debrief = cardButtonPage({
+  task: "debrief", phase: "wrap",
+  label: () => (prolificPID ? "Complete and return to Prolific" : "Complete study"),
+  html: function () {
+    // without DataPipe (or if saving failed) the data can be downloaded here
+    const download = !DATAPIPE.enabled || state.saveFailed
+      ? `<div class="download-box"><p class="muted">${state.saveFailed
+          ? "Your responses could not be saved automatically. Please download them and send the file to the research team."
+          : "DataPipe is disabled, so nothing was uploaded."}</p>
+          <button class="btn btn-secondary" id="download-btn" type="button">Download data (CSV)</button></div>`
+      : "";
+    return `${eyebrow("Thank you")}${DEBRIEF_HTML}${download}
+      ${prolificPID ? '<p class="muted">Click below to complete the study and return to Prolific.</p>' : ""}`;
+  },
+  onStart: function () {
+    state.finished = true;
+    hideFullscreenOverlay();
+    if (isFullscreen() && document.exitFullscreen) document.exitFullscreen().catch(() => {});
+  },
+  onRender: function (el) {
+    const b = el.querySelector("#download-btn");
+    if (b) b.addEventListener("click", () => jsPsych.data.get().localSave("csv", `${subjectId}.csv`));
+  },
+});
+
+// ============================================================================
+// 6. TIMELINE
+// ============================================================================
+const timeline = [welcome, consent, assignCondition];
+timeline.push({
+  type: jsPsychPreload,
+  images: () => state.stages.map((s) => imageUrl(storyOf(s).figure)),
+  show_progress_bar: true,
+  message: "<p>Loading…</p>",
+  data: { task: "preload" },
+});
+timeline.push(instructions);
+for (let i = 0; i < N_STAGES; i++) timeline.push(makeStage(i));
+timeline.push(generalFeedback, finalize);
+if (DATAPIPE.enabled) timeline.push(saveData);
+timeline.push(debrief);
+
+// ============================================================================
+// 7. START
+// ============================================================================
+installIntegrityListeners();
+if (CONFIG.block_mobile && isMobileDevice() && !NOFS) {
+  document.getElementById("frame-top").style.display = "none";
+  target.innerHTML = `<div class="end-wrap">${card(`${eyebrow(STUDY.title)}
+    <h1>Please use a desktop or laptop computer</h1>
+    <p>This study cannot be completed on a phone or tablet. Please return on a computer with a full-size browser window.</p>`, "card-narrow")}</div>`;
+} else {
+  if (CONFIG.production_protections && !DEBUG) applyProductionProtections();
+  checkViewport();
+  const start = () => jsPsych.run(timeline);
+  if (DEBUG) {
+    // dev only: expose internals and load the bot (a separate chunk, never fetched in production)
+    Object.assign(window, { jsPsych, experimentState: state });
+    import("./autoplay.js").then(start);
+  } else {
+    start();
+  }
+}

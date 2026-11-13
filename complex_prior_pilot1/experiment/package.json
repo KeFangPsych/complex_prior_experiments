@@ -1,0 +1,26 @@
+{
+  "name": "complex-prior-pilot1-vignette1",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "jsPsych experiment for complexity-priors pilot 1, vignette 1",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check:script": "node dev/check_script.mjs",
+    "test:walk": "node dev/walk.cjs",
+    "test:integrity": "node dev/integrity_test.cjs"
+  },
+  "dependencies": {
+    "@fontsource/ibm-plex-sans": "^5.3.0",
+    "@fontsource/lora": "^5.3.0",
+    "@jspsych-contrib/plugin-pipe": "^0.6.0",
+    "@jspsych/plugin-call-function": "^2.1.0",
+    "@jspsych/plugin-preload": "^2.1.0",
+    "jspsych": "^8.3.0"
+  },
+  "devDependencies": {
+    "vite": "^8.3.8"
+  }
+}

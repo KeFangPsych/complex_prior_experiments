@@ -1,0 +1,66 @@
+/**
+ * state.js — run-time state shared by the modules.
+ */
+import { CONFIG } from "./config.js";
+
+const urlParams = new URLSearchParams(window.location.search);
+export const URL_PARAMS = urlParams;
+// testing flags: always on the dev server, on the built site only if allowed
+export const DEV_FLAGS = import.meta.env.DEV || CONFIG.allow_dev_flags;
+export const DEBUG = DEV_FLAGS && urlParams.get("debug") === "1";
+export const NOFS = (DEV_FLAGS && urlParams.get("nofs") === "1") || !CONFIG.require_fullscreen;
+export const MODE = DEBUG && ["pilot", "main"].includes(urlParams.get("mode")) ? urlParams.get("mode") : CONFIG.mode;
+
+export const prolificPID = urlParams.get("PROLIFIC_PID") || null;
+export const studyID = urlParams.get("STUDY_ID") || null;
+export const sessionID = urlParams.get("SESSION_ID") || null;
+export const subjectId = prolificPID || "test_" + Math.random().toString(36).substring(2, 10) + "_" + Date.now();
+
+export const state = {
+  phase: "intro",
+  consented: false,
+  finished: false,
+  // assignment (set by applyAssignment in main.js)
+  conditionIndex: null,
+  cond: null,               // 1-8, as in the script's design table
+  order: null,              // "evidence_first" | "elaboration_first"
+  complexity: null,         // "low" | "high"
+  anomaly: null,            // "heat" | "color"
+  figureVersion: null,      // "table" | "line"
+  surpriseText: null,       // true | false in evidence-first conditions, null otherwise
+  stages: [],               // stage keys in presentation order
+  // current stage
+  stageIdx: 0,
+  pages: [],                // question screens of the current stage
+  pageIdx: 0,
+  currentItems: [],         // items on the screen being shown (used by the dev bot)
+  // progress bar
+  completedSteps: 0,
+  totalSteps: 30,
+  saveFailed: false,
+};
+
+// Integrity counters; written to the data at the end (see integrityProps).
+export const integrity = {
+  fullscreen_entered: false,
+  fullscreen_exit_count: 0,
+  fullscreen_exit_log: [],       // [{t, phase}]
+  tab_hidden_count: 0,
+  tab_hidden_total_ms: 0,
+  window_blur_count: 0,
+  viewport_lock_count: 0,
+  paste_attempts: 0,
+  _hiddenSince: null,
+};
+export function integrityProps() {
+  return {
+    fullscreen_entered: integrity.fullscreen_entered,
+    fullscreen_exit_count: integrity.fullscreen_exit_count,
+    fullscreen_exit_log: JSON.stringify(integrity.fullscreen_exit_log),
+    tab_hidden_count: integrity.tab_hidden_count,
+    tab_hidden_total_ms: Math.round(integrity.tab_hidden_total_ms),
+    window_blur_count: integrity.window_blur_count,
+    viewport_lock_count: integrity.viewport_lock_count,
+    paste_attempts: integrity.paste_attempts,
+  };
+}

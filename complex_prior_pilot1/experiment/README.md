@@ -1,0 +1,224 @@
+# Complexity priors, pilot 1, vignette 1 — jsPsych experiment
+
+A jsPsych 8 experiment built from
+[`../complex_prior_pilot1_vignette1_script.md`](../complex_prior_pilot1_vignette1_script.md).
+Participants read a five-part story about a technology on an alien planet (text
+plus a picture per part) and answer questions after each part.
+
+It is a Node project: jsPsych and its plugins come from npm and
+[Vite](https://vite.dev) bundles everything into a static site. The UI and the
+integrity layer follow `prag_net_memo/experiment/speaker_selective_truth` (card
+layout, phase stepper, read-locked pages, fullscreen enforcement, DataPipe).
+
+## Run it
+
+```bash
+npm install
+```
+
+```bash
+npm run dev
+```
+
+Then open <http://localhost:8765/?debug=1&nofs=1>. Without the flags you get the
+experiment exactly as a participant does (fullscreen, read-locks, no shortcuts).
+
+| URL flag | effect |
+|---|---|
+| `debug=1` | no read-locks, no copy / devtools protections, loads the test bot (`__autoplay()` in the console) |
+| `nofs=1` | no fullscreen requirement and no viewport lock |
+| `condition=k` | forces assignment cell `k` (0–31) when DataPipe is disabled |
+| `cond=1..8` | with `debug=1`: forces the condition of the script's design table |
+| `fig=table\|line` | with `debug=1`: forces the evidence-figure version |
+| `surprise=shown\|hidden` | with `debug=1`: forces the surprise text |
+| `mode=pilot\|main` | with `debug=1`: overrides `CONFIG.mode` |
+
+The flags always work on the dev server. On the built site they work only while
+`CONFIG.allow_dev_flags` is `true`.
+
+Build the static site (output in `dist/`, deployable to any static host):
+
+```bash
+npm run build
+```
+
+```bash
+npm run preview
+```
+
+## Files
+
+| file | role |
+|---|---|
+| `src/content.js` | the story text, figure names and questions for every condition, transcribed from the script; also the design table and the assignment cells |
+| `src/config.js` | DataPipe and Prolific settings, pilot / main mode, read-lock times, and the text that is **not** in the script (welcome, consent, instructions, debrief) |
+| `src/main.js` | the jsPsych timeline |
+| `src/ui.js` | stepper frame, cards, read-lock, and the question components (7-point scale, multiple choice, open response) |
+| `src/integrity.js` | fullscreen, viewport lock, mobile block, protections, tab / blur logging |
+| `src/page-plugin.js` | a small jsPsych plugin for hand-built screens |
+| `src/images.js` | resolves picture names to URLs; the pictures stay in `../complex_prior_pilot1_vignette1_images/` |
+| `src/state.js`, `src/styles.css`, `src/autoplay.js` | run-time state, styles, the debug-only test bot |
+| `dev/check_script.mjs` | checks `content.js` against the script (`npm run check:script`) |
+| `dev/walk.cjs`, `dev/integrity_test.cjs` | browser tests (see *Testing*) |
+
+## Keeping the experiment in sync with the script
+
+The script is the source of truth. After editing it, mirror the change in
+`src/content.js` and run:
+
+```bash
+npm run check:script
+```
+
+For all 8 conditions, both surprise-text settings and both figure versions, this
+renders the story and the questions from `content.js` and compares them with the
+script: every paragraph, every figure name (and that the file exists), every
+question with its scale or options, measure label and Main / Pilot tag, the order
+of the stages, and the design table. It exits with an error and lists each
+difference.
+
+## Design
+
+**Conditions.** The 8 conditions of the script's design table: order (evidence
+first / elaboration first) × complexity (low / high) × evidence (heat / color
+anomaly). Two more things are randomized independently, as the script's
+underlining specifies:
+
+- **Evidence figure**: table only, or table plus line graphs (all conditions).
+- **Surprise text**: whether the underlined sentences of the evidence stage are
+  shown (evidence-first conditions only; the three underlined pieces are shown or
+  hidden together).
+
+Crossing these gives **32 assignment cells**. Cell `k` maps to condition
+`k % 8 + 1`, figure `table` for `k` in 0–7 and 16–23 (else `line`), and surprise
+text shown for `k` in 0–15 (else hidden). With DataPipe enabled, `k` is its
+condition counter, so consecutive participants fill every cell once per 32.
+Without DataPipe, or if DataPipe does not answer within 8 s, `k` is drawn at
+random (`condition_source` records which).
+
+**Timeline.** welcome → consent (enters fullscreen) → assignment → picture
+preload → one instruction page → five parts → optional comments → save →
+debrief. Each part is one **story screen** (text + picture, Continue locked for
+`CONFIG.story_lock_seconds`) followed by its **question screens**.
+
+**Pilot and main mode.** `CONFIG.mode = "pilot"` asks every question of the
+script; `"main"` asks only those tagged Main. Pilot mode has 42 questions in the
+evidence-first conditions and 41 in the elaboration-first ones; main mode has 22
+and 21.
+
+**Choices that the script does not specify** (all easy to change):
+
+- The story text and picture are **not visible while answering**, and there is no
+  Back button. Several questions offer "I don't remember", so they are treated as
+  memory questions.
+- Questions are asked **in the order of the script's tables**, grouped onto
+  screens of one to four related items (the `page` key of each item in
+  `content.js`). Item and option order is fixed, not shuffled.
+- Every question must be answered. Open responses need at least
+  `CONFIG.open_min_chars` (10) characters.
+- No feedback is given on the memory questions and nobody is screened out;
+  correctness is recorded only.
+- The stepper shows neutral labels (Part 1 … Part 5).
+- The welcome, instruction and debrief text and the study title in
+  `src/config.js` are written for this implementation. The consent text is a
+  **placeholder**.
+
+## Integrity measures
+
+As in the reference experiment, nothing here ends the study; everything is
+recorded for exclusion decisions at analysis time.
+
+- **Fullscreen** is entered on consent. Leaving it shows a blocking overlay with a
+  *Return to full screen* button (`fullscreen_exit_count`, `fullscreen_exit_log`).
+- **Tab switching**: `tab_hidden_count`, `tab_hidden_total_ms`, `window_blur_count`.
+- **Viewport lock** below 1024 × 600 (`viewport_lock_count`), **mobile block**,
+  blocked context menu, copy / cut / paste (`paste_attempts`) and devtools
+  shortcuts, and a leave-page warning between consent and debrief.
+- **Read-locks** on the instruction and story pages; reading time is each story
+  row's `rt`.
+
+The page loads nothing from other servers: jsPsych, the fonts and the pictures
+are all bundled. Only DataPipe (when enabled) and the Prolific redirect are
+contacted.
+
+## Data
+
+One CSV per participant (uploaded through DataPipe, or downloadable on the last
+screen when DataPipe is disabled or the upload failed).
+
+**Every answer is a participant-level column** named after the item's `id` in
+`content.js` (for example `complexity_overall`, `trust_tell`, `pred_heat`,
+`obs_heat`, `open_decrease`), so the **last row of the file holds the complete
+record**. Scales are stored as 1–7, multiple choice as the option text, open
+responses as text. Multiple-choice questions with a right answer also get
+`<id>_correct`. A question that was not asked in the participant's condition or
+mode has no value.
+
+Other participant-level columns: `subject_id`, `prolific_pid`, `study_id`,
+`session_id`, `mode`, `condition_index`, `condition_source`, `cond` (1–8),
+`order`, `complexity`, `anomaly`, `goal_relevance`, `evidence_figure`,
+`surprise_text` (`shown` / `hidden` / `not_applicable`), `stage_order`,
+`general_feedback`, `completion_status`, `debug_mode`, `nofs_mode`, and the
+integrity counters above.
+
+Row-level detail, by `task`:
+
+| `task` | columns |
+|---|---|
+| `story` | `stage_index`, `stage`, `figure`, `n_words`, `lock_seconds`, `rt` (reading time, ms) |
+| `questions` | `stage_index`, `stage`, `page`, `page_index`, `item_ids`, `rt`, and `responses`: JSON with one entry per item (`id`, `use`, `type`, `measure`, `response`, `response_index`, `correct`, `first_ms`, `last_ms`, `n_changes`) |
+| `consent` | `consented`, `fullscreen_ok` |
+| `save_data` | `success`, `attempts` |
+
+Predictions (`pred_heat`, `pred_pigment`) are asked after part 3 in the
+evidence-first conditions and after part 4 in the elaboration-first ones; the
+`stage_index` of their `questions` row says which.
+
+## Testing
+
+`npm run check:script` needs nothing but Node. The browser tests need the dev
+server running in another terminal and Playwright, which is not a dependency of
+this project:
+
+```bash
+npm i --no-save playwright
+```
+
+```bash
+npx playwright install chromium
+```
+
+```bash
+npm run test:walk
+```
+
+```bash
+npm run test:integrity
+```
+
+- `test:walk` runs the whole experiment with the test bot in all 8 conditions ×
+  pilot / main mode and checks the data against `content.js`: assignment columns,
+  story order and figures, exactly the expected question screens, a valid answer
+  for every question, the scoring of the memory questions, and no page errors.
+  `node dev/walk.cjs --shots 3` also saves a screenshot of every screen of
+  condition 3 to `dev/shots/`.
+- `test:integrity` uses the page as a participant gets it, with real clicks:
+  fullscreen on consent and the overlay on leaving it, read-locks, Continue
+  locked until every item is answered, the open-response minimum, the viewport
+  lock and the mobile block.
+
+Set `BASE_URL` to test another address (for example the built site under
+`npm run preview`), and `CHROME_PATH` to use an existing Chrome.
+
+## Before collecting data
+
+- **Replace the consent text** in `src/config.js` with the approved form, and fill
+  in `STUDY.payment` and `STUDY.duration`. Review the welcome, instruction and
+  debrief text.
+- Fill in `DATAPIPE.experiment_id`, set `enabled: true`, and turn on DataPipe's
+  condition assignment with **32 conditions** (or a multiple of 32).
+- Fill in `PROLIFIC.completion_code`.
+- Set `CONFIG.mode` (`"pilot"` or `"main"`).
+- Set `CONFIG.allow_dev_flags` to `false`, then `npm run build` and deploy `dist/`.
+- Each picture is 1.3–2 MB (about 9 MB per participant); they are preloaded
+  before the story starts. Compressing the PNGs would shorten that wait.
