@@ -1,10 +1,10 @@
 /**
- * content.js — vignette 1 text, figures and questions.
+ * content.js — vignette 1: scenario text, figures and questions.
  *
  * Transcribed from ../complex_prior_pilot1_vignette1_script.md, which stays the
  * source of truth: `npm run check:script` renders every condition from this file
- * and fails if any paragraph, figure name, question, scale or Main/Pilot tag
- * differs from the script. Edit the script first, then mirror the change here.
+ * and fails if any paragraph, page break, figure name, question, scale, Main/Pilot
+ * tag or presentation-order note differs from the script. Edit the script first, then mirror the change here.
  *
  * This module has no browser dependencies so that Node can import it.
  */
@@ -59,97 +59,84 @@ const outputs = (anomaly) =>
 const IMG = "vignette1_img";
 
 // ============================================================================
-// STORY TEXT
-//   story(stage, cond, { surpriseText, figureVersion }) -> { paragraphs, figure, alt }
+// SCENARIO TEXT
+//   scenario(stage, cond, { surpriseText, figureVersion }) -> { pages: [...] }
+//   Each page: { paragraphs, figure (file name or null), alt, layout }
+//     layout "side"     text on the left, picture on the right
+//            "stacked"  text above the picture
+//            "text"     text only
 //   surpriseText   true / false: the underlined sentences of the evidence stage
 //                  (evidence-first conditions only)
 //   figureVersion  "table" / "line": which version of the evidence figure
 // ============================================================================
-export function story(stage, cond, { surpriseText = true, figureVersion = "table" } = {}) {
+export function scenario(stage, cond, { surpriseText = true, figureVersion = "table" } = {}) {
   const c = CONDITIONS[cond];
   const { anom, other } = outputs(c.anomaly);
   const evidenceFirst = c.order === "evidence_first";
+  const page = (paragraphs, figure = null, alt = "", layout = "text") => ({ paragraphs, figure, alt, layout });
 
   if (stage === "planet") {
-    return {
-      paragraphs: [
-        "Scientists are planning a place for people to live on an alien planet. The planet has water, air, and some small living things called organisms.",
-        "Scientists have closely studied the planet and its living things and understand them very well.",
-      ],
-      figure: `${IMG}1_planet_scene.png`,
-      alt: "Two people in space suits look over a planet with water and red rocks. An inset shows small organisms.",
-    };
+    return { pages: [page([
+      "Scientists are planning a place for people to live on an alien planet. The planet has water, air, and some small living things called organisms.",
+      "Scientists have closely studied the planet and its living things and understand them very well.",
+    ], `${IMG}1_planet_scene.png`,
+    "Two people in space suits look over a planet with water and red rocks. An inset shows small organisms.", "side")] };
   }
 
   if (stage === "complexity") {
     const low = c.complexity === "low";
-    return {
-      paragraphs: [
-        `Scientists found that biological processes (the ways living things work) on this planet are usually ${low ? "simple" : "complex"}.`,
-        low
-          ? "These processes usually involve a few chemical reactions and only a few factors that affect what happens. The factors affect each other in limited ways. The effect of one factor usually stays the same, even when other factors change."
-          : "These processes usually involve many chemical reactions and many different factors that affect what happens. The factors affect each other in complicated ways. The effect of one factor often changes when other factors change.",
-        "Scientists have studied these processes in detail for many years. They understand them very well.",
-      ],
-      figure: `${IMG}2_${low ? "low" : "high"}_complex.png`,
-      alt: low
-        ? "Diagram of the planet's biology: a few elements, simple chemistry and simple organisms, with few links between them."
-        : "Diagram of the planet's biology: diverse elements, complex chemistry and complex organisms, with many links between them.",
-    };
+    return { pages: [page([
+      `Scientists found that biological processes (the ways living things work) on this planet are usually ${low ? "simple" : "complex"}.`,
+      low
+        ? "These processes usually involve a few chemical reactions and only a few factors that affect what happens. The factors affect each other in limited ways. The effect of one factor usually stays the same, even when other factors change."
+        : "These processes usually involve many chemical reactions and many different factors that affect what happens. The factors affect each other in complicated ways. The effect of one factor often changes when other factors change.",
+      "Scientists have studied these processes in detail for many years. They understand them very well.",
+    ], `${IMG}2_${low ? "low" : "high"}_complex.png`,
+    low
+      ? "Diagram of the planet's biology: a few elements, simple chemistry and simple organisms, with few links between them."
+      : "Diagram of the planet's biology: diverse elements, complex chemistry and complex organisms, with many links between them.", "side")] };
   }
 
   if (stage === "explanation1") {
-    return {
-      paragraphs: [
+    return { pages: [
+      page([
         "A construction team is building apartments on this planet. The construction team needs technology that can produce heat to keep apartments warm. The planet has four seasons: warm, cool, moderately cold, and extremely cold.",
-        "An energy company suggests one of its technologies that uses a small organism found on the planet. Scientists found that this organism is typical of other organisms on the planet in terms of how simple or complex it is. The company understands very well how the organism works because it has closely studied the organism with scientists.",
+        "An energy company suggests one of its technologies that uses a small organism found on the planet. Scientists found that this organism is typical of other organisms on the planet in terms of how simple or complex it is.",
+        "The company understands very well how the organism works because it has closely studied the organism with scientists.",
+      ]),
+      page([
         "The company explains the process that the technology relies on. In this process, the organism uses a certain gas from the air to produce heat and a purple substance called a pigment. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. When more of this gas is available, the organism produces more heat and more purple pigment.",
         "The company also explains that the planet's air holds more of this gas when the weather is colder. So in colder weather, there is more gas around the organism.",
-      ],
-      figure: `${IMG}3_explanation1.png`,
-      alt: "The company explains: with more gas, the organism can produce more heat and more purple pigment. Colder weather means more gas in the air.",
-    };
+      ], `${IMG}3_explanation1.png`,
+      "The company explains: with more gas, the organism can produce more heat and more purple pigment. Colder weather means more gas in the air.", "stacked"),
+    ] };
   }
 
   if (stage === "evidence") {
-    const increase = "As it gets colder, from warm to moderately cold, the organism produces more heat and more purple pigment.";
-    const result = evidenceFirst
-      ? [
-          increase + (surpriseText ? " This is expected." : ""),
-          `But when it is extremely cold, the organism produces less ${anom} than when it is moderately cold.` +
-            (surpriseText ? " This is unexpected, because more gas is available for the organism to use." : "") +
-            ` The organism keeps producing more ${other}` + (surpriseText ? ", as expected" : "") + ".",
-        ]
-      : [
-          increase,
-          `When it is extremely cold, the organism produces less ${anom} than when it is moderately cold, but it keeps producing more ${other}.`,
-        ];
-    return {
-      paragraphs: [
-        (evidenceFirst ? "Before deciding whether to use the technology" : "After the explanation") +
-          ", the construction team gets a sample of the organism from the company.",
-        "The team mainly wants to know if the organism can produce heat as explained.",
-        "The team tests the sample in a laboratory at four different temperatures. These temperatures match the average temperatures of the planet's four seasons: warm, cool, moderately cold, and extremely cold. During the tests, more of the gas is available when it is colder, just as on the planet.",
-        ...result,
-      ],
-      figure: `${IMG}4_evidence_${c.anomaly}_anomaly${figureVersion === "line" ? "_line" : ""}.png`,
-      alt: "Laboratory observations at four temperatures, from warm to extremely cold: gas available, organism color and heat output.",
-    };
+    // the underlined sentences exist only in the evidence-first conditions
+    const s = evidenceFirst && surpriseText;
+    return { pages: [page([
+      "Before deciding whether to use the technology, the construction team gets a sample of the organism from the company.",
+      "The team mainly wants to know if the organism can produce heat as explained.",
+      "The team tests the sample in a laboratory at four temperatures matching the average temperatures of the seasons. During the tests, more of the gas is available when it is colder, just as on the planet.",
+      "As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment." + (s ? " This is expected." : ""),
+      `When it is extremely cold, the organism still produces more ${other}` + (s ? ", as expected" : "") +
+        `. But it produces less ${anom} than when it is moderately cold.` +
+        (s ? " This is unexpected, because more gas is available for the organism to use." : ""),
+    ], `${IMG}4_evidence_${c.anomaly}_anomaly${figureVersion === "line" ? "_line" : ""}.png`,
+    "Laboratory observations at four temperatures, from warm to extremely cold: gas available, organism color and heat output.", "stacked")] };
   }
 
   if (stage === "elaboration") {
-    return {
-      paragraphs: [
-        ...(evidenceFirst ? ["The construction team asks the company about this unexpected result."] : []),
-        `The company ${evidenceFirst ? "explains" : "further explains"} that even smaller living things called algae live inside the organism. The organism can produce ${anom} only with the help of the algae.`,
-        `The algae need liquid water to stay active. When they are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.`,
-        `As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more ${anom}.`,
-        `But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less ${anom}, even though more gas is available.`,
-        `The organism produces ${other} on its own, without the algae. So it keeps producing more ${other} as the weather gets colder.`,
-      ],
-      figure: `${IMG}5_explanation2_${c.anomaly}_anomaly.png`,
-      alt: "The company explains what happens inside the organism when it is moderately cold and when it is extremely cold.",
-    };
+    return { pages: [page([
+      ...(evidenceFirst ? ["The construction team asks the company about this unexpected result."] : []),
+      `The company ${evidenceFirst ? "explains" : "further explains"} that even smaller living things called algae live inside the organism. The organism can produce ${anom} only with the help of the algae.`,
+      `The algae need liquid water to stay active. When they are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.`,
+      `As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more ${anom}.`,
+      `But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less ${anom}, even though more gas is available.`,
+      `The organism produces ${other} on its own, without the algae. So it keeps producing more ${other} as the weather gets colder.`,
+    ], `${IMG}5_explanation2_${c.anomaly}_anomaly.png`,
+    "The company explains what happens inside the organism when it is moderately cold and when it is extremely cold.", "stacked")] };
   }
 
   throw new Error(`Unknown stage: ${stage}`);
@@ -159,10 +146,15 @@ export function story(stage, cond, { surpriseText = true, figureVersion = "table
 // QUESTIONS
 //   Each item: { id, use ("main" | "pilot"), measure, page, type, prompt, ... }
 //     likert  low, high, mid (label of 4, optional); answered 1-7
-//     choice  options (shown in this order), correct (index of the right answer, optional)
+//     choice  options, correct (index of the right answer, optional)
 //     open    free text
 //   `page` groups consecutive items onto one screen. `id` is the column name in
 //   the data. `measure` is the label used in the script tables.
+//   Randomization (applied by randomizePages, described in the script under
+//   "Presentation order"; everything else keeps the script's order):
+//     pageShuffle   consecutive screens whose items share this key swap places at random
+//     itemShuffle   consecutive items on a screen that share this key are shuffled
+//     shuffleOptions / pinLast   a choice item's options are shuffled, except the last `pinLast`
 // ============================================================================
 const likert = (id, use, measure, page, prompt, low, high, mid = null) => ({ id, use, measure, page, type: "likert", prompt, low, high, mid });
 const choice = (id, use, measure, page, prompt, options, correct = null) => ({ id, use, measure, page, type: "choice", prompt, options, correct });
@@ -262,6 +254,7 @@ export function questions(stage, cond) {
 
   if (stage === "complexity") {
     const cx = "Perceived complexity of biological processes", un = "Perceived scientific understanding";
+    // the two blocks (one screen each) are shown in random order
     return [
       likert("planet_complexity_overall", "main", cx, "planet_complexity",
         "Overall, how simple or complex are the biological processes on this planet?", "Very simple", "Very complex"),
@@ -275,20 +268,27 @@ export function questions(stage, cond) {
         "How well do scientists understand which factors affect these processes?", "Not well at all", "Very well"),
       likert("planet_understanding_interaction", "pilot", un, "planet_understanding",
         "How well do scientists understand how these factors affect one another?", "Not well at all", "Very well"),
-    ];
+    ].map((q) => ({ ...q, pageShuffle: "planet_blocks" }));
   }
 
   if (stage === "explanation1") {
     return [
       // predictions follow explanation 1 only when the evidence comes next
       ...(evidenceFirst ? predictionItems() : []),
-      choice("team_goal", "main", "Construction team's goal", "goal",
+      { ...choice("team_goal", "main", "Construction team's goal", "goal",
         "What is the construction team's main reason for considering the technology?",
         ["To keep apartments warm in cold weather", "To produce purple pigment", "To study how the organism changes color", "To increase the amount of gas in the air", "I don't remember"], 0),
-      likert("relevance_heat", "pilot", "Relevance of heat", "goal",
-        "How important is the amount of heat produced for the team's goal of keeping apartments warm?", "Not at all important", "Extremely important"),
-      likert("relevance_pigment", "pilot", "Relevance of pigment", "goal",
-        "How important is the amount of purple pigment produced for the team's goal of keeping apartments warm?", "Not at all important", "Extremely important"),
+        shuffleOptions: true, pinLast: 1 },
+      { ...likert("relevance_heat", "pilot", "Relevance of heat", "goal",
+        "How important is the amount of heat produced for the construction team's goal?", "Not at all important", "Extremely important"), itemShuffle: "relevance" },
+      { ...likert("relevance_pigment", "pilot", "Relevance of pigment", "goal",
+        "How important is the amount of purple pigment produced for the construction team's goal?", "Not at all important", "Extremely important"), itemShuffle: "relevance" },
+      likert("company_knowledge", "pilot", "Company knowledge", "organism",
+        "How well does the company understand how the organism works?", "Not well at all", "Very well"),
+      likert("organism_complexity", "pilot", "Complexity of the organism's processes", "organism",
+        "How simple or complex are the biological processes inside this organism?", "Very simple", "Very complex"),
+      likert("explanation1_left_out", "pilot", "Complexity of the organism's processes", "organism",
+        "How likely is it that the company's explanation left out other details about how the organism works?", "Very unlikely", "Very likely"),
       choice("ck_weather_gas", "pilot", "Causal knowledge: weather and gas", "explanation1_check",
         "According to the company, what happens to the amount of the gas in the air when the weather gets colder?",
         ["There is less gas", "There is about the same amount of gas", "There is more gas", "I don't remember"], 2),
@@ -297,12 +297,6 @@ export function questions(stage, cond) {
         ["Heat only", "Purple pigment only", "Both heat and purple pigment", "I don't remember"], 2),
       open("open_explanation1", "pilot", "Alternative measure of causal knowledge", "explanation1_open",
         "In your own words, explain how the weather, the gas, the heat, and the purple pigment are connected."),
-      likert("company_knowledge", "pilot", "Company knowledge", "organism",
-        "How well does the company understand how the organism works?", "Not well at all", "Very well"),
-      likert("organism_complexity", "pilot", "Complexity of the organism's processes", "organism",
-        "How simple or complex are the biological processes inside this organism?", "Very simple", "Very complex"),
-      likert("explanation1_left_out", "pilot", "Complexity of the organism's processes", "organism",
-        "How likely is it that the company's explanation left out other details about how the organism works?", "Very unlikely", "Very likely"),
     ];
   }
 
@@ -357,6 +351,76 @@ export function questionPages(stage, cond, mode) {
     else pages.push({ key: q.page, items: [q] });
   });
   return pages;
+}
+
+/**
+ * The "Presentation order" notes of the script for a stage: what is randomized.
+ * check:script compares these with the script, so a randomization cannot be added
+ * here (or in the script) without the other.
+ */
+export function orderNotes(stage) {
+  if (stage === "complexity") {
+    return ["The two question blocks (perceived complexity, perceived scientific understanding) are shown in random order. The order of the questions within a block is fixed. In the main study each block has one question, so this randomizes the order of the two questions."];
+  }
+  if (stage === "explanation1") {
+    return [
+      "The answer options of the construction team's goal question are shown in random order, except that \"I don't remember\" is always last.",
+      "The two relevance questions (heat, pigment) are shown in random order.",
+    ];
+  }
+  return [];
+}
+
+function shuffled(list, rand) {
+  const a = [...list];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+// applies `fn` to each maximal run of consecutive elements that share a (non-empty) key
+function mapRuns(list, keyOf, fn) {
+  const out = [];
+  for (let i = 0; i < list.length;) {
+    const key = keyOf(list[i]);
+    let j = i + 1;
+    while (key && j < list.length && keyOf(list[j]) === key) j++;
+    out.push(...(key && j - i > 1 ? fn(list.slice(i, j), key) : list.slice(i, j)));
+    i = j;
+  }
+  return out;
+}
+
+/**
+ * Applies the randomizations to the screens of one stage (from questionPages).
+ * Returns { pages, orders }: `pages` in presentation order, where a choice item
+ * with shuffled options has `optionOrder` (original option indices in display
+ * order); `orders` maps a data column name to the order that was drawn.
+ */
+export function randomizePages(pages, rand = Math.random) {
+  const orders = {};
+  let out = pages.map((p) => ({
+    key: p.key,
+    items: mapRuns(p.items, (q) => q.itemShuffle, (run, key) => {
+      const s = shuffled(run, rand);
+      orders[`order_${key}`] = s.map((q) => q.id).join(",");
+      return s;
+    }).map((q) => {
+      if (!q.shuffleOptions) return q;
+      const n = q.options.length - (q.pinLast || 0);
+      const order = [...shuffled([...Array(n).keys()], rand), ...Array.from({ length: q.options.length - n }, (_, k) => n + k)];
+      orders[`${q.id}_option_order`] = order.map((k) => q.options[k]).join(" | ");
+      return { ...q, optionOrder: order };
+    }),
+  }));
+  const groupOf = (p) => (p.items.every((q) => q.pageShuffle && q.pageShuffle === p.items[0].pageShuffle) ? p.items[0].pageShuffle : null);
+  out = mapRuns(out, groupOf, (run, key) => {
+    const s = shuffled(run, rand);
+    orders[`order_${key}`] = s.map((p) => p.key).join(",");
+    return s;
+  });
+  return { pages: out, orders };
 }
 
 /** The text of an item as it is written in the script's question tables. */

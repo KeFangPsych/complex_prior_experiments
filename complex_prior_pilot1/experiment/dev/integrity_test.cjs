@@ -5,8 +5,8 @@
  *   npm run dev            # in another terminal
  *   node dev/integrity_test.cjs
  *
- * Checks: consent enters fullscreen; leaving it shows the blocking overlay and
- * returning hides it; the instruction and story pages are read-locked; a question
+ * Checks: the consent form can be saved as a PDF; consent enters fullscreen; leaving it shows the blocking overlay and
+ * returning hides it; the instruction and scenario pages are read-locked; a question
  * screen cannot be submitted until every item is answered; an open response
  * needs the minimum length; the context menu, text selection and copy are
  * blocked; the viewport lock and the mobile block appear. It also checks testing
@@ -28,6 +28,10 @@ const BASE = process.env.BASE_URL || "http://localhost:8765";
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto(`${BASE}/?condition=0`);
   await page.click("#card-btn");                                         // welcome
+  // the consent form can be saved as a PDF with the safeguards on
+  const [download] = await Promise.all([page.waitForEvent("download"), page.click("#consent-pdf")]);
+  const pdf = require("fs").readFileSync(await download.path());
+  check("consent page saves a PDF", download.suggestedFilename() === "informed_consent.pdf" && pdf.subarray(0, 5).toString() === "%PDF-" && pdf.length > 3000, `${download.suggestedFilename()}, ${pdf.length} bytes`);
   await page.click("#card-btn");                                         // consent -> fullscreen
   await page.waitForSelector(".eyebrow:text('Instructions')");
   check("consent enters fullscreen", await page.evaluate(() => !!document.fullscreenElement));
@@ -42,12 +46,13 @@ const BASE = process.env.BASE_URL || "http://localhost:8765";
   check("context menu is blocked", await page.evaluate(() => !document.body.dispatchEvent(new MouseEvent("contextmenu", { cancelable: true, bubbles: true }))));
 
   await page.waitForSelector("#card-btn:not([disabled])", { timeout: 10000 });
-  await page.click("#card-btn");                                         // -> part 1 story
-  await page.waitForSelector(".story-text");
-  check("story page is read-locked", await page.isDisabled("#card-btn"));
-  check("story picture is loaded", await page.evaluate(() => { const i = document.querySelector(".story-figure img"); return i.complete && i.naturalWidth > 0; }));
+  await page.click("#card-btn");                                         // -> part 1 scenario
+  await page.waitForSelector(".scenario-text");
+  check("scenario page is read-locked", await page.isDisabled("#card-btn"));
+  check("scenario picture is loaded", await page.evaluate(() => { const i = document.querySelector(".scenario-figure img"); return i.complete && i.naturalWidth > 0; }));
+  check("text and picture fit the window", await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight + 1));
   await page.waitForSelector("#card-btn:not([disabled])", { timeout: 15000 });
-  await page.click("#card-btn");                                         // -> part 2 story
+  await page.click("#card-btn");                                         // -> part 2 scenario
   await page.waitForFunction(() => document.querySelector(".eyebrow").textContent.startsWith("Part 2"));
   await page.waitForSelector("#card-btn:not([disabled])", { timeout: 15000 });
   await page.click("#card-btn");                                         // -> part 2 questions
@@ -55,7 +60,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8765";
   // question screen: three scales in pilot mode; Continue only after all are answered
   await page.waitForSelector("#q-submit");
   const n = await page.locator(".q-item").count();
-  check("story is hidden on the question screen", (await page.locator(".story-text, .story-figure").count()) === 0);
+  check("scenario is hidden on the question screen", (await page.locator(".scenario-text, .scenario-figure").count()) === 0);
   for (let i = 0; i < n; i++) {
     check(`Continue is locked with ${i} of ${n} answered`, await page.isDisabled("#q-submit"));
     await page.locator(".q-item").nth(i).locator(".likert-opt").nth(2 + i).click();

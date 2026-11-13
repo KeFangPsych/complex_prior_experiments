@@ -72,7 +72,9 @@ export function lockButton(btn, seconds, label, onUnlock) {
   }, 1000);
 }
 
-const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+/** Plain text to HTML; **double asterisks** become bold. */
+export const rich = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
 
 // ============================================================================
 // QUESTIONS
@@ -97,8 +99,10 @@ function itemHtml(q) {
       <div class="likert-anchors"><span class="low">${esc(q.low)}</span><span class="mid">${q.mid ? esc(q.mid) : ""}</span><span class="high">${esc(q.high)}</span></div>
     </div>`;
   } else if (q.type === "choice") {
-    body = `<div class="choice-list">${q.options.map((t, i) => `
-      <div class="choice" data-idx="${i}"><span class="choice-radio"></span><span class="choice-text">${esc(t)}</span></div>`).join("")}</div>`;
+    // options in display order; data-idx keeps the option's index in the script
+    const order = q.optionOrder || q.options.map((_, i) => i);
+    body = `<div class="choice-list">${order.map((i) => `
+      <div class="choice" data-idx="${i}"><span class="choice-radio"></span><span class="choice-text">${esc(q.options[i])}</span></div>`).join("")}</div>`;
   } else {
     body = `<textarea class="open-textarea" rows="4" placeholder="Type your answer here"></textarea>
       <p class="small open-hint">Please write at least ${CONFIG.open_min_chars} characters.</p>`;
@@ -111,8 +115,10 @@ export function questionsHtml(items) { return items.map(itemHtml).join(""); }
 /**
  * Wires the items rendered by questionsHtml inside `root`. Calls onChange() after
  * every answer. Returns { isComplete(), results() }; results() has one entry per
- * item: { id, use, type, measure, response, response_index, correct, first_ms,
- * last_ms, n_changes } (times since the screen appeared).
+ * item: { id, use, type, measure, response, response_index, correct, position,
+ * option_order, first_ms, last_ms, n_changes } (times since the screen appeared;
+ * response_index is the option's index in the script, option_order the display
+ * order of those indices, position the item's place on the screen).
  */
 export function bindQuestions(root, items, onChange) {
   const t0 = performance.now();
@@ -155,13 +161,15 @@ export function bindQuestions(root, items, onChange) {
   };
   return {
     isComplete: () => items.every(answered),
-    results: () => items.map((q) => {
+    results: () => items.map((q, position) => {
       const a = answers[q.id];
       return {
         id: q.id, use: q.use, type: q.type, measure: q.measure,
         response: q.type === "open" && a.value !== null ? a.value.trim() : a.value,
         response_index: a.index,
         correct: q.type === "choice" && q.correct !== null ? a.index === q.correct : null,
+        position: position + 1,
+        option_order: q.type === "choice" ? (q.optionOrder || q.options.map((_, i) => i)) : null,
         first_ms: a.first_ms, last_ms: a.last_ms, n_changes: a.n_changes,
       };
     }),

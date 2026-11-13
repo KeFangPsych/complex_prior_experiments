@@ -19,6 +19,51 @@ In the question tables below, Pilot marks pilot-only questions and Main marks qu
 
 Underlined parts are manipulated independently (50% per version). Underlined text, which highlights the surprise, is displayed only half of the time. Underlined figure notes mark figures that have two versions, and the version shown is randomized.
 
+The materials are called a "scenario" throughout; the word "story" is not shown to participants.
+
+## **Welcome screen (all conditions)**
+
+**A scenario on another planet**
+
+In this study you will read about a scenario that takes place on another planet. It is presented in **five parts**, each with a short text and a picture. After each part you will answer questions about it.
+
+**Please act as if the scenario is true**, and take it as seriously as you would a real situation.
+
+The study takes about XX minutes. Please complete it in one sitting, in full-screen mode, without switching to other windows.
+
+## **Informed consent (all conditions)**
+
+*The page has a button that saves this form as a PDF. XX and $X stand for the duration and the payment.*
+
+**Informed Consent**
+
+**Purpose of the research:** To understand more about individuals' understanding and evaluation of explanations from other people. This study will specifically ask participants to read, understand and evaluate explanations in a hypothetical setting.
+
+**Procedures:** Participation in this study will involve answering a series of questions in an online survey. This study is being conducted online using a web browser and internet.
+
+**Time required:** This survey will take about XX mins. The task will last the amount of time advertised on Prolific. You are free to withdraw from the study at any time.
+
+**Compensation:** You will receive a payment of $X for completing this study. If you do not complete this study or fail to answer most of the attention checks, compensation may not be granted.
+
+**Risks and Benefits:** There are no risks beyond those of everyday life that we are aware of from taking part in this study. While you may not receive direct benefits, you will contribute to knowledge about actions and preferences.
+
+**Confidentiality:** Only the researchers involved in this study and those responsible for research oversight will have access to the information you provide. Study data will be stored securely, in compliance with Stanford University standards, minimizing the risk of confidentiality breach. Your responses will be de-identified. De-identified data may be shared with other researchers.
+
+**Voluntary participation:** Your participation is completely voluntary, and you may quit at any time. Refusal to participate or stopping your participation will involve no penalty or loss of benefits to which you are otherwise entitled.
+
+**Questions:** If you have questions or concerns about this research, please contact: Ke Fang (fangke@stanford.edu, 516-288-2692) You may also contact the Protocol Director, Robert Hawkins (rdhawkins@stanford.edu).
+
+**Independent Contact:** If your questions, concerns, suggestions, or complaints that are not being addressed by the researcher, or research-related harm, please contact the Stanford Institutional Review Board (IRB) to speak to someone independent of the research team at 650-723-2480 or toll free at 1-866-680-2906, or email at irbnonmed@stanford.edu. You can also write to the Stanford IRB, Stanford University, 1705 El Camino Real, Palo Alto, CA 94306.
+
+## **Instructions (all conditions)**
+
+**How the study works**
+
+* Each part has a **short text and a picture**. Please read the text and look at the picture carefully.
+* After each part you will answer questions about the text you read and the picture you saw. The text and the picture are **not shown while you answer**, and you **cannot go back** to earlier parts.
+* Some questions ask what you remember from the scenario; please try to answer them correctly.
+* Other questions may ask for your own judgment; for those, there are no right or wrong answers.
+
 ## **Stage 1: Common planet introduction (all conditions)**
 
 Scientists are planning a place for people to live on an alien planet. The planet has water, air, and some small living things called organisms.
@@ -60,11 +105,19 @@ Scientists have studied these processes in detail for many years. They understan
 | Pilot | Perceived scientific understanding | How well do scientists understand which factors affect these processes? (1 \= Not well at all; 7 \= Very well) |
 | Pilot | Perceived scientific understanding | How well do scientists understand how these factors affect one another? (1 \= Not well at all; 7 \= Very well) |
 
+Presentation order:
+
+* The two question blocks (perceived complexity, perceived scientific understanding) are shown in random order. The order of the questions within a block is fixed. In the main study each block has one question, so this randomizes the order of the two questions.
+
 ## **Stage 3: Common explanation 1 (all conditions)**
 
 A construction team is building apartments on this planet. The construction team needs technology that can produce heat to keep apartments warm. The planet has four seasons: warm, cool, moderately cold, and extremely cold.
 
-An energy company suggests one of its technologies that uses a small organism found on the planet. Scientists found that this organism is typical of other organisms on the planet in terms of how simple or complex it is. The company understands very well how the organism works because it has closely studied the organism with scientists.
+An energy company suggests one of its technologies that uses a small organism found on the planet. Scientists found that this organism is typical of other organisms on the planet in terms of how simple or complex it is.
+
+The company understands very well how the organism works because it has closely studied the organism with scientists.
+
+*Page break*
 
 The company explains the process that the technology relies on. In this process, the organism uses a certain gas from the air to produce heat and a purple substance called a pigment. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. When more of this gas is available, the organism produces more heat and more purple pigment.
 
@@ -87,14 +140,19 @@ The company also explains that the planet's air holds more of this gas when the 
 | Main | Heat prediction (cond 1, 2, 3, 4 only) | How much heat would you expect the organism to produce when it is extremely cold, compared with when it is moderately cold? (1 \= Much less heat; 4 \= About the same amount of heat; 7 \= Much more heat) |
 | Main | Pigment prediction (cond 1, 2, 3, 4 only) | How much purple pigment would you expect the organism to produce when it is extremely cold, compared with when it is moderately cold? (1 \= Much less purple pigment; 4 \= About the same amount of purple pigment; 7 \= Much more purple pigment) |
 | Main | Construction team's goal | What is the construction team's main reason for considering the technology? (To keep apartments warm in cold weather; To produce purple pigment; To study how the organism changes color; To increase the amount of gas in the air; I don't remember) |
-| Pilot | Relevance of heat | How important is the amount of heat produced for the team's goal of keeping apartments warm? (1 \= Not at all important; 7 \= Extremely important) |
-| Pilot | Relevance of pigment | How important is the amount of purple pigment produced for the team's goal of keeping apartments warm? (1 \= Not at all important; 7 \= Extremely important) |
-| Pilot | Causal knowledge: weather and gas | According to the company, what happens to the amount of the gas in the air when the weather gets colder? (There is less gas; There is about the same amount of gas; There is more gas; I don't remember) |
-| Pilot | Causal knowledge: gas and outputs | According to the company, what does the organism produce from the gas? (Heat only; Purple pigment only; Both heat and purple pigment; I don't remember) |
-| Pilot | Alternative measure of causal knowledge | In your own words, explain how the weather, the gas, the heat, and the purple pigment are connected. (Open response) |
+| Pilot | Relevance of heat | How important is the amount of heat produced for the construction team's goal? (1 \= Not at all important; 7 \= Extremely important) |
+| Pilot | Relevance of pigment | How important is the amount of purple pigment produced for the construction team's goal? (1 \= Not at all important; 7 \= Extremely important) |
 | Pilot | Company knowledge | How well does the company understand how the organism works? (1 \= Not well at all; 7 \= Very well) |
 | Pilot | Complexity of the organism's processes | How simple or complex are the biological processes inside this organism? (1 \= Very simple; 7 \= Very complex) |
 | Pilot | Complexity of the organism's processes | How likely is it that the company's explanation left out other details about how the organism works? (1 \= Very unlikely; 7 \= Very likely) |
+| Pilot | Causal knowledge: weather and gas | According to the company, what happens to the amount of the gas in the air when the weather gets colder? (There is less gas; There is about the same amount of gas; There is more gas; I don't remember) |
+| Pilot | Causal knowledge: gas and outputs | According to the company, what does the organism produce from the gas? (Heat only; Purple pigment only; Both heat and purple pigment; I don't remember) |
+| Pilot | Alternative measure of causal knowledge | In your own words, explain how the weather, the gas, the heat, and the purple pigment are connected. (Open response) |
+
+Presentation order:
+
+* The answer options of the construction team's goal question are shown in random order, except that "I don't remember" is always last.
+* The two relevance questions (heat, pigment) are shown in random order.
 
 ## **Stage 4, evidence-first conditions (cond 1, 2, 3, 4): Evidence**
 
@@ -102,21 +160,21 @@ Before deciding whether to use the technology, the construction team gets a samp
 
 The team mainly wants to know if the organism can produce heat as explained.
 
-The team tests the sample in a laboratory at four different temperatures. These temperatures match the average temperatures of the planet's four seasons: warm, cool, moderately cold, and extremely cold. During the tests, more of the gas is available when it is colder, just as on the planet.
+The team tests the sample in a laboratory at four temperatures matching the average temperatures of the seasons. During the tests, more of the gas is available when it is colder, just as on the planet.
 
 ### **High-goal-relevance condition (heat anomaly, cond 1, 3\)**
 
-As it gets colder, from warm to moderately cold, the organism produces more heat and more purple pigment. <ins>This is expected.</ins>
+As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment. <ins>This is expected.</ins>
 
-But when it is extremely cold, the organism produces less heat than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins> The organism keeps producing more purple pigment<ins>, as expected</ins>.
+When it is extremely cold, the organism still produces more purple pigment<ins>, as expected</ins>. But it produces less heat than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins>
 
 *Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
 ### **Low-goal-relevance condition (color anomaly, cond 2, 4\)**
 
-As it gets colder, from warm to moderately cold, the organism produces more heat and more purple pigment. <ins>This is expected.</ins>
+As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment. <ins>This is expected.</ins>
 
-But when it is extremely cold, the organism produces less purple pigment than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins> The organism keeps producing more heat<ins>, as expected</ins>.
+When it is extremely cold, the organism still produces more heat<ins>, as expected</ins>. But it produces less purple pigment than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins>
 
 *Figure: vignette1\_img4\_evidence\_color\_anomaly.png* or *vignette1\_img4\_evidence\_color\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
@@ -251,25 +309,25 @@ The organism produces heat on its own, without the algae. So it keeps producing 
 
 ## **Stage 5, elaboration-first conditions (cond 5, 6, 7, 8): Evidence**
 
-After the explanation, the construction team gets a sample of the organism from the company.
+Before deciding whether to use the technology, the construction team gets a sample of the organism from the company.
 
 The team mainly wants to know if the organism can produce heat as explained.
 
-The team tests the sample in a laboratory at four different temperatures. These temperatures match the average temperatures of the planet's four seasons: warm, cool, moderately cold, and extremely cold. During the tests, more of the gas is available when it is colder, just as on the planet.
+The team tests the sample in a laboratory at four temperatures matching the average temperatures of the seasons. During the tests, more of the gas is available when it is colder, just as on the planet.
 
 ### **High-goal-relevance condition (heat anomaly, cond 5, 7\)**
 
-As it gets colder, from warm to moderately cold, the organism produces more heat and more purple pigment.
+As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment.
 
-When it is extremely cold, the organism produces less heat than when it is moderately cold, but it keeps producing more purple pigment.
+When it is extremely cold, the organism still produces more purple pigment. But it produces less heat than when it is moderately cold.
 
 *Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
 ### **Low-goal-relevance condition (color anomaly, cond 6, 8\)**
 
-As it gets colder, from warm to moderately cold, the organism produces more heat and more purple pigment.
+As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment.
 
-When it is extremely cold, the organism produces less purple pigment than when it is moderately cold, but it keeps producing more heat.
+When it is extremely cold, the organism still produces more heat. But it produces less purple pigment than when it is moderately cold.
 
 *Figure: vignette1\_img4\_evidence\_color\_anomaly.png* or *vignette1\_img4\_evidence\_color\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
@@ -303,3 +361,14 @@ When it is extremely cold, the organism produces less purple pigment than when i
 | Pilot | Anomaly relevance, color anomaly version (cond 6, 8\) | The organism produces less purple pigment when it is extremely cold. How much does this matter for the team's goal of keeping apartments warm? (1 \= Not at all; 7 \= Very much) |
 | Pilot | Company knowledge | How well does the company understand how the organism works? (1 \= Not well at all; 7 \= Very well) |
 
+## **Final comments (all conditions)**
+
+Was anything in the scenario or the questions confusing or unclear? Do you have any other comments about the study? (Open response, optional)
+
+## **Debrief (all conditions)**
+
+**You have completed the study**
+
+Thank you for taking part. The planet, the organism and the company in the scenario are fictional.
+
+We are studying how people think about explanations of how things work, and how they judge the people who give those explanations.

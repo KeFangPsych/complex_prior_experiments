@@ -8,8 +8,9 @@
  * the surprise are shown.
  *
  * Timeline: welcome -> consent (enters fullscreen) -> assignment -> preload ->
- * instructions -> five stages, each a story screen (text + picture, read-locked)
- * followed by its question screens (story hidden) -> comments -> save -> debrief.
+ * instructions -> five stages, each one or two scenario screens (text, or text +
+ * picture; read-locked) followed by its question screens (scenario hidden) ->
+ * comments -> save -> debrief.
  *
  * URL flags: ?debug=1  testing mode: test-setup screen first, safeguards and
  *                      read-locks off unless switched on there, loads the dev bot
@@ -34,11 +35,12 @@ import "@fontsource/ibm-plex-sans/latin-700.css";
 import "./styles.css";
 
 import PagePlugin from "./page-plugin.js";
-import { CONFIG, DATAPIPE, PROLIFIC, STUDY, WELCOME_HTML, INSTRUCTIONS_HTML, FEEDBACK_PROMPT, DEBRIEF_HTML, CONSENT_HTML } from "./config.js";
-import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, story, questionPages } from "./content.js";
+import { CONFIG, DATAPIPE, PROLIFIC, STUDY, WELCOME, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, CONSENT, fillStudyValues } from "./config.js";
+import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, scenario, questionPages, randomizePages } from "./content.js";
 import { imageUrl } from "./images.js";
 import { state, integrityProps, fullscreenRequired, DEBUG, DEV_FLAGS, NOFS, URL_PARAMS, prolificPID, studyID, sessionID, subjectId } from "./state.js";
-import { buildFrame, setPhase, updateProgress, card, lockButton, questionsHtml, bindQuestions, N_STAGES } from "./ui.js";
+import { buildFrame, setPhase, updateProgress, card, lockButton, rich, questionsHtml, bindQuestions, N_STAGES } from "./ui.js";
+import { saveConsentPdf } from "./consent-pdf.js";
 import { requestFullscreenSafe, isFullscreen, hideFullscreenOverlay, isMobileDevice, enableSafeguards, installIntegrityListeners } from "./integrity.js";
 
 document.title = STUDY.title;
@@ -124,12 +126,12 @@ function applyAssignment(index, source) {
     surprise_text: state.surpriseText === null ? "not_applicable" : state.surpriseText ? "shown" : "hidden",
     stage_order: JSON.stringify(state.stages),
   });
-  // welcome, consent, instructions + (story + question screens) per stage + comments, debrief
-  const screens = state.stages.reduce((n, s) => n + 1 + questionPages(s, state.cond, state.mode).length, 0);
+  // welcome, consent, instructions + (scenario + question screens) per stage + comments, debrief
+  const screens = state.stages.reduce((n, s) => n + scenarioOf(s).pages.length + questionPages(s, state.cond, state.mode).length, 0);
   state.totalSteps = 3 + screens + 2;
 }
 
-const storyOf = (stage) => story(stage, state.cond, { surpriseText: state.surpriseText !== false, figureVersion: state.figureVersion });
+const scenarioOf = (stage) => scenario(stage, state.cond, { surpriseText: state.surpriseText !== false, figureVersion: state.figureVersion });
 
 const randomCell = () => randomInt(0, N_CELLS - 1);
 const assignCondition = {
@@ -258,69 +260,154 @@ function cardButtonPage({ task, html, label = "Continue", cls = "card-narrow", p
   };
 }
 
-const welcome = cardButtonPage({ task: "welcome", phase: "intro", html: `${eyebrow(STUDY.title)}${WELCOME_HTML}` });
-
-const consent = cardButtonPage({
-  task: "consent", phase: "intro",
-  label: "I consent — begin the study",
-  html: () => `${eyebrow("Before you begin")}${CONSENT_HTML}
-    ${fullscreenRequired() ? `<p class="small" style="margin-top:14px;">Clicking the button switches your browser to full-screen mode for the rest of the study.</p>` : ""}`,
-  onClick: function (done) {
-    state.consented = true;
-    const finish = () => done({ consented: true, fullscreen_ok: isFullscreen() });
-    if (!fullscreenRequired()) return finish();
-    requestFullscreenSafe().then(() => setTimeout(finish, 150));
-  },
+const welcome = cardButtonPage({
+  task: "welcome", phase: "intro",
+  html: `${eyebrow(STUDY.title)}<h1>${rich(WELCOME.title)}</h1>
+    ${WELCOME.paragraphs.map((p, k) => `<p${k === 0 ? ' class="lead"' : ""}>${rich(fillStudyValues(p))}</p>`).join("")}`,
 });
 
+// The consent form; "Save a copy (PDF)" works with the safeguards on.
+const consent = {
+  type: PagePlugin,
+  data: { task: "consent" },
+  on_start: () => setPhase("intro"),
+  render: function (el, done) {
+    el.innerHTML = card(`${eyebrow("Before you begin")}
+      <div class="consent-container">
+        <h2>${rich(CONSENT.title)}</h2>
+        <div class="consent-section">
+          ${CONSENT.sections.map((s) => `<p><strong>${rich(s.label)}:</strong> ${rich(fillStudyValues(s.text))}</p>`).join("")}
+        </div>
+      </div>
+      ${fullscreenRequired() ? `<p class="small consent-note">Clicking “I consent” switches your browser to full-screen mode for the rest of the study.</p>` : ""}
+      <div class="btn-row">
+        <button class="btn btn-lg btn-secondary" id="consent-pdf" type="button">Save a copy (PDF)</button>
+        <button class="btn btn-lg" id="card-btn">I consent — begin the study</button>
+      </div>`, "card-narrow");
+    let pdfSaves = 0;
+    const pdfBtn = el.querySelector("#consent-pdf");
+    pdfBtn.addEventListener("click", async () => {
+      pdfBtn.disabled = true;
+      try { await saveConsentPdf(); pdfSaves++; } catch (e) { console.error("Could not create the consent PDF:", e); }
+      pdfBtn.disabled = false;
+    });
+    el.querySelector("#card-btn").addEventListener("click", () => {
+      state.consented = true;
+      const finish = () => done({ consented: true, fullscreen_ok: isFullscreen(), consent_pdf_saves: pdfSaves });
+      if (!fullscreenRequired()) return finish();
+      requestFullscreenSafe().then(() => setTimeout(finish, 150));
+    });
+  },
+  on_finish: updateProgress,
+};
+
 const instructions = cardButtonPage({
-  task: "instructions", phase: "intro", label: "Start the story",
+  task: "instructions", phase: "intro", label: "Begin",
   lockSeconds: CONFIG.instruction_lock_seconds,
-  html: `${eyebrow("Instructions")}${INSTRUCTIONS_HTML}`,
+  html: `${eyebrow("Instructions")}<h2>${rich(INSTRUCTIONS.title)}</h2>
+    <ul>${INSTRUCTIONS.bullets.map((b) => `<li>${rich(b)}</li>`).join("")}</ul>`,
 });
 
 // ============================================================================
-// 5. STAGES: story screen, then question screens
+// 5. STAGES: scenario screen(s), then question screens
 // ============================================================================
 const stageEyebrow = (i, extra = "") => eyebrow(`Part ${i + 1} of ${N_STAGES}${extra}`);
 const stagePhase = (i) => `part${i + 1}`;
 
+// Picture sizes, in CSS pixels of displayed width. A picture is shown at `max`
+// when the page fits the window. If the page would need scrolling, the picture is
+// shrunk, but never below `min`, where its labels are still readable; if that is
+// not enough, the page switches to a compact text style and the picture is sized
+// again. Only then does the page scroll. Wide pictures (the laboratory results
+// with line graphs, the algae explanation) hold more detail and get larger limits.
+function figureLimits(layout, aspect) {
+  if (layout === "side") return { max: 560, min: 380 };
+  return aspect > 2.4 ? { max: 860, min: 680 } : { max: 660, min: 540 };
+}
+const pageOverflow = () => document.documentElement.scrollHeight - window.innerHeight;
+// Fits a scenario page to the window; returns a function that removes the listeners.
+function fitScenarioPage(el, layout) {
+  const cardEl = el.querySelector(".scenario-card");
+  const img = el.querySelector(".scenario-figure img");
+  // sets the picture to its largest width that avoids scrolling; true if the page now fits
+  const sizeFigure = () => {
+    if (!img || !img.naturalWidth) return pageOverflow() <= 0;
+    const aspect = img.naturalWidth / img.naturalHeight;
+    const { max, min } = figureLimits(layout, aspect);
+    img.style.width = `${max}px`;                       // also capped by its column (max-width: 100%)
+    const overflow = pageOverflow();
+    if (overflow <= 0) return true;
+    const w = img.getBoundingClientRect().width;
+    img.style.width = `${Math.max(Math.min(min, w), Math.floor(w - overflow * aspect))}px`;
+    return pageOverflow() <= 0;
+  };
+  const fit = () => {
+    cardEl.classList.remove("compact");
+    if (!sizeFigure()) { cardEl.classList.add("compact"); sizeFigure(); }
+  };
+  if (!img || img.complete) fit(); else img.addEventListener("load", fit, { once: true });
+  window.addEventListener("resize", fit);
+  return () => window.removeEventListener("resize", fit);
+}
+
 function makeStage(i) {
-  const storyPage = {
+  const scenarioPage = {
     type: PagePlugin,
-    data: { task: "story" },
+    data: { task: "scenario" },
     on_start: function () {
-      const stage = state.stages[i];
-      state.stageIdx = i;
-      state.pages = questionPages(stage, state.cond, state.mode);
-      state.pageIdx = 0;
-      state.currentItems = [];
-      setPhase(stagePhase(i), { now: 1, total: 1 + state.pages.length });
+      if (state.stageIdx !== i || state.scenarioPages.length === 0) {
+        // first screen of the stage: lay out its scenario pages and draw the question order
+        const stage = state.stages[i];
+        const { pages, orders } = randomizePages(questionPages(stage, state.cond, state.mode));
+        Object.assign(state, { stageIdx: i, scenarioPages: scenarioOf(stage).pages, scenarioIdx: 0, pages, pageIdx: 0, currentItems: [] });
+        if (Object.keys(orders).length) jsPsych.data.addProperties(orders);
+      }
+      setPhase(stagePhase(i), { now: 1 + state.scenarioIdx, total: state.scenarioPages.length + state.pages.length });
     },
     render: function (el, done) {
       const stage = state.stages[i];
-      const s = storyOf(stage);
-      const label = state.pages.length ? "Continue to the questions" : "Continue";
+      const page = state.scenarioPages[state.scenarioIdx];
+      const lastPage = state.scenarioIdx === state.scenarioPages.length - 1;
+      const label = lastPage && state.pages.length ? "Continue to the questions" : "Continue";
+      const figure = page.figure
+        ? `<div class="scenario-figure"><img src="${imageUrl(page.figure)}" alt="${rich(page.alt)}" draggable="${state.safeguards ? "false" : "true"}"></div>`
+        : "";
       el.innerHTML = card(`${stageEyebrow(i)}
-        <div class="story-text">${s.paragraphs.map((p) => `<p>${p}</p>`).join("")}</div>
-        <div class="story-figure"><img src="${imageUrl(s.figure)}" alt="${s.alt}" draggable="${state.safeguards ? "false" : "true"}"></div>
-        <div class="btn-row"><button class="btn btn-lg" id="card-btn">${label}</button></div>
-        <p class="small story-note">You will not be able to come back to this page.</p>`, "story-card");
+        <div class="scenario ${page.layout}">
+          <div class="scenario-text">${page.paragraphs.map((p) => `<p>${rich(p)}</p>`).join("")}</div>
+          ${figure}
+        </div>
+        <div class="scenario-foot">
+          <span></span>
+          <button class="btn btn-lg" id="card-btn">${label}</button>
+          <span class="small">You will not be able to come back to this page.</span>
+        </div>`, `scenario-card layout-${page.layout}`);
+      const unfit = fitScenarioPage(el, page.layout);
       const btn = el.querySelector("#card-btn");
-      lockButton(btn, lock(CONFIG.story_lock_seconds), label);
-      btn.addEventListener("click", () => done({
-        stage_index: i + 1, stage, figure: s.figure,
-        n_words: s.paragraphs.join(" ").split(/\s+/).length,
-        lock_seconds: lock(CONFIG.story_lock_seconds),
-      }));
+      lockButton(btn, lock(CONFIG.scenario_lock_seconds), label);
+      btn.addEventListener("click", () => {
+        const img = el.querySelector(".scenario-figure img");
+        unfit();
+        done({
+          stage_index: i + 1, stage,
+          scenario_page: state.scenarioIdx + 1, n_scenario_pages: state.scenarioPages.length,
+          layout: page.layout, figure: page.figure,
+          figure_width_px: img ? Math.round(img.getBoundingClientRect().width) : null,
+          compact_text: el.querySelector(".scenario-card").classList.contains("compact"),
+          needed_scrolling: document.documentElement.scrollHeight > window.innerHeight + 1,
+          viewport_width: window.innerWidth, viewport_height: window.innerHeight,
+          n_words: page.paragraphs.join(" ").split(/\s+/).length,
+          lock_seconds: lock(CONFIG.scenario_lock_seconds),
+        });
+      });
     },
-    on_finish: updateProgress,
+    on_finish: function () { state.scenarioIdx++; updateProgress(); },
   };
 
   const questionPage = {
     type: PagePlugin,
     data: { task: "questions" },
-    on_start: () => setPhase(stagePhase(i), { now: 2 + state.pageIdx, total: 1 + state.pages.length }),
+    on_start: () => setPhase(stagePhase(i), { now: state.scenarioPages.length + 1 + state.pageIdx, total: state.scenarioPages.length + state.pages.length }),
     render: function (el, done) {
       const page = state.pages[state.pageIdx];
       state.currentItems = page.items;
@@ -347,12 +434,17 @@ function makeStage(i) {
         });
       });
     },
-    on_finish: function () { state.pageIdx++; state.currentItems = []; updateProgress(); },
+    on_finish: function () {
+      state.pageIdx++;
+      state.currentItems = [];
+      if (state.pageIdx >= state.pages.length) state.scenarioPages = [];   // stage done
+      updateProgress();
+    },
   };
 
   return {
     timeline: [
-      storyPage,
+      { timeline: [scenarioPage], loop_function: () => state.scenarioIdx < state.scenarioPages.length },
       {
         timeline: [questionPage],
         conditional_function: () => state.pages.length > 0,
@@ -371,7 +463,7 @@ const generalFeedback = {
   on_start: () => setPhase("wrap"),
   render: function (el, done) {
     el.innerHTML = card(`${eyebrow("Almost done")}
-      <p class="q-label">${FEEDBACK_PROMPT}</p>
+      <p class="q-label">${rich(FEEDBACK_PROMPT)}</p>
       <textarea class="open-textarea" id="text-answer" rows="5" placeholder="Type your answer here (optional)"></textarea>
       <div class="btn-row"><button class="btn btn-lg" id="text-submit">Continue</button></div>`, "card-narrow");
     const ta = el.querySelector("#text-answer");
@@ -434,7 +526,8 @@ const debrief = cardButtonPage({
           : "DataPipe is disabled, so nothing was uploaded."}</p>
           <button class="btn btn-secondary" id="download-btn" type="button">Download data (CSV)</button></div>`
       : "";
-    return `${eyebrow("Thank you")}${DEBRIEF_HTML}${download}
+    return `${eyebrow("Thank you")}<h1>${rich(DEBRIEF.title)}</h1>
+      ${DEBRIEF.paragraphs.map((p) => `<p>${rich(p)}</p>`).join("")}${download}
       ${prolificPID ? '<p class="muted">Click below to complete the study and return to Prolific.</p>' : ""}`;
   },
   onStart: function () {
@@ -454,7 +547,7 @@ const debrief = cardButtonPage({
 const timeline = [...(DEBUG ? [testSetup] : []), welcome, consent, assignCondition];
 timeline.push({
   type: jsPsychPreload,
-  images: () => state.stages.map((s) => imageUrl(storyOf(s).figure)),
+  images: () => state.stages.flatMap((s) => scenarioOf(s).pages).filter((p) => p.figure).map((p) => imageUrl(p.figure)),
   show_progress_bar: true,
   message: "<p>Loading…</p>",
   data: { task: "preload" },

@@ -10,10 +10,12 @@
  *   npm i --no-save playwright && npx playwright install chromium
  * BASE_URL overrides the address; CHROME_PATH points at an existing Chrome / Chromium.
  *
- * For every run it checks: no page errors; the assignment columns; one story row
- * per stage in the script's order; exactly the questions content.js lists for the
- * condition and mode, each with an answer column; and that the check questions
- * are scored correct when the bot answers them correctly.
+ * For every run it checks: no page errors; the assignment columns; the scenario
+ * pages in the script's order with the script's figures; exactly the questions
+ * content.js lists for the condition and mode, each with an answer column, in the
+ * script's order except where the script says it is random; that the recorded
+ * random orders are the ones shown; and that the check questions are scored
+ * correct when the bot answers them correctly.
  */
 const { chromium } = require("playwright");
 const fs = require("fs");
@@ -29,6 +31,8 @@ const shotDir = path.join(__dirname, "shots");
   const browser = await chromium.launch(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {});
   const problems = [];
   let runs = 0;
+  const orders = { planet: new Set(), goal: new Set(), relevance: new Set() };   // randomized orders seen across runs
+  const scrolled = new Set();                                                    // scenario pages that did not fit the window
 
   async function run({ cond, mode, fig, surprise, checks = "correct", shots = false, clickSetup = false }) {
     const tag = `cond ${cond} ${mode} ${fig} ${surprise} checks=${checks}${clickSetup ? " (chosen on the setup screen)" : ""}`;
@@ -74,17 +78,39 @@ const shotDir = path.join(__dirname, "shots");
     expect("condition_source", last.condition_source, "test_setup");
     expect("condition_index", content.assignmentFromIndex(last.condition_index).cond, cond);
 
-    const stories = data.filter((r) => r.task === "story");
-    expect("story stages", stories.map((r) => r.stage), stages);
-    stories.forEach((r) => expect(`figure of ${r.stage}`, r.figure, content.story(r.stage, cond, { figureVersion: fig }).figure));
+    // scenario screens: one row per page, in the script's order, with the script's figure
+    const scenarios = data.filter((r) => r.task === "scenario");
+    const wantScenario = stages.flatMap((s) => content.scenario(s, cond, { figureVersion: fig }).pages.map((p, n) => ({ stage: s, page: n + 1, figure: p.figure, layout: p.layout })));
+    expect("scenario screens", scenarios.map((r) => ({ stage: r.stage, page: r.scenario_page, figure: r.figure, layout: r.layout })), wantScenario);
+    scenarios.filter((r) => r.needed_scrolling).forEach((r) => scrolled.add(`${r.stage} p${r.scenario_page} (${r.figure})`));
 
-    const wantPages = stages.flatMap((s) => content.questionPages(s, cond, mode).map((p) => ({ stage: s, key: p.key, ids: p.items.map((q) => q.id) })));
+    // question screens: the script's order, except where the script says the order is random
+    const canon = stages.flatMap((s) => content.questionPages(s, cond, mode).map((p) => ({ stage: s, key: p.key, ids: p.items.map((q) => q.id) })));
     const gotPages = data.filter((r) => r.task === "questions").map((r) => ({ stage: r.stage, key: r.page, ids: JSON.parse(r.item_ids) }));
-    expect("question screens", gotPages, wantPages);
+    // put the randomized parts back into script order before comparing
+    const unshuffle = (pages) => {
+      const out = pages.map((p) => ({ ...p, ids: p.key === "goal" ? ["team_goal", ...p.ids.filter((x) => x !== "team_goal").sort()] : p.ids }));
+      const k = out.findIndex((p) => p.key.startsWith("planet_"));
+      if (k >= 0 && out[k + 1] && out[k].key > out[k + 1].key) [out[k], out[k + 1]] = [out[k + 1], out[k]];
+      return out;
+    };
+    expect("question screens", unshuffle(gotPages), unshuffle(canon));
+    // the recorded orders are the orders that were shown
+    expect("order_planet_blocks", last.order_planet_blocks, gotPages.filter((p) => p.key.startsWith("planet_")).map((p) => p.key).join(","));
+    orders.planet.add(last.order_planet_blocks);
+    const goalRow = data.filter((r) => r.task === "questions").flatMap((r) => JSON.parse(r.responses)).find((a) => a.id === "team_goal");
+    const goalItem = content.questions("explanation1", cond).find((q) => q.id === "team_goal");
+    expect("team_goal_option_order", last.team_goal_option_order, goalRow.option_order.map((k) => goalItem.options[k]).join(" | "));
+    if (!last.team_goal_option_order.endsWith("I don't remember")) bad("team_goal: \"I don't remember\" is not the last option");
+    orders.goal.add(last.team_goal_option_order);
+    if (mode === "pilot") {
+      expect("order_relevance", last.order_relevance, gotPages.find((p) => p.key === "goal").ids.filter((x) => x !== "team_goal").join(","));
+      orders.relevance.add(last.order_relevance);
+    } else if ("order_relevance" in last) bad("order_relevance recorded in main mode");
 
     const items = stages.flatMap((s) => content.questionPages(s, cond, mode).flatMap((p) => p.items));
     const answered = data.filter((r) => r.task === "questions").flatMap((r) => JSON.parse(r.responses));
-    expect("answered ids", answered.map((a) => a.id), items.map((q) => q.id));
+    expect("answered ids", answered.map((a) => a.id).sort(), items.map((q) => q.id).sort());
     items.forEach((q) => {
       const v = last[q.id];
       if (q.type === "likert" && !(Number.isInteger(v) && v >= 1 && v <= 7)) bad(`${q.id}: scale answer ${JSON.stringify(v)}`);
@@ -96,7 +122,7 @@ const shotDir = path.join(__dirname, "shots");
     const all = new Set(Object.keys(content.CONDITIONS).flatMap((k) => content.STAGE_SEQUENCE[content.CONDITIONS[k].order].flatMap((s) => content.questions(s, Number(k)).map((q) => q.id))));
     const asked = new Set(items.map((q) => q.id));
     [...all].filter((id) => !asked.has(id) && id in last).forEach((id) => bad(`${id}: has a column but was not asked`));
-    return { tag, rows: data.length, screens: stories.length + gotPages.length, questions: items.length };
+    return { tag, rows: data.length, screens: scenarios.length + gotPages.length, questions: items.length };
   }
 
   const out = [];
@@ -115,11 +141,14 @@ const shotDir = path.join(__dirname, "shots");
   if (shotCond) out.push(await run({ cond: shotCond, mode: "pilot", fig: "line", surprise: "shown", shots: true }));
   await browser.close();
 
-  out.forEach((r) => console.log(`${r.tag}: ${r.rows} rows, ${r.screens} story/question screens, ${r.questions} questions`));
+  // across the runs, every randomization produced more than one order
+  Object.entries(orders).forEach(([name, seen]) => { if (seen.size < 2) problems.push(`randomization "${name}": only one order seen in ${runs} runs`); });
+  out.forEach((r) => console.log(`${r.tag}: ${r.rows} rows, ${r.screens} scenario/question screens, ${r.questions} questions`));
   if (problems.length) {
     console.error(`\nFAILED — ${problems.length} problem(s) in ${runs} runs`);
     problems.forEach((p) => console.error(" - " + p));
     process.exit(1);
   }
-  console.log(`\nwalk passed — ${runs} runs, no problems.`);
+  console.log(`\nScenario pages that needed scrolling at 1280 x 900: ${scrolled.size ? [...scrolled].join("; ") : "none"}`);
+  console.log(`walk passed — ${runs} runs, no problems.`);
 })().catch((e) => { console.error("FAILED", e); process.exit(1); });

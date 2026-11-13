@@ -20,7 +20,7 @@ window.__autoplay = function (opts = {}) {
 
   const screenLabel = () => {
     const c = $("#jspsych-content"); if (!c) return "";
-    const eb = c.querySelector(".eyebrow"), h = c.querySelector("h1, h2, .q-label, .story-text p");
+    const eb = c.querySelector(".eyebrow"), h = c.querySelector("h1, h2, .q-label, .scenario-text p");
     return [eb ? eb.textContent : "", h ? h.textContent : ""].join(" | ").replace(/\s+/g, " ").trim().slice(0, 80);
   };
 
@@ -33,7 +33,7 @@ window.__autoplay = function (opts = {}) {
       let idx = rand(q.options.length);
       if (q.correct !== null && o.checks === "correct") idx = q.correct;
       if (q.correct !== null && o.checks === "wrong") idx = (q.correct + 1) % q.options.length;
-      el.querySelectorAll(".choice")[idx].click();
+      el.querySelector(`.choice[data-idx="${idx}"]`).click();
     } else {
       const ta = el.querySelector("textarea");
       if (!ta.value) { ta.value = `autoplay answer to ${q.id}`; ta.dispatchEvent(new Event("input", { bubbles: true })); }

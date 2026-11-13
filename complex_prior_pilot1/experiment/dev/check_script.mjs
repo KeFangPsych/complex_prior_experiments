@@ -1,22 +1,28 @@
 /**
- * dev/check_script.mjs — verifies src/content.js against the vignette script.
+ * dev/check_script.mjs — verifies src/content.js and src/config.js against the
+ * vignette script.
  *
  *   npm run check:script
  *
  * For every condition (1-8), both settings of the surprise text and both figure
  * versions, it checks that
- *   - the story paragraphs of each stage are, in order, exactly the paragraphs of
- *     the matching script section (underlined text kept or removed);
+ *   - the scenario paragraphs of each stage are, in order and page by page,
+ *     exactly the paragraphs of the matching script section (underlined text
+ *     kept or removed, "Page break" lines honoured);
  *   - the figure file is the one the script names, and exists in the image folder;
  *   - the questions are, in order, exactly the rows of the script's question table
  *     that apply to the condition: same text, scale / options, measure label and
- *     Main / Pilot tag.
- * Exits with code 1 on any mismatch.
+ *     Main / Pilot tag;
+ *   - the "Presentation order" notes (what is randomized) are the same.
+ * It also checks the welcome, consent, instruction, final-comment and debrief
+ * text against the script, the assignment cells, and that the randomization
+ * does what the notes say. Exits with code 1 on any mismatch.
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, story, questions, questionPages, scriptText } from "../src/content.js";
+import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, scenario, questions, questionPages, randomizePages, orderNotes, scriptText } from "../src/content.js";
+import { WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF } from "../src/config.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.join(here, "../../complex_prior_pilot1_vignette1_script.md");
@@ -43,26 +49,28 @@ const condsIn = (title) => {
   return m ? m[1].split(",").map((x) => parseInt(x)) : null;
 };
 
-// ---- paragraphs and figure of a block of lines ----
+// ---- pages (paragraphs + figure) of a block of lines ----
 function parseBlock(lines, surpriseText) {
-  const paragraphs = [], figures = [];
+  const pages = [{ paragraphs: [], figures: [] }];
   for (const raw of lines) {
     let line = raw.trim();
     if (!line || line.startsWith("|") || line.startsWith("* ")) continue;
+    if (/^\*Page break\*$/i.test(line)) { pages.push({ paragraphs: [], figures: [] }); continue; }
     if (line.startsWith("*Figure:")) {
-      figures.push(...unescape(line).match(/vignette1_[A-Za-z0-9_]+(?:\.png)?/g));
+      pages[pages.length - 1].figures.push(...unescape(line).match(/vignette1_[A-Za-z0-9_]+(?:\.png)?/g));
       continue;
     }
     line = surpriseText ? line.replace(/<\/?ins>/g, "") : line.replace(/<ins>.*?<\/ins>/g, "");
-    paragraphs.push(unescape(line).replace(/\s+/g, " ").replace(/ \./g, ".").trim());
+    pages[pages.length - 1].paragraphs.push(unescape(line).replace(/\s+/g, " ").replace(/ \./g, ".").trim());
   }
-  return { paragraphs, figures };
+  return pages;
 }
 
-// ---- question rows of a section (the "... questions" subsection) ----
+// ---- question rows and presentation-order notes of a section ----
 function parseQuestions(sec, cond) {
-  const rows = [];
+  const rows = [], notes = [];
   sec.subs.filter((s) => /questions/i.test(s.title)).forEach((s) => s.lines.forEach((line) => {
+    if (line.startsWith("* ")) { notes.push(unescape(line.slice(2).trim())); return; }
     const m = line.match(/^\| (Main|Pilot) \| (.*?) \| (.*) \|$/);
     if (!m) return;
     const label = unescape(m[2]);
@@ -70,7 +78,7 @@ function parseQuestions(sec, cond) {
     if (conds && !conds.includes(cond)) return;
     rows.push({ use: m[1].toLowerCase(), measure: label.replace(/ \(cond [^)]*\)/, ""), text: unescape(m[3]) });
   }));
-  return rows;
+  return { rows, notes };
 }
 
 const SECTION_FOR = {
@@ -88,7 +96,28 @@ const same = (where, what, got, want) => {
   checked++;
   if (got !== want) fail(where, `${what}\n     experiment: ${JSON.stringify(got)}\n     script:     ${JSON.stringify(want)}`);
 };
+const sameList = (where, what, got, want) => {
+  same(where, `number of ${what}`, got.length, want.length);
+  got.forEach((g, k) => same(where, `${what} ${k + 1}`, g, want[k]));
+};
 
+// ============================================================================
+// 1. Text around the scenario (welcome, consent, instructions, comments, debrief)
+// ============================================================================
+// non-empty lines of a section, without italic researcher notes (*...*)
+const plainLines = (re) => section(re).intro.map((l) => l.trim()).filter((l) => l && !/^\*[^*].*\*$/.test(l)).map(unescape);
+sameList("welcome screen", "lines", [`**${WELCOME.title}**`, ...WELCOME.paragraphs], plainLines(/^Welcome screen/));
+sameList("informed consent", "lines", [`**${CONSENT.title}**`, ...CONSENT.sections.map((s) => `**${s.label}:** ${s.text}`)], plainLines(/^Informed consent/));
+sameList("instructions", "lines", [`**${INSTRUCTIONS.title}**`, ...INSTRUCTIONS.bullets.map((b) => `* ${b}`)], plainLines(/^Instructions/));
+sameList("final comments", "lines", [`${FEEDBACK_PROMPT} (Open response, optional)`], plainLines(/^Final comments/));
+sameList("debrief", "lines", [`**${DEBRIEF.title}**`, ...DEBRIEF.paragraphs], plainLines(/^Debrief/));
+// the word "story" is not shown to participants
+const shown = JSON.stringify([WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF]);
+if (/\bstor(y|ies)\b/i.test(shown)) fail("text around the scenario", 'contains the word "story"');
+
+// ============================================================================
+// 2. Scenario and questions, per condition
+// ============================================================================
 for (const cond of Object.keys(CONDITIONS).map(Number)) {
   const c = CONDITIONS[cond];
   STAGE_SEQUENCE[c.order].forEach((stage, i) => {
@@ -103,37 +132,48 @@ for (const cond of Object.keys(CONDITIONS).map(Number)) {
     for (const surpriseText of [true, false]) for (const figureVersion of ["table", "line"]) {
       const where = `cond ${cond}, ${stage}, surprise text ${surpriseText ? "shown" : "hidden"}, ${figureVersion} figure`;
       const want = parseBlock(lines, surpriseText);
-      const got = story(stage, cond, { surpriseText, figureVersion });
-      same(where, "number of paragraphs", got.paragraphs.length, want.paragraphs.length);
-      got.paragraphs.forEach((p, k) => same(where, `paragraph ${k + 1}`, p, want.paragraphs[k]));
-      // figure: the script names one file, or two versions (table first, line second)
-      const wantFig = want.figures.length === 2 ? want.figures[figureVersion === "line" ? 1 : 0] : want.figures[0];
-      same(where, "figure", got.figure, wantFig);
-      if (!fs.existsSync(path.join(IMAGES, got.figure))) fail(where, `image file not found: ${got.figure}`);
+      const got = scenario(stage, cond, { surpriseText, figureVersion }).pages;
+      same(where, "number of pages", got.length, want.length);
+      got.forEach((pg, n) => {
+        const w = want[n] || { paragraphs: [], figures: [] };
+        sameList(`${where}, page ${n + 1}`, "paragraphs", pg.paragraphs, w.paragraphs);
+        // figure: the script names none, one file, or two versions (table first, line second)
+        const wantFig = w.figures.length === 2 ? w.figures[figureVersion === "line" ? 1 : 0] : w.figures[0] || null;
+        same(`${where}, page ${n + 1}`, "figure", pg.figure, wantFig);
+        if (pg.figure && !fs.existsSync(path.join(IMAGES, pg.figure))) fail(where, `image file not found: ${pg.figure}`);
+        if ((pg.layout === "text") !== !pg.figure) fail(where, `page ${n + 1}: layout "${pg.layout}" does not fit ${pg.figure ? "a page with" : "a page without"} a figure`);
+        if (/\bstor(y|ies)\b/i.test(pg.paragraphs.join(" "))) fail(where, 'contains the word "story"');
+      });
     }
 
     // questions
     const where = `cond ${cond}, ${stage} questions`;
     const want = parseQuestions(sec, cond);
     const got = questions(stage, cond);
-    same(where, "number of questions", got.length, want.length);
+    same(where, "number of questions", got.length, want.rows.length);
     got.forEach((q, k) => {
-      const w = want[k] || {};
+      const w = want.rows[k] || {};
       same(where, `question ${k + 1} (${q.id}) text`, scriptText(q), w.text);
       same(where, `question ${k + 1} (${q.id}) Main/Pilot`, q.use, w.use);
       same(where, `question ${k + 1} (${q.id}) measure`, q.measure, w.measure);
       if (q.type === "choice" && q.correct !== null && !(q.correct >= 0 && q.correct < q.options.length)) fail(where, `${q.id}: correct index out of range`);
     });
-    // main mode keeps exactly the Main rows; ids are unique within a condition
+    sameList(where, "presentation-order notes", orderNotes(stage), want.notes);
+    // every randomization flag in content.js is covered by a note, and vice versa
+    const flagged = got.some((q) => q.pageShuffle || q.itemShuffle || q.shuffleOptions);
+    if (flagged !== orderNotes(stage).length > 0) fail(where, "randomization flags and presentation-order notes do not agree");
+    // main mode keeps exactly the Main rows
     const mainIds = questionPages(stage, cond, "main").flatMap((p) => p.items.map((q) => q.id));
-    same(where, "Main-only questions", mainIds.length, want.filter((w) => w.use === "main").length);
+    same(where, "Main-only questions", mainIds.length, want.rows.filter((w) => w.use === "main").length);
   });
   const ids = STAGE_SEQUENCE[c.order].flatMap((s) => questions(s, cond).map((q) => q.id));
   const dup = ids.filter((id, k) => ids.indexOf(id) !== k);
   if (dup.length) fail(`cond ${cond}`, `duplicate question ids: ${dup.join(", ")}`);
 }
 
-// the design table of the script matches CONDITIONS
+// ============================================================================
+// 3. Design table and assignment cells
+// ============================================================================
 md.filter((l) => /^\| \d \|/.test(l)).forEach((l) => {
   const [cond, order, complexity, evidence, ...stages] = l.split("|").slice(1, -1).map((x) => x.trim());
   const c = CONDITIONS[cond];
@@ -154,9 +194,57 @@ cells.forEach((a, k) => {
   same("assignment cells", `index of cell ${k}`, indexFromAssignment(a), k);
 });
 
+// ============================================================================
+// 4. Randomization does what the notes say (2000 draws per case)
+// ============================================================================
+const N = 2000;
+const tally = (fn) => { const t = {}; for (let n = 0; n < N; n++) { const k = fn(); t[k] = (t[k] || 0) + 1; } return t; };
+const roughlyEven = (where, counts, nOutcomes) => {
+  checked++;
+  const keys = Object.keys(counts);
+  if (keys.length !== nOutcomes) return fail(where, `expected ${nOutcomes} different orders, saw ${keys.length}`);
+  const expected = N / nOutcomes;
+  keys.forEach((k) => { if (Math.abs(counts[k] - expected) > 5 * Math.sqrt(expected)) fail(where, `order "${k}" drawn ${counts[k]} times, expected about ${expected}`); });
+};
+for (const mode of ["pilot", "main"]) {
+  // stage 2: the two blocks swap, the order inside a block stays
+  const canon = questionPages("complexity", 1, mode);
+  roughlyEven(`randomization, stage 2 blocks (${mode})`, tally(() => {
+    const r = randomizePages(canon);
+    r.pages.forEach((p) => {
+      const want = canon.find((x) => x.key === p.key).items.map((q) => q.id).join();
+      if (p.items.map((q) => q.id).join() !== want) fail("randomization, stage 2", `order inside block ${p.key} changed`);
+    });
+    if (r.orders.order_planet_blocks !== r.pages.map((p) => p.key).join(",")) fail("randomization, stage 2", "recorded order differs from the order used");
+    return r.orders.order_planet_blocks;
+  }), 2);
+  // stage 3: goal options shuffled with "I don't remember" last; relevance questions swap; nothing else moves
+  const canon3 = questionPages("explanation1", 1, mode);
+  const goalOrders = tally(() => {
+    const r = randomizePages(canon3);
+    const goal = r.pages.flatMap((p) => p.items).find((q) => q.id === "team_goal");
+    if (goal.optionOrder[goal.optionOrder.length - 1] !== goal.options.length - 1) fail("randomization, goal options", '"I don\'t remember" is not last');
+    if ([...goal.optionOrder].sort().join() !== goal.options.map((_, k) => k).join()) fail("randomization, goal options", "an option is missing or repeated");
+    if (r.pages.map((p) => p.key).join() !== canon3.map((p) => p.key).join()) fail("randomization, stage 3", "the order of the screens changed");
+    const fixed = (pages) => pages.flatMap((p) => p.items.map((q) => q.id)).filter((id) => !id.startsWith("relevance_")).join();
+    if (fixed(r.pages) !== fixed(canon3)) fail("randomization, stage 3", "a question other than the relevance pair moved");
+    return goal.optionOrder.join("");
+  });
+  roughlyEven(`randomization, goal options (${mode})`, goalOrders, 24);
+  if (mode === "pilot") roughlyEven("randomization, relevance questions", tally(() => randomizePages(canon3).orders.order_relevance), 2);
+}
+// no randomization anywhere else
+for (const cond of [1, 5]) for (const stage of ["planet", "evidence", "elaboration"]) {
+  const canon = questionPages(stage, cond, "pilot");
+  const r = randomizePages(canon);
+  same(`randomization, ${stage} (cond ${cond})`, "order", JSON.stringify(r.pages), JSON.stringify(canon));
+  same(`randomization, ${stage} (cond ${cond})`, "recorded orders", Object.keys(r.orders).length, 0);
+}
+
 if (errors.length) {
   console.error(`check:script FAILED — ${errors.length} mismatch(es) in ${checked} comparisons\n`);
-  errors.forEach((e) => console.error(" - " + e));
+  errors.slice(0, 60).forEach((e) => console.error(" - " + e));
+  if (errors.length > 60) console.error(` ... and ${errors.length - 60} more`);
   process.exit(1);
 }
 console.log(`check:script passed — ${checked} comparisons across ${Object.keys(CONDITIONS).length} conditions match the script.`);

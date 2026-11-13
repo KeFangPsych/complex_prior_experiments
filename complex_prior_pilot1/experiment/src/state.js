@@ -27,7 +27,7 @@ export const state = {
   // context menu / devtools shortcuts, and the leave-page warning. Always on for
   // participants; off in testing mode unless switched on on the test-setup screen.
   safeguards: !DEBUG || urlParams.get("safeguards") === "1",
-  // read-locks on the instruction and story pages (off by default in testing mode)
+  // read-locks on the instruction and scenario pages (off by default in testing mode)
   locks: !DEBUG || urlParams.get("locks") === "1",
   // testing mode: what the tester fixed on the test-setup screen (null = assign as
   // usual). The URL flags ?cond= ?fig= ?surprise= ?mode= ?locks=1 ?safeguards=1
@@ -50,7 +50,9 @@ export const state = {
   stages: [],               // stage keys in presentation order
   // current stage
   stageIdx: 0,
-  pages: [],                // question screens of the current stage
+  scenarioPages: [],        // scenario screens of the current stage
+  scenarioIdx: 0,
+  pages: [],                // question screens of the current stage, in presentation order
   pageIdx: 0,
   currentItems: [],         // items on the screen being shown (used by the dev bot)
   // progress bar
