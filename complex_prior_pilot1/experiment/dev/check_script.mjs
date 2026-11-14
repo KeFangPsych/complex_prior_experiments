@@ -104,8 +104,8 @@ const sameList = (where, what, got, want) => {
 // ============================================================================
 // 1. Text around the scenario (welcome, consent, instructions, comments, debrief)
 // ============================================================================
-// non-empty lines of a section, without italic researcher notes (*...*)
-const plainLines = (re) => section(re).intro.map((l) => l.trim()).filter((l) => l && !/^\*[^*].*\*$/.test(l)).map(unescape);
+// non-empty lines of a section, without italic researcher notes (*...*; a bullet "* ..." is not one)
+const plainLines = (re) => section(re).intro.map((l) => l.trim()).filter((l) => l && !/^\*[^*\s].*[^*]\*$/.test(l)).map(unescape);
 // (the script shows the duration and the payment filled in, as participants see them)
 sameList("welcome screen", "lines", [`**${WELCOME.title}**`, ...WELCOME.paragraphs.map(fillStudyValues)], plainLines(/^Welcome screen/));
 sameList("informed consent", "lines", [`**${CONSENT.title}**`, ...CONSENT.sections.map((s) => `**${s.label}:** ${fillStudyValues(s.text)}`)], plainLines(/^Informed consent/));

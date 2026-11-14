@@ -410,35 +410,40 @@ function showInstructions(el) {
 }
 
 // Picture sizes, in CSS pixels of displayed width. A picture is shown at `max`
-// when the page fits the window. If the page would need scrolling, the picture is
-// shrunk, but never below `min`, where its labels are still readable; if that is
-// not enough, the page switches to a compact text style and the picture is sized
-// again. Only then does the page scroll. Wide pictures (the laboratory results
-// with line graphs, the algae explanation) hold more detail and get larger limits.
-function figureLimits(layout, aspect) {
+// when the page fits the window. Wide pictures (the laboratory results with line
+// graphs, the algae explanation) hold the most detail, so their `max` is the full
+// width of the text. If the page would need scrolling, it first switches to a
+// compact text style; if that is not enough the picture is shrunk, but never
+// below `min`, where its labels are still readable. Only then does the page scroll.
+const FIGURE_FRAME = 18;   // padding and border of the picture's frame
+function figureLimits(layout, aspect, textWidth) {
   if (layout === "side") return { max: 560, min: 380 };
-  return aspect > 2.4 ? { max: 860, min: 680 } : { max: 660, min: 540 };
+  return aspect > 2.4 ? { max: textWidth - FIGURE_FRAME, min: 700 } : { max: 660, min: 540 };
 }
 const pageOverflow = () => document.documentElement.scrollHeight - window.innerHeight;
 // Fits a scenario page to the window; returns a function that removes the listeners.
 function fitScenarioPage(el, layout) {
   const cardEl = el.querySelector(".scenario-card");
+  const textEl = el.querySelector(".scenario-text");
   const img = el.querySelector(".scenario-figure img");
-  // sets the picture to its largest width that avoids scrolling; true if the page now fits
-  const sizeFigure = () => {
+  // sets the picture to `max`, or with shrink = true to the largest width that
+  // avoids scrolling (not below `min`); returns true if the page fits the window
+  const sizeFigure = (shrink) => {
     if (!img || !img.naturalWidth) return pageOverflow() <= 0;
     const aspect = img.naturalWidth / img.naturalHeight;
-    const { max, min } = figureLimits(layout, aspect);
+    const { max, min } = figureLimits(layout, aspect, textEl.clientWidth);
     img.style.width = `${max}px`;                       // also capped by its column (max-width: 100%)
     const overflow = pageOverflow();
-    if (overflow <= 0) return true;
+    if (overflow <= 0 || !shrink) return overflow <= 0;
     const w = img.getBoundingClientRect().width;
     img.style.width = `${Math.max(Math.min(min, w), Math.floor(w - overflow * aspect))}px`;
     return pageOverflow() <= 0;
   };
   const fit = () => {
     cardEl.classList.remove("compact");
-    if (!sizeFigure()) { cardEl.classList.add("compact"); sizeFigure(); }
+    if (sizeFigure(false)) return;           // fits as it is
+    cardEl.classList.add("compact");         // tighter text before a smaller picture
+    sizeFigure(true);
   };
   if (!img || img.complete) fit(); else img.addEventListener("load", fit, { once: true });
   window.addEventListener("resize", fit);

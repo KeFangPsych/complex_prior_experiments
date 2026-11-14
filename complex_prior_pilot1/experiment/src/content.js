@@ -62,7 +62,7 @@ const IMG = "vignette1_img";
 // SCENARIO TEXT
 //   scenario(stage, cond, { surpriseText, figureVersion }) -> { pages: [...] }
 //   Each page: { paragraphs, figure (file name or null), alt, layout }
-//   **double asterisks** in a paragraph would mark bold, as in the script (none at present).
+//   **double asterisks** in a paragraph mark bold, as in the script.
 //     layout "side"     text on the left, picture on the right
 //            "stacked"  text above the picture
 //            "text"     text only
@@ -78,7 +78,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
 
   if (stage === "planet") {
     return { pages: [page([
-      "People are planning a place for people to live on an alien planet. The planet has water, air, and various kinds of small living things called organisms.",
+      "People are planning to create a place for humans to live on an alien planet. The planet has water, air, and various kinds of small living things called organisms.",
       "In science, the planet and its living organisms have been studied extensively and are now very well understood.",
     ], `${IMG}1_planet_scene.png`,
     "Two people in space suits look over a planet with water and red rocks. An inset shows small organisms.", "side")] };
@@ -87,13 +87,13 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
   if (stage === "complexity") {
     const low = c.complexity === "low";
     return { pages: [page([
-      `Scientific findings show that biological processes (the ways living things work) on this planet are usually ${low ? "simple" : "complex"}.`,
+      `Scientific findings show that **biological processes (the ways living things work) on this planet are usually ${low ? "simple" : "complex"}**.`,
       low
         ? "These processes usually involve a few chemical reactions and only a few factors matter for what happens."
         : "These processes usually involve many chemical reactions and several different factors influence what happens. The factors also affect each other in complicated ways. The effect of one factor often changes when other factors change.",
       low
-        ? "In science, these processes have been studied for years and are now very well understood."
-        : "Although complicated, these processes have been studied for years and are now very well understood in science.",
+        ? "**In science, these processes have been studied for years and are now very well understood.**"
+        : "**Although complicated, these processes have been studied for years and are now very well understood in science.**",
     ], `${IMG}2_${low ? "low" : "high"}_complex.png`,
     low
       ? "Diagram of the planet's biology: a few elements, simple chemistry and simple organisms, with few links between them."
@@ -104,13 +104,13 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
     return { pages: [
       page([
         "A construction team is building apartments on this planet. The planet has four seasons: warm, cool, moderately cold, and extremely cold. The construction team needs technology that can produce heat to keep apartments warm.",
-        "An energy company called Bioenergy suggests one of its technologies that uses a small organism found on the planet. Scientific findings suggest that this organism is representative of other life forms on the planet in terms of its level of complexity.",
-        "The company understands very well how the organism works because it has closely studied the organism.",
+        "An energy company called Bioenergy suggests one of its technologies that uses one kind of the organisms found on the planet.",
+        "The company understands very well how this kind of organism works because it has closely studied the organism. Scientific findings suggest that the organism is representative of other life forms on the planet in terms of its level of complexity.",
       ]),
       page([
         "The company explains the technology relies on part of the organism's biological process.",
-        "In this process, the organism uses a certain gas from the air to produce heat and a purple substance called a pigment. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. When more of this gas is available, the organism produces more heat and more purple pigment.",
-        "The company also explains that the planet's air holds more of this gas when the weather is colder. So in colder weather, there is more gas around the organism.",
+        "In this process, **the organism uses a certain gas from the air to produce heat and a purple substance called a pigment**. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. When more of this gas is available, the organism produces more heat and more purple pigment.",
+        "The company also explains that **the planet's air holds more of this gas when the weather is colder**. So in colder weather, there is more gas around the organism.",
       ], `${IMG}3_explanation1.png`,
       "The company explains: with more gas, the organism can produce more heat and more purple pigment. Colder weather means more gas in the air.", "stacked"),
     ] };
@@ -134,7 +134,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
   if (stage === "elaboration") {
     return { pages: [page([
       ...(evidenceFirst ? ["The construction team asks the company about this unexpected result."] : []),
-      `The company ${evidenceFirst ? "explains" : "further explains"} that even smaller living things called algae live inside the organism. The organism can produce ${anom} only with the help of the algae.`,
+      `The company ${evidenceFirst ? "explains" : "further explains"} that even smaller living things called algae live inside the organism. **The organism can produce ${anom} only with the help of the algae.**`,
       `The algae need liquid water to stay active. When they are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.`,
       `As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more ${anom}.`,
       `But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less ${anom}, even though more gas is available.`,

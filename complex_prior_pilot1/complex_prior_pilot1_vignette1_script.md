@@ -19,6 +19,8 @@ In the question tables below, Pilot marks pilot-only questions and Main marks qu
 
 Underlined parts are manipulated independently (50% per version). Underlined text, which highlights the surprise, is displayed only half of the time. Underlined figure notes mark figures that have two versions, and the version shown is randomized.
 
+In the pilot, each participant sees one of the two questions on the complexity of the organism's processes after Stage 3 (how simple or complex the organism is as a whole; how much more there is to know about how it works), chosen at random.
+
 ## **Welcome screen (all conditions)**
 
 **Decision-Making Study**
@@ -58,12 +60,12 @@ The study takes about 15 minutes. Please complete it in one sitting, in full-scr
 **How the study works**
 
 * Each part has a short text and a picture. Please read the text and look at the picture carefully.
-* After each part you will answer questions about the text you read and the picture you saw. The text and the picture are not shown while you answer, and you cannot go back to earlier parts.
+* After each part you will answer questions about the text you read and the picture you saw. **The text and the picture are not shown while you answer, and you cannot go back to earlier parts.**
 * Please answer the questions to the best of your ability.
 
 ## **Stage 1: Common planet introduction (all conditions)**
 
-People are planning a place for people to live on an alien planet. The planet has water, air, and various kinds of small living things called organisms.
+People are planning to create a place for humans to live on an alien planet. The planet has water, air, and various kinds of small living things called organisms.
 
 In science, the planet and its living organisms have been studied extensively and are now very well understood.
 
@@ -73,21 +75,21 @@ In science, the planet and its living organisms have been studied extensively an
 
 ### **Low-complexity condition (cond 1, 2, 5, 6\)**
 
-Scientific findings show that biological processes (the ways living things work) on this planet are usually simple.
+Scientific findings show that **biological processes (the ways living things work) on this planet are usually simple**.
 
 These processes usually involve a few chemical reactions and only a few factors matter for what happens.
 
-In science, these processes have been studied for years and are now very well understood.
+**In science, these processes have been studied for years and are now very well understood.**
 
 *Figure: vignette1\_img2\_low\_complex.png*
 
 ### **High-complexity condition (cond 3, 4, 7, 8\)**
 
-Scientific findings show that biological processes (the ways living things work) on this planet are usually complex.
+Scientific findings show that **biological processes (the ways living things work) on this planet are usually complex**.
 
 These processes usually involve many chemical reactions and several different factors influence what happens. The factors also affect each other in complicated ways. The effect of one factor often changes when other factors change.
 
-Although complicated, these processes have been studied for years and are now very well understood in science.
+**Although complicated, these processes have been studied for years and are now very well understood in science.**
 
 *Figure: vignette1\_img2\_high\_complex.png*
 
@@ -110,17 +112,17 @@ Presentation order:
 
 A construction team is building apartments on this planet. The planet has four seasons: warm, cool, moderately cold, and extremely cold. The construction team needs technology that can produce heat to keep apartments warm.
 
-An energy company called Bioenergy suggests one of its technologies that uses a small organism found on the planet. Scientific findings suggest that this organism is representative of other life forms on the planet in terms of its level of complexity.
+An energy company called Bioenergy suggests one of its technologies that uses one kind of the organisms found on the planet.
 
-The company understands very well how the organism works because it has closely studied the organism.
+The company understands very well how this kind of organism works because it has closely studied the organism. Scientific findings suggest that the organism is representative of other life forms on the planet in terms of its level of complexity.
 
 *Page break*
 
 The company explains the technology relies on part of the organism's biological process.
 
-In this process, the organism uses a certain gas from the air to produce heat and a purple substance called a pigment. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. When more of this gas is available, the organism produces more heat and more purple pigment.
+In this process, **the organism uses a certain gas from the air to produce heat and a purple substance called a pigment**. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. When more of this gas is available, the organism produces more heat and more purple pigment.
 
-The company also explains that the planet's air holds more of this gas when the weather is colder. So in colder weather, there is more gas around the organism.
+The company also explains that **the planet's air holds more of this gas when the weather is colder**. So in colder weather, there is more gas around the organism.
 
 *Figure: vignette1\_img3\_explanation1.png*
 
@@ -200,7 +202,7 @@ The construction team asks the company about this unexpected result.
 
 ### **High-goal-relevance condition (heat anomaly, cond 1, 3\)**
 
-The company explains that even smaller living things called algae live inside the organism. The organism can produce heat only with the help of the algae.
+The company explains that even smaller living things called algae live inside the organism. **The organism can produce heat only with the help of the algae.**
 
 The algae need liquid water to stay active. When they are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
 
@@ -214,7 +216,7 @@ The organism produces purple pigment on its own, without the algae. So it keeps 
 
 ### **Low-goal-relevance condition (color anomaly, cond 2, 4\)**
 
-The company explains that even smaller living things called algae live inside the organism. The organism can produce purple pigment only with the help of the algae.
+The company explains that even smaller living things called algae live inside the organism. **The organism can produce purple pigment only with the help of the algae.**
 
 The algae need liquid water to stay active. When they are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
 
@@ -266,7 +268,7 @@ Presentation order:
 
 ### **High-goal-relevance condition (heat anomaly, cond 5, 7\)**
 
-The company further explains that even smaller living things called algae live inside the organism. The organism can produce heat only with the help of the algae.
+The company further explains that even smaller living things called algae live inside the organism. **The organism can produce heat only with the help of the algae.**
 
 The algae need liquid water to stay active. When they are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
 
@@ -280,7 +282,7 @@ The organism produces purple pigment on its own, without the algae. So it keeps 
 
 ### **Low-goal-relevance condition (color anomaly, cond 6, 8\)**
 
-The company further explains that even smaller living things called algae live inside the organism. The organism can produce purple pigment only with the help of the algae.
+The company further explains that even smaller living things called algae live inside the organism. **The organism can produce purple pigment only with the help of the algae.**
 
 The algae need liquid water to stay active. When they are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
 

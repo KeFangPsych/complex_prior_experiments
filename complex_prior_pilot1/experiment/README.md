@@ -154,8 +154,7 @@ debrief. Each part is one **scenario screen** (two in part 3; Continue locked fo
 `CONFIG.scenario_lock_seconds`) followed by its **question screens**. The
 consent form is shown in full (the page scrolls only if the window is too short
 for it) and has a **Save a copy (PDF)** button, which also works with the
-safeguards on. Key phrases of the scenario text are bold, as marked with
-`**…**` in the script.
+safeguards on. Text marked with `**…**` in the script is shown in bold.
 
 **Randomized order.** As the script's "Presentation order" notes say: in part 2
 the two question blocks (perceived complexity, perceived scientific
@@ -171,11 +170,13 @@ of the script's tables.
 **Page layout.** Parts 1 and 2 show the text on the left and the picture on the
 right. Part 3 is two pages: text only, then text above the picture. Parts 4 and 5
 show the text above the picture. Each picture has a maximum and a minimum
-displayed width (`figureLimits` in `src/main.js`). It is shown at the maximum
-when the page fits the window; otherwise it shrinks towards the minimum, and if
-that is not enough the page switches to a compact text style. With this, every
-scenario page fits without scrolling in a window of 1366 × 768 or larger; in the
-smallest allowed window (1024 × 600) the longer pages scroll a little.
+displayed width (`figureLimits` in `src/main.js`). The two most detailed
+pictures, the laboratory results with line graphs and the algae explanation, are
+shown as wide as the text. A picture is shown at its maximum when the page fits
+the window; otherwise the page first switches to a compact text style, and only
+then shrinks the picture towards its minimum. With this, every scenario page
+fits without scrolling in a window of 1366 × 768 or larger; in the smallest
+allowed window (1024 × 600) the longer pages scroll a little.
 
 **Pilot and main mode.** `CONFIG.mode = "pilot"` asks every question of the
 script; `"main"` asks only those tagged Main. Participants always get

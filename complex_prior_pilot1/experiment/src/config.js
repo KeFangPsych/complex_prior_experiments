@@ -49,7 +49,7 @@ export const fillStudyValues = (text) => text.replace(/\bXX\b/g, () => STUDY.min
 
 export const CONFIG = {
   experiment_name: "complex_prior_pilot1_vignette1",
-  experiment_version: "0.5.0",
+  experiment_version: "0.5.1",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.
@@ -92,7 +92,7 @@ export const INSTRUCTIONS = {
   title: "How the study works",
   bullets: [
     "Each part has a short text and a picture. Please read the text and look at the picture carefully.",
-    "After each part you will answer questions about the text you read and the picture you saw. The text and the picture are not shown while you answer, and you cannot go back to earlier parts.",
+    "After each part you will answer questions about the text you read and the picture you saw. **The text and the picture are not shown while you answer, and you cannot go back to earlier parts.**",
     "Please answer the questions to the best of your ability.",
   ],
 };
