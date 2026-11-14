@@ -33,21 +33,23 @@ export const PROLIFIC = {
 };
 
 // ============================================================================
-// STUDY VALUES — REPLACE with the values of your protocol. In the text below,
-// "XX" stands for `minutes` and "$X" for `payment`; they are filled in when the
+// STUDY VALUES. In the text below, "XX" stands for `minutes` and "$X" for
+// `payment`; the script (.md) shows the filled-in text, and check:script
+// compares against that, so change the script along with these values.
+// They are filled in when the
 // page is drawn (and in the consent PDF), so the script keeps the placeholders.
 // ============================================================================
 export const STUDY = {
   title: "Decision-Making Study",     // shown to participants (browser tab, end screens)
-  minutes: "XX",                      // REPLACE, e.g. "12"
-  payment: "$X",                      // REPLACE, e.g. "$2.50"
+  minutes: "15",
+  payment: "$6.50",
 };
 /** Fills the duration and payment placeholders of a text. */
-export const fillStudyValues = (text) => text.replace(/\bXX\b/g, STUDY.minutes).replace(/\$X\b/g, STUDY.payment);
+export const fillStudyValues = (text) => text.replace(/\bXX\b/g, () => STUDY.minutes).replace(/\$X\b/g, () => STUDY.payment);
 
 export const CONFIG = {
   experiment_name: "complex_prior_pilot1_vignette1",
-  experiment_version: "0.4.1",
+  experiment_version: "0.5.0",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.
@@ -81,7 +83,7 @@ export const WELCOME = {
   title: "Decision-Making Study",
   paragraphs: [
     "In this study you will read about a hypothetical scenario. It is presented in five parts, each with a short text and a picture. After each part you will answer questions about it.",
-    "We are interested in what decisions you will make in the scenario, so make your decisions as you would in real life.",
+    "We are interested in the decisions you would make in real-life situations, so please respond as you would if you were actually facing the scenario.",
     "The study takes about XX minutes. Please complete it in one sitting, in full-screen mode, without switching to other windows.",
   ],
 };

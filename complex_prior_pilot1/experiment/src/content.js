@@ -90,8 +90,10 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
       `Scientific findings show that biological processes (the ways living things work) on this planet are usually ${low ? "simple" : "complex"}.`,
       low
         ? "These processes usually involve a few chemical reactions and only a few factors matter for what happens."
-        : "These processes usually involve many chemical reactions and many different factors that affect what happens. The factors affect each other in complicated ways. The effect of one factor often changes when other factors change.",
-      "In science, these processes have been studied for years and are now very well understood.",
+        : "These processes usually involve many chemical reactions and several different factors influence what happens. The factors also affect each other in complicated ways. The effect of one factor often changes when other factors change.",
+      low
+        ? "In science, these processes have been studied for years and are now very well understood."
+        : "Although complicated, these processes have been studied for years and are now very well understood in science.",
     ], `${IMG}2_${low ? "low" : "high"}_complex.png`,
     low
       ? "Diagram of the planet's biology: a few elements, simple chemistry and simple organisms, with few links between them."
@@ -102,7 +104,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
     return { pages: [
       page([
         "A construction team is building apartments on this planet. The planet has four seasons: warm, cool, moderately cold, and extremely cold. The construction team needs technology that can produce heat to keep apartments warm.",
-        "An energy company called Bioenergy suggests one of its technologies that uses a small organism found on the planet. Scientific findings indicate that this organism is typical of other organisms on the planet in terms of how simple or complex it is.",
+        "An energy company called Bioenergy suggests one of its technologies that uses a small organism found on the planet. Scientific findings suggest that this organism is representative of other life forms on the planet in terms of its level of complexity.",
         "The company understands very well how the organism works because it has closely studied the organism.",
       ]),
       page([
@@ -158,7 +160,8 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
 //     pageShuffle   consecutive screens whose items share this key swap places at random
 //     itemShuffle   consecutive items on a screen that share this key are shuffled
 //     shuffleOptions / pinLast   a choice item's options are shuffled, except the last `pinLast`
-//     randomPresence   the item is shown with this probability (recorded as <id>_shown)
+//     pickOne   of the consecutive items on a screen that share this key, one is shown,
+//               chosen at random (its id is recorded in a column named after the key)
 // ============================================================================
 // every rating scale runs from 1 to SCALE_POINTS
 export const SCALE_POINTS = 5;
@@ -300,10 +303,11 @@ export function questions(stage, cond) {
         "How important is the amount of purple pigment produced for the construction team's goal?", "Not at all important", "Extremely important"), itemShuffle: "relevance" },
       likert("company_knowledge", "pilot", "Company knowledge", "organism",
         "How well does the company understand how the organism works?", "Not well at all", "Very well"),
-      likert("organism_complexity", "pilot", "Complexity of the organism's processes", "organism",
-        "How simple or complex are the biological processes inside this organism?", "Very simple", "Very complex"),
-      { ...likert("explanation1_left_out", "pilot", "Complexity of the organism's processes", "organism",
-        "How likely is it that the company's explanation left out other details about how the organism works?", "Very unlikely", "Very likely"), randomPresence: 0.5 },
+      // each participant gets one of these two, chosen at random
+      { ...likert("organism_complexity", "pilot", "Complexity of the organism's processes", "organism",
+        "Thinking about this organism as a whole, not just the process explained, how simple or complex do you expect it to be?", "Very simple", "Very complex"), pickOne: "organism_question" },
+      { ...likert("organism_more_to_know", "pilot", "Complexity of the organism's processes", "organism",
+        "Besides what the company has explained, how much more do you think there is to know about how this organism works?", "Nothing more", "A great deal more"), pickOne: "organism_question" },
       open("open_explanation1", "pilot", "Causal knowledge", "explanation1_open",
         "In your own words, explain how the weather, the gas, the heat, and the purple pigment are connected."),
       // alternatives to the open response; documented in the script, not asked
@@ -388,7 +392,7 @@ export function orderNotes(stage, cond) {
     return [
       "The answer options of the construction team's goal question are shown in random order, except that \"I don't remember\" is always last.",
       "The two relevance questions (heat, pigment) are shown in random order.",
-      "The question on whether the company's explanation left out other details is shown to a random half of the participants.",
+      "Each participant sees one of the two questions on the complexity of the organism's processes (how simple or complex the organism is as a whole; how much more there is to know about how it works), chosen at random.",
     ];
   }
   return [];
@@ -419,22 +423,21 @@ function mapRuns(list, keyOf, fn) {
  * Applies the randomizations to the screens of one stage (from questionPages).
  * Returns { pages, orders }: `pages` in presentation order, where a choice item
  * with shuffled options has `optionOrder` (original option indices in display
- * order); `orders` maps a data column name to what was drawn. `presence` can fix
- * whether an item with randomPresence is shown (used by the test-setup screen).
+ * order); `orders` maps a data column name to what was drawn. `picks`
+ * ({ pickOne key: item id }) can fix which item of a pickOne group is shown
+ * (used by the test-setup screen).
  */
-export function randomizePages(pages, rand = Math.random, presence = {}) {
+export function randomizePages(pages, rand = Math.random, picks = {}) {
   const orders = {};
-  // an item with randomPresence is shown with that probability, unless `presence`
-  // ({ id: true | false }) fixes it; a screen left without items is dropped
-  const shown = (q) => {
-    if (q.randomPresence === undefined) return true;
-    const keep = q.id in presence ? !!presence[q.id] : rand() < q.randomPresence;
-    orders[`${q.id}_shown`] = keep;
-    return keep;
+  // of each pickOne group, keep one item: the one fixed in `picks`, else a random one
+  const pick = (run, key) => {
+    const chosen = run.find((q) => q.id === picks[key]) || run[Math.floor(rand() * run.length)];
+    orders[key] = chosen.id;
+    return [chosen];
   };
-  let out = pages.map((p) => ({ key: p.key, items: p.items.filter(shown) })).filter((p) => p.items.length > 0).map((p) => ({
+  let out = pages.map((p) => ({
     key: p.key,
-    items: mapRuns(p.items, (q) => q.itemShuffle, (run, key) => {
+    items: mapRuns(mapRuns(p.items, (q) => q.pickOne, pick), (q) => q.itemShuffle, (run, key) => {
       const s = shuffled(run, rand);
       orders[`order_${key}`] = s.map((q) => q.id).join(",");
       return s;

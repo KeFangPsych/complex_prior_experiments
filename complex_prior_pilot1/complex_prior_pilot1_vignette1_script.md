@@ -19,21 +19,19 @@ In the question tables below, Pilot marks pilot-only questions and Main marks qu
 
 Underlined parts are manipulated independently (50% per version). Underlined text, which highlights the surprise, is displayed only half of the time. Underlined figure notes mark figures that have two versions, and the version shown is randomized.
 
-The materials are called a "scenario" throughout; the word "story" is not shown to participants.
-
 ## **Welcome screen (all conditions)**
 
 **Decision-Making Study**
 
 In this study you will read about a hypothetical scenario. It is presented in five parts, each with a short text and a picture. After each part you will answer questions about it.
 
-We are interested in what decisions you will make in the scenario, so make your decisions as you would in real life.
+We are interested in the decisions you would make in real-life situations, so please respond as you would if you were actually facing the scenario.
 
-The study takes about XX minutes. Please complete it in one sitting, in full-screen mode, without switching to other windows.
+The study takes about 15 minutes. Please complete it in one sitting, in full-screen mode, without switching to other windows.
 
 ## **Informed consent (all conditions)**
 
-*The page has a button that saves this form as a PDF. XX and $X stand for the duration and the payment.*
+*The page has a button that saves this form as a PDF.*
 
 **Informed Consent**
 
@@ -41,9 +39,9 @@ The study takes about XX minutes. Please complete it in one sitting, in full-scr
 
 **Procedures:** Participation in this study will involve answering a series of questions in an online survey. This study is being conducted online using a web browser and internet.
 
-**Time required:** This survey will take about XX mins. The task will last the amount of time advertised on Prolific. You are free to withdraw from the study at any time.
+**Time required:** This survey will take about 15 mins. The task will last the amount of time advertised on Prolific. You are free to withdraw from the study at any time.
 
-**Compensation:** You will receive a payment of $X for completing this study. If you do not complete this study or fail to answer most of the attention checks, compensation may not be granted.
+**Compensation:** You will receive a payment of $6.50 for completing this study. If you do not complete this study or fail to answer most of the attention checks, compensation may not be granted.
 
 **Risks and Benefits:** There are no risks beyond those of everyday life that we are aware of from taking part in this study. While you may not receive direct benefits, you will contribute to knowledge about actions and preferences.
 
@@ -87,9 +85,9 @@ In science, these processes have been studied for years and are now very well un
 
 Scientific findings show that biological processes (the ways living things work) on this planet are usually complex.
 
-These processes usually involve many chemical reactions and many different factors that affect what happens. The factors affect each other in complicated ways. The effect of one factor often changes when other factors change.
+These processes usually involve many chemical reactions and several different factors influence what happens. The factors also affect each other in complicated ways. The effect of one factor often changes when other factors change.
 
-In science, these processes have been studied for years and are now very well understood.
+Although complicated, these processes have been studied for years and are now very well understood in science.
 
 *Figure: vignette1\_img2\_high\_complex.png*
 
@@ -112,7 +110,7 @@ Presentation order:
 
 A construction team is building apartments on this planet. The planet has four seasons: warm, cool, moderately cold, and extremely cold. The construction team needs technology that can produce heat to keep apartments warm.
 
-An energy company called Bioenergy suggests one of its technologies that uses a small organism found on the planet. Scientific findings indicate that this organism is typical of other organisms on the planet in terms of how simple or complex it is.
+An energy company called Bioenergy suggests one of its technologies that uses a small organism found on the planet. Scientific findings suggest that this organism is representative of other life forms on the planet in terms of its level of complexity.
 
 The company understands very well how the organism works because it has closely studied the organism.
 
@@ -144,8 +142,8 @@ The company also explains that the planet's air holds more of this gas when the 
 | Pilot | Relevance of heat | How important is the amount of heat produced for the construction team's goal? (1 \= Not at all important; 5 \= Extremely important) |
 | Pilot | Relevance of pigment | How important is the amount of purple pigment produced for the construction team's goal? (1 \= Not at all important; 5 \= Extremely important) |
 | Pilot | Company knowledge | How well does the company understand how the organism works? (1 \= Not well at all; 5 \= Very well) |
-| Pilot | Complexity of the organism's processes | How simple or complex are the biological processes inside this organism? (1 \= Very simple; 5 \= Very complex) |
-| Pilot | Complexity of the organism's processes | How likely is it that the company's explanation left out other details about how the organism works? (1 \= Very unlikely; 5 \= Very likely) |
+| Pilot | Complexity of the organism's processes | Thinking about this organism as a whole, not just the process explained, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
+| Pilot | Complexity of the organism's processes | Besides what the company has explained, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |
 | Pilot | Causal knowledge | In your own words, explain how the weather, the gas, the heat, and the purple pigment are connected. (Open response) |
 | Alternative | Alternative measure of causal knowledge: weather and gas | According to the company, what happens to the amount of the gas in the air when the weather gets colder? (There is less gas; There is about the same amount of gas; There is more gas; I don't remember) |
 | Alternative | Alternative measure of causal knowledge: gas and outputs | According to the company, what does the organism produce from the gas? (Heat only; Purple pigment only; Both heat and purple pigment; I don't remember) |
@@ -154,7 +152,7 @@ Presentation order:
 
 * The answer options of the construction team's goal question are shown in random order, except that "I don't remember" is always last.
 * The two relevance questions (heat, pigment) are shown in random order.
-* The question on whether the company's explanation left out other details is shown to a random half of the participants.
+* Each participant sees one of the two questions on the complexity of the organism's processes (how simple or complex the organism is as a whole; how much more there is to know about how it works), chosen at random.
 
 ## **Stage 4, evidence-first conditions (cond 1, 2, 3, 4): Evidence**
 

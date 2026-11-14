@@ -32,8 +32,8 @@ participants never see. On it you choose:
 - **Condition**: one of the 8 conditions of the script's design table, or Random.
 - **Evidence figure**: table only, table + line graphs, or Random.
 - **Surprise text**: shown, hidden, or Random (evidence-first conditions only).
-- **Randomly shown question**: shown, hidden, or Random (the "left out other
-  details" question of part 3, pilot questions only).
+- **Organism question**: which of the two part 3 organism questions is shown
+  ("simple or complex" or "more to know"), or Random (pilot questions only).
 - **Questions**: Pilot (all questions) or Main (Main questions only).
 - **Read-locks**: off (Continue works at once) or on (as for participants).
 - **Safeguards**: off or on (as for participants).
@@ -62,7 +62,7 @@ you switched them on.
 | URL flag | effect |
 |---|---|
 | `debug=1` | testing mode: shows the test setup screen |
-| `cond=1..8`, `fig=table\|line`, `surprise=shown\|hidden`, `leftout=shown\|hidden`, `mode=pilot\|main`, `locks=1`, `safeguards=1` | with `debug=1`: prefill the test setup screen |
+| `cond=1..8`, `fig=table\|line`, `surprise=shown\|hidden`, `orgq=complexity\|more`, `mode=pilot\|main`, `locks=1`, `safeguards=1` | with `debug=1`: prefill the test setup screen |
 | `nofs=1` | without `debug=1`: the participant version, but with no fullscreen requirement and no viewport lock |
 | `condition=k` | forces assignment cell `k` (0–31) when DataPipe is disabled |
 
@@ -161,8 +161,9 @@ safeguards on. Key phrases of the scenario text are bold, as marked with
 the two question blocks (perceived complexity, perceived scientific
 understanding) come in random order; in part 3 the answer options of the
 construction team's goal question are shuffled with "I don't remember" kept last,
-the two relevance questions come in random order, and the "left out other
-details" question is shown to a random half of the participants; in the end evaluations
+the two relevance questions come in random order, and each participant gets
+one of the two organism questions (how simple or complex the organism is as a
+whole, or how much more there is to know about it); in the end evaluations
 after part 5 the complexity, source-trust and utility blocks come in random
 order. The order within a block is fixed, and everything else follows the order
 of the script's tables.
@@ -178,9 +179,9 @@ smallest allowed window (1024 × 600) the longer pages scroll a little.
 
 **Pilot and main mode.** `CONFIG.mode = "pilot"` asks every question of the
 script; `"main"` asks only those tagged Main. Participants always get
-`CONFIG.mode`; in testing mode it is chosen on the test setup screen. Pilot mode has 37 or 38
-questions in the evidence-first conditions and 36 or 37 in the elaboration-first
-ones (one pilot question is shown to a random half); main mode has 22 and 21.
+`CONFIG.mode`; in testing mode it is chosen on the test setup screen. Pilot mode has 37
+questions in the evidence-first conditions and 36 in the elaboration-first
+ones; main mode has 22 and 21.
 Rows tagged **Alternative** in the script are documented alternatives and are
 never asked.
 
@@ -238,8 +239,8 @@ Other participant-level columns: `subject_id`, `prolific_pid`, `study_id`,
 integrity counters above. The random orders that were drawn are recorded in
 `order_planet_blocks` (for example `planet_understanding,planet_complexity`),
 `order_final_blocks` (for example `trust,complexity,utility`),
-`order_relevance` (pilot mode), `explanation1_left_out_shown` (pilot mode;
-`true` / `false`) and `team_goal_option_order` (the options as
+`order_relevance` (pilot mode), `organism_question` (pilot mode; the id of
+the part 3 organism question that was shown) and `team_goal_option_order` (the options as
 displayed, separated by ` | `). `response_index` and `<id>_correct` always refer
 to the option's position in the script, not on the screen.
 
@@ -251,7 +252,7 @@ Row-level detail, by `task`:
 | `questions` | `stage_index`, `stage`, `page`, `page_index`, `item_ids`, `rt`, and `responses`: JSON with one entry per item (`id`, `use`, `type`, `measure`, `response`, `response_index`, `correct`, `position`, `option_order`, `first_ms`, `last_ms`, `n_changes`) |
 | `consent` | `consented`, `fullscreen_ok`, `consent_pdf_saves` |
 | `test_back` | testing mode only: a Back or Change settings press (`from_task`, or `to: "setup"`) |
-| `test_setup` | testing mode only: `test_cond`, `test_figure`, `test_surprise`, `test_leftout`, `test_mode`, `test_locks`, `test_safeguards` |
+| `test_setup` | testing mode only: `test_cond`, `test_figure`, `test_surprise`, `test_organism_question`, `test_mode`, `test_locks`, `test_safeguards` |
 | `save_data` | `success`, `attempts` |
 
 Predictions (`pred_heat`, `pred_pigment`) are asked after part 3 in the
@@ -303,10 +304,11 @@ Set `BASE_URL` to test another address (for example the built site under
 
 ## Before collecting data
 
-- Fill in `STUDY.minutes` and `STUDY.payment` in `src/config.js`. They replace
-  the "XX" and "$X" placeholders in the welcome text, the consent form and the
-  consent PDF. Check the consent form against the approved protocol; it mentions
-  attention checks, and the experiment currently has none.
+- `STUDY.minutes` (15) and `STUDY.payment` ($6.50) in `src/config.js` fill the
+  duration and payment into the welcome text, the consent form and the consent
+  PDF. If they change, change the script too; `check:script` compares the
+  filled-in text. Check the consent form against the approved protocol; it
+  mentions attention checks, and the experiment currently has none.
 - Fill in `DATAPIPE.experiment_id`, set `enabled: true`, and turn on DataPipe's
   condition assignment with **32 conditions** (or a multiple of 32).
 - Fill in `PROLIFIC.completion_code`.

@@ -22,7 +22,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, scenario, questions, questionPages, randomizePages, orderNotes, scriptText } from "../src/content.js";
-import { WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF } from "../src/config.js";
+import { WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, fillStudyValues } from "../src/config.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.join(here, "../../complex_prior_pilot1_vignette1_script.md");
@@ -106,8 +106,10 @@ const sameList = (where, what, got, want) => {
 // ============================================================================
 // non-empty lines of a section, without italic researcher notes (*...*)
 const plainLines = (re) => section(re).intro.map((l) => l.trim()).filter((l) => l && !/^\*[^*].*\*$/.test(l)).map(unescape);
-sameList("welcome screen", "lines", [`**${WELCOME.title}**`, ...WELCOME.paragraphs], plainLines(/^Welcome screen/));
-sameList("informed consent", "lines", [`**${CONSENT.title}**`, ...CONSENT.sections.map((s) => `**${s.label}:** ${s.text}`)], plainLines(/^Informed consent/));
+// (the script shows the duration and the payment filled in, as participants see them)
+sameList("welcome screen", "lines", [`**${WELCOME.title}**`, ...WELCOME.paragraphs.map(fillStudyValues)], plainLines(/^Welcome screen/));
+sameList("informed consent", "lines", [`**${CONSENT.title}**`, ...CONSENT.sections.map((s) => `**${s.label}:** ${fillStudyValues(s.text)}`)], plainLines(/^Informed consent/));
+if (/\bXX\b|\$X\b/.test(JSON.stringify([WELCOME, CONSENT].map((x) => JSON.parse(fillStudyValues(JSON.stringify(x))))))) fail("study values", "a duration or payment placeholder is not filled in");
 sameList("instructions", "lines", [`**${INSTRUCTIONS.title}**`, ...INSTRUCTIONS.bullets.map((b) => `* ${b}`)], plainLines(/^Instructions/));
 sameList("final comments", "lines", [`${FEEDBACK_PROMPT} (Open response, optional)`], plainLines(/^Final comments/));
 sameList("debrief", "lines", [`**${DEBRIEF.title}**`, ...DEBRIEF.paragraphs], plainLines(/^Debrief/));
@@ -162,7 +164,7 @@ for (const cond of Object.keys(CONDITIONS).map(Number)) {
     });
     sameList(where, "presentation-order notes", orderNotes(stage, cond), want.notes);
     // every randomization flag in content.js is covered by a note, and vice versa
-    const flagged = got.some((q) => q.pageShuffle || q.itemShuffle || q.shuffleOptions || q.randomPresence !== undefined);
+    const flagged = got.some((q) => q.pageShuffle || q.itemShuffle || q.shuffleOptions || q.pickOne);
     if (flagged !== orderNotes(stage, cond).length > 0) fail(where, "randomization flags and presentation-order notes do not agree");
     // alternatives are documented but never asked; main mode keeps exactly the Main rows
     const pilotIds = questionPages(stage, cond, "pilot").flatMap((p) => p.items.map((q) => q.id));
@@ -231,24 +233,24 @@ for (const mode of ["pilot", "main"]) {
     if ([...goal.optionOrder].sort().join() !== goal.options.map((_, k) => k).join()) fail("randomization, goal options", "an option is missing or repeated");
     if (r.pages.map((p) => p.key).join() !== canon3.map((p) => p.key).join()) fail("randomization, stage 3", "the order of the screens changed");
     if (r.pages.some((p) => p.items.some((q) => q.use === "alternative"))) fail("randomization, stage 3", "an alternative question is asked");
-    const fixed = (pages) => pages.flatMap((p) => p.items.map((q) => q.id)).filter((id) => !id.startsWith("relevance_") && id !== "explanation1_left_out").join();
+    const fixed = (pages) => pages.flatMap((p) => p.items.map((q) => q.id)).filter((id) => !id.startsWith("relevance_") && !id.startsWith("organism_")).join();
     if (fixed(r.pages) !== fixed(canon3)) fail("randomization, stage 3", "a question other than the relevance pair moved");
     return goal.optionOrder.join("");
   });
   roughlyEven(`randomization, goal options (${mode})`, goalOrders, 24);
   if (mode === "pilot") {
     roughlyEven("randomization, relevance questions", tally(() => randomizePages(canon3).orders.order_relevance), 2);
-    // the left-out-details question is shown to about half, and the record matches what is shown
-    roughlyEven("randomization, left-out-details question", tally(() => {
+    // exactly one of the two organism questions is shown, each about half the time, and the record matches
+    const ORG = ["organism_complexity", "organism_more_to_know"];
+    const shownOrg = (r) => r.pages.flatMap((p) => p.items).filter((q) => ORG.includes(q.id)).map((q) => q.id);
+    roughlyEven("randomization, organism question", tally(() => {
       const r = randomizePages(canon3);
-      const there = r.pages.flatMap((p) => p.items).some((q) => q.id === "explanation1_left_out");
-      if (r.orders.explanation1_left_out_shown !== there) fail("randomization, left-out-details question", "recorded value differs from what is shown");
-      return String(there);
+      const ids = shownOrg(r);
+      if (ids.length !== 1) fail("randomization, organism question", `${ids.length} of the two questions shown`);
+      if (r.orders.organism_question !== ids[0]) fail("randomization, organism question", "recorded value differs from what is shown");
+      return ids[0];
     }), 2);
-    for (const fix of [true, false]) {
-      const r = randomizePages(canon3, Math.random, { explanation1_left_out: fix });
-      same("randomization, left-out-details question", `fixed to ${fix}`, r.pages.flatMap((p) => p.items).some((q) => q.id === "explanation1_left_out"), fix);
-    }
+    for (const id of ORG) same("randomization, organism question", `fixed to ${id}`, shownOrg(randomizePages(canon3, Math.random, { organism_question: id })).join(), id);
   }
 }
 // end evaluations: the complexity, trust and utility blocks swap places; nothing else moves

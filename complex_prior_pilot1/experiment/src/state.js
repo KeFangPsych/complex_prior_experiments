@@ -31,12 +31,13 @@ export const state = {
   locks: !DEBUG || urlParams.get("locks") === "1",
   // testing mode: what the tester fixed on the test-setup screen (null = assign as
   // usual). The URL flags ?cond= ?fig= ?surprise= ?mode= ?locks=1 ?safeguards=1
-  // ?leftout=shown|hidden prefill that screen.
+  // ?orgq=complexity|more prefill that screen.
   test: {
     cond: DEBUG && CONDITIONS[parseInt(urlParams.get("cond"))] ? parseInt(urlParams.get("cond")) : null,
     figureVersion: flag("fig", ["table", "line"]),
     surpriseText: flag("surprise", ["shown", "hidden"]),
-    leftOut: flag("leftout", ["shown", "hidden"]),   // the left-out-details question of part 3 (pilot)
+    // which of the two organism questions of part 3 is shown (pilot): an item id
+    organismQuestion: { complexity: "organism_complexity", more: "organism_more_to_know" }[flag("orgq", ["complexity", "more"])] || null,
   },
   consented: false,
   finished: false,
