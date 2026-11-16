@@ -40,11 +40,14 @@ Everything that is randomized, and the data column that records what was drawn:
 | Order of the answer options of the team's goal question | 24 orders ("I don't remember" always last) | All participants | `team_goal_option_order` |
 | Order of the two relevance questions | 2 orders | Pilot | `order_relevance` |
 | Which question on the complexity of the organism's processes is shown after Stage 3 | 2 questions | Pilot | `organism_question` |
+| Order of the two agree / disagree statements about the algae explanation | 2 orders | Evidence-first conditions | `order_agree_statements` |
 | Order of the three end-evaluation blocks (complexity, source trust, utility) | 6 orders | All participants | `order_final_blocks` |
 
 The condition, the evidence figure and the surprise text are crossed into 32 assignment cells that are filled in turn, so they stay balanced. Everything else is drawn separately for each participant, with every version equally likely. Nothing else is randomized: all other pages, questions and answer options keep the order of this document.
 
-Reading time: on each scenario page and on the instruction page, the Continue button stays locked for 1 second per 5 words of text, and for at least 10 seconds.
+Reading time: on each scenario page and on the instruction page, the Continue button stays locked for 1 second per 5 words of text, and for at least 10 seconds. Four pages have more to take in and stay locked for longer: the first page of Stage 3 (8 seconds more), Bioenergy's first message (29 seconds more), the lab report (6 seconds more) and the algae explanation (17 seconds more).
+
+Open responses: each open-response question needs at least 100 characters. The final comments are optional.
 
 Recorded timing: the time spent on every screen, and for every question the time of the first and of the last answer.
 
@@ -135,13 +138,15 @@ Presentation order:
 
 * The two question blocks (perceived complexity, perceived scientific understanding) are shown in random order. The order of the questions within a block is fixed. In the main study each block has one question, so this randomizes the order of the two questions.
 
-## **Stage 3: Common explanation 1 (all conditions)**
+## **Stage 3: Explanation 1 (all conditions)**
 
 Your team is building apartments on this planet. The planet has four seasons: warm, cool, cold, and freezing.
 
 Your team announces that it needs technology that can **produce heat to keep apartments warm**. An energy company called Bioenergy has a technology that uses one kind of organism found on the planet.
 
-Bioenergy understands very well how this kind of organism works because it has closely studied the organism. Scientific findings suggest that the organism is representative of other life forms on the planet in terms of its level of complexity.
+**Bioenergy understands very well how this kind of organism works** because it has closely studied the organism. Scientific findings suggest that the organism is as [simple / complex] as other life forms on the planet.
+
+*[simple / complex]: "simple" in the low-complexity conditions (cond 1, 2, 5, 6\), "complex" in the high-complexity conditions (cond 3, 4, 7, 8\).*
 
 *Page break*
 
@@ -189,13 +194,15 @@ Presentation order:
 
 ## **Stage 4, evidence-first conditions (cond 1, 2, 3, 4): Evidence**
 
-Before deciding whether to use the technology, your team wants to make sure that the organism can produce heat as explained. So you ask Bioenergy for a sample of the organism.
+Before deciding whether to use the technology, your team wants to make sure that the organism can produce heat as explained.
 
-Bioenergy sends the sample, and **you send it to your team's laboratory for testing**.
+So you ask Bioenergy for a sample of the organism.
+
+Bioenergy sends the sample, and **you send the sample to your team's internal laboratory for testing**.
 
 *Page break*
 
-Your team's lab tests the sample at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet.
+Your team's lab tests the sample at four different temperatures. **During the tests, more of the gas is available when it is colder, just as on the planet.**
 
 ### **High-goal-relevance condition (heat anomaly, cond 1, 3\)**
 
@@ -234,8 +241,8 @@ Your team's lab tests the sample at four different temperatures. During the test
 | :---- | :---- | :---- |
 | Main | Observed heat production | How much heat did the organism produce when it was freezing, compared with when it was cold? (Less heat; About the same amount of heat; More heat; I don't remember) |
 | Main | Observed color | How purple did the organism look when it was freezing, compared with when it was cold? (Less purple; About as purple; More purple; I don't remember) |
+| Pilot | Inquiry | Would you ask Bioenergy to further explain about this result? (Yes; No) |
 | Pilot | Difference from expectations / Surprise | How different are these results from what you expected based on the company's message? (1 \= Not at all different; 5 \= Extremely different) |
-| Pilot | Inquiry | Would you ask Bioenergy about this result? (Yes; No) |
 | Pilot | Gas availability | How much gas was available when it was freezing, compared with when it was cold? (Less gas; About the same amount of gas; More gas; I don't remember) |
 | Pilot | Anomaly relevance, heat anomaly version (cond 1, 3\) | The organism produces less heat when it is freezing. How much does this matter for your team's goal of keeping apartments warm? (1 \= Not at all; 5 \= Very much) |
 | Pilot | Anomaly relevance, color anomaly version (cond 2, 4\) | The organism looks less purple when it is freezing. How much does this matter for your team's goal of keeping apartments warm? (1 \= Not at all; 5 \= Very much) |
@@ -256,15 +263,15 @@ Bioenergy replies.
 
 > **From Bioenergy to your team**
 >
-> Thank you for reaching out about your test.
+> Thank you for reaching out about your test. This is because:
 >
-> Even smaller living things called algae live inside the organism.
+> There are even smaller living things called algae that live inside the organism. And **the organism can produce heat only with the help of the algae.**
 >
-> **The organism can produce heat only with the help of the algae. The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
+> **The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
 >
-> As the weather gets colder, more gas is available in the air. When it is cold, the algae use the extra gas to produce more heat.
+> As the weather gets colder, more gas is available in the air, and the algae use the extra gas to produce more heat.
 >
-> **But when it is freezing, most of the water available to the algae freezes. As a result, the algae become less active and produce less heat**, even though more gas is available.
+> **But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less heat**, even though more gas is available.
 >
 > **The organism produces purple pigment on its own, without the algae.** So it keeps looking more purple as the weather gets colder.
 
@@ -282,15 +289,15 @@ Bioenergy replies.
 
 > **From Bioenergy to your team**
 >
-> Thank you for reaching out about your test.
+> Thank you for reaching out about your test. This is because:
 >
-> Even smaller living things called algae live inside the organism.
+> There are even smaller living things called algae that live inside the organism. And **the organism can produce purple pigment only with the help of the algae.**
 >
-> **The organism can produce purple pigment only with the help of the algae. The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
+> **The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
 >
-> As the weather gets colder, more gas is available in the air. When it is cold, the algae use the extra gas to produce more purple pigment.
+> As the weather gets colder, more gas is available in the air, and the algae use the extra gas to produce more purple pigment.
 >
-> **But when it is freezing, most of the water available to the algae freezes. As a result, the algae become less active and produce less purple pigment**, even though more gas is available.
+> **But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less purple pigment**, even though more gas is available.
 >
 > **The organism produces heat on its own, without the algae.** So it keeps producing more heat as the weather gets colder.
 
@@ -331,7 +338,8 @@ Bioenergy replies.
 
 Presentation order:
 
-* The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table, so the decision question comes after these three blocks.
+* The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table, except as noted below, so the decision question comes after these three blocks.
+* The two statements that participants rate their agreement with ("a reasonable addition to its first message"; "making excuses for the test results") are shown in random order.
 
 ## **Stage 4, elaboration-first conditions (cond 5, 6, 7, 8): Elaboration (explanation 2)**
 
@@ -341,13 +349,13 @@ Bioenergy's message continues.
 
 > **From Bioenergy to your team (continued)**
 >
-> Even smaller living things called algae live inside the organism.
+> There are even smaller living things called algae that live inside the organism. And **the organism can produce heat only with the help of the algae.**
 >
-> **The organism can produce heat only with the help of the algae. The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
+> **The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
 >
-> As the weather gets colder, more gas is available in the air. When it is cold, the algae use the extra gas to produce more heat.
+> As the weather gets colder, more gas is available in the air, and the algae use the extra gas to produce more heat.
 >
-> **But when it is freezing, most of the water available to the algae freezes. As a result, the algae become less active and produce less heat**, even though more gas is available.
+> **But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less heat**, even though more gas is available.
 >
 > **The organism produces purple pigment on its own, without the algae.** So it keeps looking more purple as the weather gets colder.
 
@@ -357,13 +365,13 @@ Bioenergy's message continues.
 
 > **From Bioenergy to your team (continued)**
 >
-> Even smaller living things called algae live inside the organism.
+> There are even smaller living things called algae that live inside the organism. And **the organism can produce purple pigment only with the help of the algae.**
 >
-> **The organism can produce purple pigment only with the help of the algae. The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
+> **The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
 >
-> As the weather gets colder, more gas is available in the air. When it is cold, the algae use the extra gas to produce more purple pigment.
+> As the weather gets colder, more gas is available in the air, and the algae use the extra gas to produce more purple pigment.
 >
-> **But when it is freezing, most of the water available to the algae freezes. As a result, the algae become less active and produce less purple pigment**, even though more gas is available.
+> **But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less purple pigment**, even though more gas is available.
 >
 > **The organism produces heat on its own, without the algae.** So it keeps producing more heat as the weather gets colder.
 
@@ -390,13 +398,15 @@ Bioenergy's message continues.
 
 ## **Stage 5, elaboration-first conditions (cond 5, 6, 7, 8): Evidence**
 
-Before deciding whether to use the technology, your team wants to make sure that the organism can produce heat as explained. So you ask Bioenergy for a sample of the organism.
+Before deciding whether to use the technology, your team wants to make sure that the organism can produce heat as explained.
 
-Bioenergy sends the sample, and **you send it to your team's laboratory for testing**.
+So you ask Bioenergy for a sample of the organism.
+
+Bioenergy sends the sample, and **you send the sample to your team's internal laboratory for testing**.
 
 *Page break*
 
-Your team's lab tests the sample at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet.
+Your team's lab tests the sample at four different temperatures. **During the tests, more of the gas is available when it is colder, just as on the planet.**
 
 ### **High-goal-relevance condition (heat anomaly, cond 5, 7\)**
 
@@ -449,8 +459,8 @@ Your team's lab tests the sample at four different temperatures. During the test
 | Main | Further measure: explanation 1 counterfactual evaluations | Suppose the company had not mentioned the algae. How acceptable would that have been? (1 \= Not at all acceptable; 5 \= Completely acceptable) |
 | Main | Observed heat production | How much heat did the organism produce when it was freezing, compared with when it was cold? (Less heat; About the same amount of heat; More heat; I don't remember) |
 | Main | Observed color | How purple did the organism look when it was freezing, compared with when it was cold? (Less purple; About as purple; More purple; I don't remember) |
+| Pilot | Inquiry | Would you ask Bioenergy to further explain about this result? (Yes; No) |
 | Pilot | Difference from expectations / Surprise | How different are these results from what you expected based on the company's message? (1 \= Not at all different; 5 \= Extremely different) |
-| Pilot | Inquiry | Would you ask Bioenergy about this result? (Yes; No) |
 | Pilot | Gas availability | How much gas was available when it was freezing, compared with when it was cold? (Less gas; About the same amount of gas; More gas; I don't remember) |
 | Pilot | Anomaly relevance, heat anomaly version (cond 5, 7\) | The organism produces less heat when it is freezing. How much does this matter for your team's goal of keeping apartments warm? (1 \= Not at all; 5 \= Very much) |
 | Pilot | Anomaly relevance, color anomaly version (cond 6, 8\) | The organism looks less purple when it is freezing. How much does this matter for your team's goal of keeping apartments warm? (1 \= Not at all; 5 \= Very much) |

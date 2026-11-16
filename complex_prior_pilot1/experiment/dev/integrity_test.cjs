@@ -110,7 +110,7 @@ const LOCK_WAIT = 60000;   // longest wait for a read-lock to open
       const type = await item.getAttribute("data-type");
       if (type === "likert") await item.locator(".likert-opt").nth(3).click();
       else if (type === "choice") await item.locator(".choice").first().click();
-      else await item.locator("textarea").fill("A long enough answer for the test.");
+      else await item.locator("textarea").fill("A long enough answer for the test. ".repeat(4));
     }
     await page.click("#q-submit");
   };
@@ -125,10 +125,11 @@ const LOCK_WAIT = 60000;   // longest wait for a read-lock to open
     await answerPage();
   }
   const ta = page.locator(".q-item[data-type='open'] textarea");
-  await ta.pressSequentially("too short");
-  check("a short open response keeps Continue locked", await page.isDisabled("#q-submit"));
-  await ta.pressSequentially(" but now long enough");
-  check("a long enough open response unlocks Continue", await page.isEnabled("#q-submit"));
+  const minChars = config.CONFIG.open_min_chars;
+  await ta.pressSequentially("x".repeat(minChars - 1));
+  check(`an open response of ${minChars - 1} characters keeps Continue locked`, await page.isDisabled("#q-submit") && (await page.textContent(".open-count")) === `${minChars - 1} / ${minChars}`, await page.textContent(".open-count"));
+  await ta.pressSequentially("x");
+  check(`${minChars} characters unlock Continue`, await page.isEnabled("#q-submit") && (await page.locator(".open-count.reached").count()) === 1);
   check("leave-page warning is armed", await page.evaluate(() => typeof window.onbeforeunload() === "string"));
   check("no page errors", errors.length === 0, errors.join("; "));
   await page.close();

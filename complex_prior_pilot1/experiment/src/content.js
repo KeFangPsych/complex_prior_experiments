@@ -85,8 +85,9 @@ const IMG = "vignette1_img";
 //   by a narrator; what Bioenergy and the team write to each other is shown as
 //   written messages with a sender label.
 //   scenario(stage, cond, { surpriseText, figureVersion }) -> { pages: [...] }
-//   Each page: { blocks, figure (file name or null), alt, layout, figureInReport }
+//   Each page: { blocks, figure (file name or null), alt, layout, figureInReport, lockExtra }
 //     figureInReport  the picture is shown inside the page's lab report box
+//     lockExtra       seconds added to the page's read-lock (LOCK_EXTRA below)
 //     blocks  in reading order, each { kind: "narration", paragraphs },
 //             { kind: "message", label, paragraphs } (a speech bubble) or
 //             { kind: "report", label, paragraphs } (the lab report box).
@@ -103,6 +104,11 @@ const narration = (...paragraphs) => ({ kind: "narration", paragraphs });
 const message = (label, ...paragraphs) => ({ kind: "message", label, paragraphs });
 const report = (label, ...paragraphs) => ({ kind: "report", label, paragraphs });
 const LAB_REPORT = "Lab report from your team's lab";
+// Read-locks follow the word count (config.js). These four pages have more to take
+// in than their word count says (a dense paragraph, or a picture that has to be
+// read), so they stay locked for this many seconds longer. The numbers come from
+// reading times in testing and are stated in the script.
+export const LOCK_EXTRA = { explanation1_intro: 8, explanation1_message: 29, lab_report: 6, algae: 17 };
 const FROM_BIOENERGY = "From Bioenergy to your team";
 const FROM_TEAM = "From your team to Bioenergy";
 
@@ -112,7 +118,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
   const evidenceFirst = c.order === "evidence_first";
   // the underlined sentences exist only in the evidence-first conditions
   const s = evidenceFirst && surpriseText;
-  const page = (blocks, figure = null, alt = "", layout = "text", extra = {}) => ({ blocks, figure, alt, layout, figureInReport: false, ...extra });
+  const page = (blocks, figure = null, alt = "", layout = "text", extra = {}) => ({ blocks, figure, alt, layout, figureInReport: false, lockExtra: 0, ...extra });
 
   if (stage === "planet") {
     return { pages: [page([narration(
@@ -143,8 +149,8 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
       page([narration(
         "Your team is building apartments on this planet. The planet has four seasons: warm, cool, cold, and freezing.",
         "Your team announces that it needs technology that can **produce heat to keep apartments warm**. An energy company called Bioenergy has a technology that uses one kind of organism found on the planet.",
-        "Bioenergy understands very well how this kind of organism works because it has closely studied the organism. Scientific findings suggest that the organism is representative of other life forms on the planet in terms of its level of complexity.",
-      )]),
+        `**Bioenergy understands very well how this kind of organism works** because it has closely studied the organism. Scientific findings suggest that the organism is as ${c.complexity === "low" ? "simple" : "complex"} as other life forms on the planet.`,
+      )], null, "", "text", { lockExtra: LOCK_EXTRA.explanation1_intro }),
       page([
         narration("Bioenergy writes to your team to recommend its technology."),
         message(FROM_BIOENERGY,
@@ -153,7 +159,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
           "**The planet's air holds more of this gas when the weather is colder**. So in colder weather, there is more gas around the organism.",
         ),
       ], `${IMG}3_explanation1.png`,
-      "Bioenergy's explanation: with more gas, the organism can produce more heat and more purple pigment, which makes it look more purple. Colder weather means more gas in the air.", "stacked"),
+      "Bioenergy's explanation: with more gas, the organism can produce more heat and more purple pigment, which makes it look more purple. Colder weather means more gas in the air.", "stacked", { lockExtra: LOCK_EXTRA.explanation1_message }),
     ] };
   }
 
@@ -161,11 +167,12 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
     // two pages: asking for the sample, then the lab's report with the picture
     return { pages: [
       page([narration(
-        "Before deciding whether to use the technology, your team wants to make sure that the organism can produce heat as explained. So you ask Bioenergy for a sample of the organism.",
-        "Bioenergy sends the sample, and **you send it to your team's laboratory for testing**.",
+        "Before deciding whether to use the technology, your team wants to make sure that the organism can produce heat as explained.",
+        "So you ask Bioenergy for a sample of the organism.",
+        "Bioenergy sends the sample, and **you send the sample to your team's internal laboratory for testing**.",
       )]),
       page([
-        narration("Your team's lab tests the sample at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet."),
+        narration("Your team's lab tests the sample at four different temperatures. **During the tests, more of the gas is available when it is colder, just as on the planet.**"),
         report(LAB_REPORT,
           "From warm to cool to cold, the organism produces more heat and looks more purple" + (s ? ", as expected" : "") + ".",
           "From cold to freezing, the organism:",
@@ -173,7 +180,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
           `* ${A.lessCaps} than when it is cold.` + (s ? " This is unexpected, because more gas is there for the organism to use." : ""),
         ),
       ], `${IMG}4_evidence_${c.anomaly}_anomaly${figureVersion === "line" ? "_line" : ""}.png`,
-      "Laboratory observations at four temperatures, from warm to freezing: gas available, organism color and heat output.", "stacked", { figureInReport: true }),
+      "Laboratory observations at four temperatures, from warm to freezing: gas available, organism color and heat output.", "stacked", { figureInReport: true, lockExtra: LOCK_EXTRA.lab_report }),
     ] };
   }
 
@@ -181,16 +188,16 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
     // Bioenergy's account of the algae: a reply to the team's question when the
     // evidence came first, otherwise the continuation of its first message
     const algaeParagraphs = [
-      "Even smaller living things called algae live inside the organism.",
-      `**The organism can produce ${anom} only with the help of the algae. The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.`,
-      `As the weather gets colder, more gas is available in the air. When it is cold, the algae use the extra gas to produce more ${anom}.`,
-      `**But when it is freezing, most of the water available to the algae freezes. As a result, the algae become less active and produce less ${anom}**, even though more gas is available.`,
+      `There are even smaller living things called algae that live inside the organism. And **the organism can produce ${anom} only with the help of the algae.**`,
+      `**The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.`,
+      `As the weather gets colder, more gas is available in the air, and the algae use the extra gas to produce more ${anom}.`,
+      `**But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less ${anom}**, even though more gas is available.`,
       `**The organism produces ${other} on its own, without the algae.** So it ${O.keeps} as the weather gets colder.`,
     ];
     const figure = `${IMG}5_explanation2_${c.anomaly}_anomaly.png`;
     const alt = "Bioenergy's explanation of what happens inside the organism when it is cold and when it is freezing.";
     if (!evidenceFirst) {
-      return { pages: [page([narration("Bioenergy's message continues."), message(`${FROM_BIOENERGY} (continued)`, ...algaeParagraphs)], figure, alt, "stacked")] };
+      return { pages: [page([narration("Bioenergy's message continues."), message(`${FROM_BIOENERGY} (continued)`, ...algaeParagraphs)], figure, alt, "stacked", { lockExtra: LOCK_EXTRA.algae })] };
     }
     return { pages: [
       page([
@@ -198,7 +205,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
         message(FROM_TEAM, `We tested the sample. When it was freezing, the organism ${A.lessPast} than when it was cold.` +
           (s ? " This is not what we expected." : "") + " Can you explain why?"),
       ]),
-      page([narration("Bioenergy replies."), message(FROM_BIOENERGY, "Thank you for reaching out about your test.", ...algaeParagraphs)], figure, alt, "stacked"),
+      page([narration("Bioenergy replies."), message(FROM_BIOENERGY, "Thank you for reaching out about your test. This is because:", ...algaeParagraphs)], figure, alt, "stacked", { lockExtra: LOCK_EXTRA.algae }),
     ] };
   }
 
@@ -297,10 +304,10 @@ function observedItems(c) {
 function evidencePilotItems(c) {
   const { A } = outputs(c.anomaly);
   return [
+    choice("inquiry", "pilot", "Inquiry", "evidence_check",
+      "Would you ask Bioenergy to further explain about this result?", ["Yes", "No"]),
     likert("surprise", "pilot", "Difference from expectations / Surprise", "evidence_check",
       "How different are these results from what you expected based on the company's message?", "Not at all different", "Extremely different"),
-    choice("inquiry", "pilot", "Inquiry", "evidence_check",
-      "Would you ask Bioenergy about this result?", ["Yes", "No"]),
     choice("gas_availability", "pilot", "Gas availability", "evidence_check_2",
       "How much gas was available when it was freezing, compared with when it was cold?", AMOUNT("gas"), 2),
     likert("anomaly_relevance", "pilot", `Anomaly relevance, ${c.anomaly} anomaly version`, "evidence_check_2",
@@ -418,10 +425,11 @@ export function questions(stage, cond) {
     return [
       algaeDependenceItem(c),
       ...finalMeasures(),
-      likert("expl2_reasonable_addition", "main", e2, "explanation2_agree",
-        "How much do you agree or disagree with this statement? The company's explanation about the algae is a reasonable addition to its first message.", "Strongly disagree", "Strongly agree"),
-      likert("expl2_excuses", "main", e2, "explanation2_agree",
-        "How much do you agree or disagree with this statement? The company seems to be making excuses for the test results.", "Strongly disagree", "Strongly agree"),
+      // the two statements come in random order
+      { ...likert("expl2_reasonable_addition", "main", e2, "explanation2_agree",
+        "How much do you agree or disagree with this statement? The company's explanation about the algae is a reasonable addition to its first message.", "Strongly disagree", "Strongly agree"), itemShuffle: "agree_statements" },
+      { ...likert("expl2_excuses", "main", e2, "explanation2_agree",
+        "How much do you agree or disagree with this statement? The company seems to be making excuses for the test results.", "Strongly disagree", "Strongly agree"), itemShuffle: "agree_statements" },
       likert("should_have_mentioned", "main", cf, "counterfactual",
         "Should the company have mentioned the algae in its first message?", "Definitely not", "Definitely yes"),
       likert("omission_acceptable", "main", cf, "counterfactual",
@@ -457,7 +465,13 @@ export function orderNotes(stage, cond) {
   // the end evaluations follow the last stage: elaboration when the evidence came first, evidence otherwise
   const lastStage = STAGE_SEQUENCE[CONDITIONS[cond].order][4];
   if (stage === lastStage) {
-    return ["The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table, so the decision question comes after these three blocks."];
+    const blocks = "The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table";
+    // the agree / disagree statements are asked only when the evidence came first
+    if (stage === "evidence") return [`${blocks}, so the decision question comes after these three blocks.`];
+    return [
+      `${blocks}, except as noted below, so the decision question comes after these three blocks.`,
+      "The two statements that participants rate their agreement with (\"a reasonable addition to its first message\"; \"making excuses for the test results\") are shown in random order.",
+    ];
   }
   if (stage === "complexity") {
     return ["The two question blocks (perceived complexity, perceived scientific understanding) are shown in random order. The order of the questions within a block is fixed. In the main study each block has one question, so this randomizes the order of the two questions."];
@@ -486,6 +500,7 @@ export const RANDOMIZATIONS = [
   { what: "Order of the answer options of the team's goal question", versions: "24 orders (\"I don't remember\" always last)", appliesTo: "All participants", columns: ["team_goal_option_order"] },
   { what: "Order of the two relevance questions", versions: "2 orders", appliesTo: "Pilot", columns: ["order_relevance"] },
   { what: "Which question on the complexity of the organism's processes is shown after Stage 3", versions: "2 questions", appliesTo: "Pilot", columns: ["organism_question"] },
+  { what: "Order of the two agree / disagree statements about the algae explanation", versions: "2 orders", appliesTo: "Evidence-first conditions", columns: ["order_agree_statements"] },
   { what: "Order of the three end-evaluation blocks (complexity, source trust, utility)", versions: "6 orders", appliesTo: "All participants", columns: ["order_final_blocks"] },
 ];
 

@@ -57,8 +57,9 @@ import { saveConsentPdf } from "./consent-pdf.js";
 import { requestFullscreenSafe, isFullscreen, hideFullscreenOverlay, isMobileDevice, enableSafeguards, disableSafeguards, installIntegrityListeners } from "./integrity.js";
 
 document.title = STUDY.title;
-// read-lock of a page with `nWords` words of text (0 when a tester has the read-locks off)
-const lock = (nWords) => (state.locks ? readLockSeconds(nWords) : 0);
+// read-lock of a page with `nWords` words of text and `extra` seconds of its own
+// (0 when a tester has the read-locks off)
+const lock = (nWords, extra = 0) => (state.locks ? readLockSeconds(nWords, extra) : 0);
 const T0 = performance.now();   // page load, for total_time_ms
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const eyebrow = (text) => `<div class="eyebrow">${text}</div>`;
@@ -591,8 +592,8 @@ function showScenario(el, s) {
     </div>`, `scenario-card layout-${page.layout}`);
   cleanup = fitScenarioPage(el, page.layout, s.stage);
   const btn = el.querySelector("#card-btn");
-  const nWords = pageWordCount(page);          // the read-lock grows with the text
-  lockButton(btn, lock(nWords), label);
+  const nWords = pageWordCount(page);          // the read-lock grows with the text; some pages add seconds of their own
+  lockButton(btn, lock(nWords, page.lockExtra), label);
   btn.addEventListener("click", () => {
     const img = el.querySelector(".scenario-figure img");
     go(+1, {
@@ -605,7 +606,7 @@ function showScenario(el, s) {
       needed_scrolling: document.documentElement.scrollHeight > window.innerHeight + 1,
       viewport_width: window.innerWidth, viewport_height: window.innerHeight,
       n_words: nWords,
-      lock_seconds: lock(nWords),
+      lock_seconds: lock(nWords, page.lockExtra),
     });
   });
 }

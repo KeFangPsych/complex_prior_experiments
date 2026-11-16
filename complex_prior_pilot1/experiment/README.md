@@ -202,6 +202,7 @@ answer options keep the script's order.
 | Order of the answer options of the team's goal question ("I don't remember" last) | 24 orders | everyone | per participant | `team_goal_option_order` |
 | Order of the two relevance questions | 2 orders | pilot mode | per participant | `order_relevance` |
 | Which organism question is shown in part 3 | 2 questions | pilot mode | per participant | `organism_question` |
+| Order of the two agree / disagree statements about the algae explanation (end evaluations) | 2 orders | evidence-first conditions | per participant | `order_agree_statements` |
 | Order of the complexity, source-trust and utility blocks of the end evaluations | 6 orders | everyone | per participant | `order_final_blocks` |
 
 "Assignment cell" means the three settings are crossed into the 32 cells
@@ -217,11 +218,24 @@ checks that each of these columns is filled and matches what was shown, and
 (300 words per minute, `CONFIG.read_lock_words_per_second`) and for at least 10
 seconds (`CONFIG.read_lock_min_seconds`). This applies to every scenario page and
 to the instruction page; the words counted are the page's paragraphs and sender
-labels. The scenario pages come to between 10 and 32 seconds (10 for the short
-text-only pages, about 25 for the company's first message, about 30 for the
-algae explanation), and the instruction page to 14. The welcome and consent
-pages have no lock. The lock used is recorded in each row (`lock_seconds`,
-`n_words`).
+labels. Four pages have more to take in than their word count says, a dense
+paragraph or a picture that has to be read, and stay locked for extra seconds
+(`LOCK_EXTRA` in `src/content.js`; the script states the numbers): the first
+page of part 3 (+8), the company's first message (+29), the lab report (+6)
+and the algae explanation (+17). These were set from reading times in testing,
+to about four seconds less than a careful first read took. The resulting locks:
+
+| page | lock |
+|---|---|
+| instructions | 14 s |
+| part 1; part 2 | 11 s; 10 s (simple) or 14 s (complex) |
+| part 3, page 1; page 2 (company's first message) | 25 s; 54 s |
+| evidence part, page 1; lab report | 10 s; 23 s with the surprise text, 20 s without |
+| the team's question (evidence first) | 10 s |
+| algae explanation | 48 to 51 s, depending on the version |
+
+The welcome and consent pages have no lock. The lock used is recorded in each
+row (`lock_seconds`, `n_words`).
 
 **Page layout.** Parts 1 and 2 show the text on the left and the picture on the
 right. Part 3 is two pages: text only, then text above the picture. Parts 4 and 5
@@ -252,7 +266,8 @@ never asked.
 - Questions are grouped onto screens of one to four related items (the `page` key
   of each item in `content.js`).
 - Every question must be answered. Open responses need at least
-  `CONFIG.open_min_chars` (10) characters.
+  `CONFIG.open_min_chars` (100) characters; a counter under the box shows how
+  many are written. The script states the number.
 - No feedback is given on the memory questions and nobody is screened out;
   correctness is recorded only.
 - The stepper shows neutral labels (Part 1 … Part 5).
@@ -327,6 +342,7 @@ Other participant-level columns: `subject_id`, `prolific_pid`, `study_id`,
 integrity counters above. The random orders that were drawn are recorded in
 `order_planet_blocks` (for example `planet_understanding,planet_complexity`),
 `order_final_blocks` (for example `trust,complexity,utility`),
+`order_agree_statements` (evidence-first conditions),
 `order_relevance` (pilot mode), `organism_question` (pilot mode; the id of
 the part 3 organism question that was shown) and `team_goal_option_order` (the options as
 displayed, separated by ` | `). `response_index` and `<id>_correct` always refer

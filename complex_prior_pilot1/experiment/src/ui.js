@@ -124,7 +124,7 @@ function itemHtml(q) {
       <div class="choice" data-idx="${i}"><span class="choice-radio"></span><span class="choice-text">${esc(q.options[i])}</span></div>`).join("")}</div>`;
   } else {
     body = `<textarea class="open-textarea" rows="4" placeholder="Type your answer here"></textarea>
-      <p class="small open-hint">Please write at least ${CONFIG.open_min_chars} characters.</p>`;
+      <p class="small open-hint">Please write at least ${CONFIG.open_min_chars} characters. <span class="open-count">0 / ${CONFIG.open_min_chars}</span></p>`;
   }
   return `<div class="q-item" data-id="${q.id}" data-type="${q.type}">${promptHtml(q)}${body}</div>`;
 }
@@ -181,7 +181,15 @@ export function bindQuestions(root, items, onChange, initial = {}) {
       }));
     } else {
       const ta = el.querySelector("textarea");
-      ta.addEventListener("input", () => record(q.id, ta.value));
+      // shows how much of the minimum is written
+      const count = el.querySelector(".open-count");
+      const showCount = () => {
+        const n = ta.value.trim().length;
+        count.textContent = `${n} / ${CONFIG.open_min_chars}`;
+        count.classList.toggle("reached", n >= CONFIG.open_min_chars);
+      };
+      showCount();
+      ta.addEventListener("input", () => { showCount(); record(q.id, ta.value); });
     }
   });
 

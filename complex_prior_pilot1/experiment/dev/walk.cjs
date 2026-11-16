@@ -30,10 +30,11 @@ const shotDir = path.join(__dirname, "shots");
 
 (async () => {
   const content = await import("../src/content.js");
+  const config = await import("../src/config.js");
   const browser = await chromium.launch(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {});
   const problems = [];
   let runs = 0;
-  const orders = { planet: new Set(), final: new Set(), goal: new Set(), relevance: new Set(), orgq: new Set() };   // randomized orders seen across runs
+  const orders = { planet: new Set(), final: new Set(), goal: new Set(), relevance: new Set(), orgq: new Set(), agree: new Set() };   // randomized orders seen across runs
   const scrolled = new Set();                                                    // scenario pages that did not fit the window
 
   async function run({ cond, mode, fig, surprise, checks = "correct", shots = false, clickSetup = false, orgq = null }) {
@@ -102,7 +103,7 @@ const shotDir = path.join(__dirname, "shots");
     // planet blocks, the three end-evaluation blocks, and the relevance questions
     const GROUPS = [["planet_complexity", "planet_understanding"], ["complexity", "trust", "utility"]];
     const unshuffle = (pages) => {
-      const out = pages.map((p) => ({ ...p, ids: p.key === "goal" ? ["team_goal", ...p.ids.filter((x) => x !== "team_goal").sort()] : p.ids }));
+      const out = pages.map((p) => ({ ...p, ids: p.key === "goal" ? ["team_goal", ...p.ids.filter((x) => x !== "team_goal").sort()] : p.key === "explanation2_agree" ? [...p.ids].sort() : p.ids }));
       GROUPS.forEach((group) => {
         const at = out.map((p, k) => (group.includes(p.key) ? k : -1)).filter((k) => k >= 0);
         const sorted = at.map((k) => out[k]).sort((a, b) => group.indexOf(a.key) - group.indexOf(b.key));
@@ -121,6 +122,10 @@ const shotDir = path.join(__dirname, "shots");
     expect("team_goal_option_order", last.team_goal_option_order, goalRow.option_order.map((k) => goalItem.options[k]).join(" | "));
     if (!last.team_goal_option_order.endsWith("I don't remember")) bad("team_goal: \"I don't remember\" is not the last option");
     orders.goal.add(last.team_goal_option_order);
+    if (c.order === "evidence_first") {
+      expect("order_agree_statements", last.order_agree_statements, gotPages.find((p) => p.key === "explanation2_agree").ids.join(","));
+      orders.agree.add(last.order_agree_statements);
+    } else if ("order_agree_statements" in last) bad("order_agree_statements recorded in an elaboration-first condition");
     if (mode === "pilot") {
       expect("order_relevance", last.order_relevance, gotPages.find((p) => p.key === "goal").ids.filter((x) => x !== "team_goal").join(","));
       orders.relevance.add(last.order_relevance);
@@ -133,7 +138,7 @@ const shotDir = path.join(__dirname, "shots");
       const v = last[q.id];
       if (q.type === "likert" && !(Number.isInteger(v) && v >= 1 && v <= content.SCALE_POINTS)) bad(`${q.id}: scale answer ${JSON.stringify(v)}`);
       if (q.type === "choice" && !q.options.includes(v)) bad(`${q.id}: choice answer ${JSON.stringify(v)}`);
-      if (q.type === "open" && !(typeof v === "string" && v.length >= 10)) bad(`${q.id}: open answer ${JSON.stringify(v)}`);
+      if (q.type === "open" && !(typeof v === "string" && v.length >= config.CONFIG.open_min_chars)) bad(`${q.id}: open answer ${JSON.stringify(v)}`);
       if (q.type === "choice" && q.correct !== null && checks !== "random") expect(`${q.id}_correct`, last[`${q.id}_correct`], checks === "correct");
     });
     // no answer column for a question that was not asked
@@ -143,9 +148,9 @@ const shotDir = path.join(__dirname, "shots");
 
     // every randomization has its column (pilot-only ones in pilot mode)
     content.RANDOMIZATIONS.forEach((r) => r.columns.forEach((col) => {
-      const applies = r.appliesTo !== "Pilot" || mode === "pilot";
+      const applies = r.appliesTo === "Pilot" ? mode === "pilot" : r.appliesTo === "Evidence-first conditions" ? c.order === "evidence_first" || col === "surprise_text" : true;
       if (applies && (last[col] === undefined || last[col] === null || last[col] === "")) bad(`randomization column ${col} is empty`);
-      if (!applies && col in last) bad(`randomization column ${col} recorded in main mode`);
+      if (!applies && col in last) bad(`randomization column ${col} recorded although it does not apply`);
     }));
     // every screen has its time: in its row, and in the participant-level column rt_<screen>
     const SCREEN_TASKS = ["test_setup", "welcome", "consent", "instructions", "scenario", "questions", "general_feedback", "debrief"];

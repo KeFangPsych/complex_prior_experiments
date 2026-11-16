@@ -23,7 +23,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentCells, cellFromCounter, assignmentFromIndex, indexFromAssignment, scenario, pageParagraphs, questions, questionPages, randomizePages, orderNotes, scriptText, RANDOMIZATIONS } from "../src/content.js";
+import { LOCK_EXTRA, CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentCells, cellFromCounter, assignmentFromIndex, indexFromAssignment, scenario, pageParagraphs, questions, questionPages, randomizePages, orderNotes, scriptText, RANDOMIZATIONS } from "../src/content.js";
 import { CONFIG, WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, fillStudyValues } from "../src/config.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -54,13 +54,15 @@ const condsIn = (title) => {
 // ---- pages of a block of lines: narration and messages in reading order, plus the figure ----
 // A message is a block quote whose first line is its bold sender label; one
 // labelled "Lab report" is a report. A quoted line starting with "* " is a bullet.
-function parseBlock(lines, surpriseText) {
+// `complexity` ("low" | "high") picks the word of a "[simple / complex]" alternative.
+function parseBlock(lines, surpriseText, complexity) {
   const newPage = () => ({ blocks: [], figures: [], figureInReport: false });
   const pages = [newPage()];
   let quote = null;                                   // the message being read
   const clean = (line) => {
     const s = surpriseText ? line.replace(/<\/?ins>/g, "") : line.replace(/<ins>.*?<\/ins>/g, "");
-    return unescape(s).replace(/\s+/g, " ").replace(/ \./g, ".").trim();
+    const picked = s.replace(/\[([^\]\/]+) \/ ([^\]\/]+)\]/g, (_, low, high) => (complexity === "low" ? low : high));
+    return unescape(picked).replace(/\s+/g, " ").replace(/ \./g, ".").trim();
   };
   for (const raw of lines) {
     const line = raw.trim();
@@ -89,6 +91,7 @@ function parseBlock(lines, surpriseText) {
       page.figures.push(...unescape(line).match(/vignette1_[A-Za-z0-9_]+(?:\.png)?/g));
       continue;
     }
+    if (/^\*[^*\s].*[^*]\*$/.test(line)) continue;    // an italic note for researchers
     const last = page.blocks[page.blocks.length - 1];
     if (last && last.kind === "narration") last.paragraphs.push(clean(line));
     else page.blocks.push({ kind: "narration", paragraphs: [clean(line)] });
@@ -166,7 +169,7 @@ for (const cond of Object.keys(CONDITIONS).map(Number)) {
 
     for (const surpriseText of [true, false]) for (const figureVersion of ["table", "line"]) {
       const where = `cond ${cond}, ${stage}, surprise text ${surpriseText ? "shown" : "hidden"}, ${figureVersion} figure`;
-      const want = parseBlock(lines, surpriseText);
+      const want = parseBlock(lines, surpriseText, c.complexity);
       const got = scenario(stage, cond, { surpriseText, figureVersion }).pages;
       same(where, "number of pages", got.length, want.length);
       got.forEach((pg, n) => {
@@ -309,7 +312,9 @@ for (const [cond, stage] of [[1, "elaboration"], [5, "evidence"]]) for (const mo
     // (a screen key can occur twice in a stage, so other screens are compared by position)
     r.pages.forEach((p, k) => {
       const ref = blocks.includes(p.key) ? canon.find((x) => x.key === p.key) : canon[k];
-      if (p.items.map((q) => q.id).join() !== ref.items.map((q) => q.id).join()) fail(where, `order inside ${p.key} changed`);
+      // (the two agree / disagree statements have their own random order, checked below)
+      const ids = (pg) => (pg.key === "explanation2_agree" ? pg.items.map((q) => q.id).sort() : pg.items.map((q) => q.id)).join();
+      if (ids(p) !== ids(ref)) fail(where, `order inside ${p.key} changed`);
     });
     // the three blocks stay in the same three places, and every other screen keeps its place
     canon.forEach((p, k) => { if (blocks.includes(p.key) ? !blocks.includes(keys[k]) : keys[k] !== p.key) fail(where, `screen ${k + 1} (${p.key}) moved`); });
@@ -317,6 +322,18 @@ for (const [cond, stage] of [[1, "elaboration"], [5, "evidence"]]) for (const mo
     return r.orders.order_final_blocks;
   }), 6);
 }
+// the two agree / disagree statements swap (evidence-first conditions); nothing else on that screen
+for (const mode of ["pilot", "main"]) {
+  const canon = questionPages("elaboration", 1, mode);
+  roughlyEven(`randomization, agree statements (${mode})`, tally(() => {
+    const r = randomizePages(canon);
+    const pg = r.pages.find((p) => p.key === "explanation2_agree");
+    if (pg.items.length !== 2) fail("randomization, agree statements", "the screen does not have exactly the two statements");
+    if (r.orders.order_agree_statements !== pg.items.map((q) => q.id).join(",")) fail("randomization, agree statements", "recorded order differs from the order used");
+    return r.orders.order_agree_statements;
+  }), 2);
+}
+same("randomization, agree statements", "not asked when the elaboration comes first", questionPages("evidence", 5, "pilot").some((p) => p.key === "explanation2_agree"), false);
 // no randomization anywhere else
 for (const [cond, stage] of [[1, "planet"], [1, "evidence"], [5, "planet"], [5, "elaboration"]]) {
   const canon = questionPages(stage, cond, "pilot");
@@ -346,8 +363,17 @@ for (const [cond, stage] of [[1, "planet"], [1, "evidence"], [5, "planet"], [5, 
   const listed = RANDOMIZATIONS.flatMap((r) => r.columns);
   same(where, "columns of the random orders", [...drawn].sort().join(), listed.filter((c) => !ASSIGNED.includes(c)).sort().join());
   same(where, "columns of the assignment", listed.filter((c) => ASSIGNED.includes(c)).sort().join(), [...ASSIGNED].sort().join());
-  const lockLine = `Reading time: on each scenario page and on the instruction page, the Continue button stays locked for 1 second per ${CONFIG.read_lock_words_per_second} words of text, and for at least ${CONFIG.read_lock_min_seconds} seconds.`;
-  same(where, "read-lock sentence", intro.includes(lockLine) ? lockLine : intro.find((l) => l.startsWith("Reading time:")) || null, lockLine);
+  const lockLine = `Reading time: on each scenario page and on the instruction page, the Continue button stays locked for 1 second per ${CONFIG.read_lock_words_per_second} words of text, and for at least ${CONFIG.read_lock_min_seconds} seconds. Four pages have more to take in and stay locked for longer: the first page of Stage 3 (${LOCK_EXTRA.explanation1_intro} seconds more), Bioenergy's first message (${LOCK_EXTRA.explanation1_message} seconds more), the lab report (${LOCK_EXTRA.lab_report} seconds more) and the algae explanation (${LOCK_EXTRA.algae} seconds more).`;
+  same(where, "read-lock sentence", intro.find((l) => l.startsWith("Reading time:")) || null, lockLine);
+  // exactly those four kinds of page carry extra seconds
+  for (const cond of Object.keys(CONDITIONS).map(Number)) {
+    const extras = STAGE_SEQUENCE[CONDITIONS[cond].order].flatMap((s) => scenario(s, cond).pages.map((pg, n) => `${s} ${n + 1}: ${pg.lockExtra}`)).filter((x) => !x.endsWith(": 0"));
+    const algaePage = CONDITIONS[cond].order === "evidence_first" ? 2 : 1;
+    same(`${where}, cond ${cond}`, "pages with extra lock seconds", [...extras].sort().join("; "),
+      [`explanation1 1: ${LOCK_EXTRA.explanation1_intro}`, `explanation1 2: ${LOCK_EXTRA.explanation1_message}`, `evidence 2: ${LOCK_EXTRA.lab_report}`, `elaboration ${algaePage}: ${LOCK_EXTRA.algae}`].sort().join("; "));
+  }
+  const openLine = `Open responses: each open-response question needs at least ${CONFIG.open_min_chars} characters. The final comments are optional.`;
+  same(where, "open-response sentence", intro.find((l) => l.startsWith("Open responses:")) || null, openLine);
 }
 
 if (errors.length) {

@@ -77,7 +77,7 @@ export const fillStudyValues = (text) => text.replace(/\bXX\b/g, () => STUDY.min
 
 export const CONFIG = {
   experiment_name: "complex_prior_pilot1_vignette1",
-  experiment_version: "0.11.0",
+  experiment_version: "0.12.0",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.
@@ -92,13 +92,14 @@ export const CONFIG = {
   // Read-locks on the scenario pages and the instruction page: Continue unlocks
   // after a reading time that grows with the page's text, 1 second per
   // `read_lock_words_per_second` words, and is never below `read_lock_min_seconds`
-  // (see readLockSeconds below). Off in testing mode unless switched on on the
-  // test-setup screen. The script (.md) states both numbers.
+  // (see readLockSeconds below). Four scenario pages get extra seconds on top
+  // (LOCK_EXTRA in content.js). Off in testing mode unless switched on on the
+  // test-setup screen. The script (.md) states all of these numbers.
   read_lock_words_per_second: 5,  // 300 words per minute
   read_lock_min_seconds: 10,
 
-  // Open-response questions need at least this many characters.
-  open_min_chars: 10,
+  // Open-response questions need at least this many characters (the script states the number).
+  open_min_chars: 100,
 
   // Integrity (see README). ?nofs=1 turns off fullscreen and the viewport lock.
   require_fullscreen: true,
@@ -107,8 +108,11 @@ export const CONFIG = {
   production_protections: true,   // context menu / copy / devtools shortcuts (off in testing mode)
 };
 
-/** Seconds that Continue stays locked on a page with `nWords` words of text. */
-export const readLockSeconds = (nWords) => Math.max(CONFIG.read_lock_min_seconds, Math.ceil(nWords / CONFIG.read_lock_words_per_second));
+/**
+ * Seconds that Continue stays locked on a page with `nWords` words of text.
+ * `extra` is the page's own allowance (LOCK_EXTRA in content.js), added on top.
+ */
+export const readLockSeconds = (nWords, extra = 0) => Math.max(CONFIG.read_lock_min_seconds, Math.ceil(nWords / CONFIG.read_lock_words_per_second)) + extra;
 
 // ============================================================================
 // TEXT AROUND THE SCENARIO. Plain text; **double asterisks** mark bold.

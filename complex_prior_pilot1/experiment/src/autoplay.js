@@ -36,7 +36,8 @@ window.__autoplay = function (opts = {}) {
       el.querySelector(`.choice[data-idx="${idx}"]`).click();
     } else {
       const ta = el.querySelector("textarea");
-      if (!ta.value) { ta.value = `autoplay answer to ${q.id}`; ta.dispatchEvent(new Event("input", { bubbles: true })); }
+      // long enough for the minimum length of an open response
+      if (!ta.value) { ta.value = `autoplay answer to ${q.id}: `.padEnd(130, "the weather, the gas and the organism "); ta.dispatchEvent(new Event("input", { bubbles: true })); }
     }
   }
 
