@@ -45,7 +45,7 @@ Everything that is randomized, and the data column that records what was drawn:
 
 The condition, the evidence figure and the surprise text are crossed into 32 assignment cells that are filled in turn, so they stay balanced. Everything else is drawn separately for each participant, with every version equally likely. Nothing else is randomized: all other pages, questions and answer options keep the order of this document.
 
-Reading time: on each scenario page and on the instruction page, the Continue button stays locked for 1 second per 5 words of text, and for at least 10 seconds. Four pages have more to take in and stay locked for longer: the first page of Stage 3 (8 seconds more), Bioenergy's first message (29 seconds more), the lab report (6 seconds more) and the algae explanation (17 seconds more).
+Reading time: the Continue button stays locked for 10 seconds on the instruction page. On each scenario page it stays locked for 1 second per 5 words of text, and for at least 10 seconds. Four pages have more to take in and stay locked for longer: the first page of Stage 3 (8 seconds more), Bioenergy's first message (10 seconds more), the lab report (6 seconds more) and the algae explanation (17 seconds more).
 
 Open responses: each open-response question needs at least 100 characters. The final comments are optional.
 
@@ -156,9 +156,11 @@ Bioenergy writes to your team to recommend its technology.
 >
 > We saw that your team is looking for a way to keep apartments warm. We recommend our technology.
 >
-> Our technology relies on one of the organism's biological processes. In this process, **the organism uses a certain gas from the air to produce heat and a purple substance called a pigment**. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. **When more of this gas is available, the organism produces more heat and looks more purple.**
+> Our technology uses part of the biological process found in a specific type of organism.
 >
-> **The planet's air holds more of this gas when the weather is colder**. So in colder weather, there is more gas around the organism.
+> In this process, **the organism uses a certain gas from the air to produce heat and a purple substance called a pigment that makes it look purple.** The pigment is harmless and has no other practical use.
+>
+> **The planet's air holds more of this gas when the weather is colder. So in colder weather, there is more gas around the organism. When more of this gas is available, the organism produces more heat and looks more purple.**
 
 *Figure: vignette1\_img3\_explanation1.png*
 
@@ -241,7 +243,7 @@ Your team's lab tests the sample at four different temperatures. **During the te
 | :---- | :---- | :---- |
 | Main | Observed heat production | How much heat did the organism produce when it was freezing, compared with when it was cold? (Less heat; About the same amount of heat; More heat; I don't remember) |
 | Main | Observed color | How purple did the organism look when it was freezing, compared with when it was cold? (Less purple; About as purple; More purple; I don't remember) |
-| Pilot | Inquiry | Would you ask Bioenergy to further explain about this result? (Yes; No) |
+| Pilot | Inquiry | Would you ask Bioenergy to explain this result further? (Yes; No) |
 | Pilot | Difference from expectations / Surprise | How different are these results from what you expected based on the company's message? (1 \= Not at all different; 5 \= Extremely different) |
 | Pilot | Gas availability | How much gas was available when it was freezing, compared with when it was cold? (Less gas; About the same amount of gas; More gas; I don't remember) |
 | Pilot | Anomaly relevance, heat anomaly version (cond 1, 3\) | The organism produces less heat when it is freezing. How much does this matter for your team's goal of keeping apartments warm? (1 \= Not at all; 5 \= Very much) |
@@ -459,7 +461,7 @@ Your team's lab tests the sample at four different temperatures. **During the te
 | Main | Further measure: explanation 1 counterfactual evaluations | Suppose the company had not mentioned the algae. How acceptable would that have been? (1 \= Not at all acceptable; 5 \= Completely acceptable) |
 | Main | Observed heat production | How much heat did the organism produce when it was freezing, compared with when it was cold? (Less heat; About the same amount of heat; More heat; I don't remember) |
 | Main | Observed color | How purple did the organism look when it was freezing, compared with when it was cold? (Less purple; About as purple; More purple; I don't remember) |
-| Pilot | Inquiry | Would you ask Bioenergy to further explain about this result? (Yes; No) |
+| Pilot | Inquiry | Would you ask Bioenergy to explain this result further? (Yes; No) |
 | Pilot | Difference from expectations / Surprise | How different are these results from what you expected based on the company's message? (1 \= Not at all different; 5 \= Extremely different) |
 | Pilot | Gas availability | How much gas was available when it was freezing, compared with when it was cold? (Less gas; About the same amount of gas; More gas; I don't remember) |
 | Pilot | Anomaly relevance, heat anomaly version (cond 5, 7\) | The organism produces less heat when it is freezing. How much does this matter for your team's goal of keeping apartments warm? (1 \= Not at all; 5 \= Very much) |

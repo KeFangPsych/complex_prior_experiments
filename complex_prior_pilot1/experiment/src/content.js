@@ -108,7 +108,7 @@ const LAB_REPORT = "Lab report from your team's lab";
 // in than their word count says (a dense paragraph, or a picture that has to be
 // read), so they stay locked for this many seconds longer. The numbers come from
 // reading times in testing and are stated in the script.
-export const LOCK_EXTRA = { explanation1_intro: 8, explanation1_message: 29, lab_report: 6, algae: 17 };
+export const LOCK_EXTRA = { explanation1_intro: 8, explanation1_message: 10, lab_report: 6, algae: 17 };
 const FROM_BIOENERGY = "From Bioenergy to your team";
 const FROM_TEAM = "From your team to Bioenergy";
 
@@ -155,8 +155,9 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
         narration("Bioenergy writes to your team to recommend its technology."),
         message(FROM_BIOENERGY,
           "We saw that your team is looking for a way to keep apartments warm. We recommend our technology.",
-          "Our technology relies on one of the organism's biological processes. In this process, **the organism uses a certain gas from the air to produce heat and a purple substance called a pigment**. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. **When more of this gas is available, the organism produces more heat and looks more purple.**",
-          "**The planet's air holds more of this gas when the weather is colder**. So in colder weather, there is more gas around the organism.",
+          "Our technology uses part of the biological process found in a specific type of organism.",
+          "In this process, **the organism uses a certain gas from the air to produce heat and a purple substance called a pigment that makes it look purple.** The pigment is harmless and has no other practical use.",
+          "**The planet's air holds more of this gas when the weather is colder. So in colder weather, there is more gas around the organism. When more of this gas is available, the organism produces more heat and looks more purple.**",
         ),
       ], `${IMG}3_explanation1.png`,
       "Bioenergy's explanation: with more gas, the organism can produce more heat and more purple pigment, which makes it look more purple. Colder weather means more gas in the air.", "stacked", { lockExtra: LOCK_EXTRA.explanation1_message }),
@@ -305,7 +306,7 @@ function evidencePilotItems(c) {
   const { A } = outputs(c.anomaly);
   return [
     choice("inquiry", "pilot", "Inquiry", "evidence_check",
-      "Would you ask Bioenergy to further explain about this result?", ["Yes", "No"]),
+      "Would you ask Bioenergy to explain this result further?", ["Yes", "No"]),
     likert("surprise", "pilot", "Difference from expectations / Surprise", "evidence_check",
       "How different are these results from what you expected based on the company's message?", "Not at all different", "Extremely different"),
     choice("gas_availability", "pilot", "Gas availability", "evidence_check_2",

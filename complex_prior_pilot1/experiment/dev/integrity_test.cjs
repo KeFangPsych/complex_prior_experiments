@@ -43,11 +43,10 @@ const LOCK_WAIT = 60000;   // longest wait for a read-lock to open
   check("consent enters fullscreen", await page.evaluate(() => !!document.fullscreenElement));
 
   check("instructions are read-locked", await page.isDisabled("#card-btn"));
-  // the read-lock grows with the text: 1 second per 5 words, at least 10 seconds
+  // the instruction page has a fixed lock; scenario pages: 1 second per 5 words, at least 10 seconds
   const lockShown = async () => parseInt(await page.locator("#card-btn .lock-count").textContent());
-  const iWords = content.countWords(config.INSTRUCTIONS.title) + config.INSTRUCTIONS.bullets.reduce((n, b) => n + content.countWords(b), 0);
   const iLock = await lockShown();
-  check("instruction read-lock follows the word count", Math.abs(iLock - config.readLockSeconds(iWords)) <= 1 && iLock >= 10, `${iWords} words, ${iLock} s shown`);
+  check("instruction page is locked for the set time", Math.abs(iLock - config.CONFIG.instruction_lock_seconds) <= 1, `${iLock} s shown`);
 
   // screenshots: the study is covered on a screenshot key and while the window is not active
   const shieldShown = () => page.evaluate(() => (document.getElementById("capture-shield") || { style: {} }).style.display === "flex");

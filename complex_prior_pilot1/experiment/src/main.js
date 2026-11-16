@@ -483,8 +483,9 @@ function showInstructions(el) {
     <div class="btn-row"><button class="btn btn-lg" id="card-btn">${label}</button></div>`, "card-narrow");
   const btn = el.querySelector("#card-btn");
   const nWords = countWords(INSTRUCTIONS.title) + INSTRUCTIONS.bullets.reduce((n, b) => n + countWords(b), 0);
-  lockButton(btn, lock(nWords), label);
-  btn.addEventListener("click", () => go(+1, { task: "instructions", n_words: nWords, lock_seconds: lock(nWords) }));
+  const seconds = state.locks ? CONFIG.instruction_lock_seconds : 0;   // a fixed lock, not by word count
+  lockButton(btn, seconds, label);
+  btn.addEventListener("click", () => go(+1, { task: "instructions", n_words: nWords, lock_seconds: seconds }));
 }
 
 // Picture sizes, in CSS pixels of displayed width. A picture is shown at `max`

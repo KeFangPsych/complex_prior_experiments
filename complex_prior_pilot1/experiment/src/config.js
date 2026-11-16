@@ -77,7 +77,7 @@ export const fillStudyValues = (text) => text.replace(/\bXX\b/g, () => STUDY.min
 
 export const CONFIG = {
   experiment_name: "complex_prior_pilot1_vignette1",
-  experiment_version: "0.12.0",
+  experiment_version: "0.13.0",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.
@@ -89,7 +89,9 @@ export const CONFIG = {
   // site: keep true to test a build, set to false before collecting data.
   allow_dev_flags: true,
 
-  // Read-locks on the scenario pages and the instruction page: Continue unlocks
+  // Read-lock of the instruction page, in seconds.
+  instruction_lock_seconds: 10,
+  // Read-locks on the scenario pages: Continue unlocks
   // after a reading time that grows with the page's text, 1 second per
   // `read_lock_words_per_second` words, and is never below `read_lock_min_seconds`
   // (see readLockSeconds below). Four scenario pages get extra seconds on top

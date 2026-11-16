@@ -181,9 +181,9 @@ the data are saved → back to Prolific. Each part is one or two **scenario scre
 part have two (in the evidence part, asking for the sample, then the lab report
 with the picture), and so does part 5 of the evidence-first conditions (the
 team's question, then the company's reply), followed by its **question
-screens**. On every scenario screen and on the instruction page, Continue is
-locked for a reading time that depends on the amount of text (see *Read-locks*
-below). The
+screens**. On every scenario screen Continue is locked for a reading time that
+depends on the amount of text, and on the instruction page for 10 seconds (see
+*Read-locks* below). The
 consent form is shown in full (the page scrolls only if the window is too short
 for it) and has a **Save a copy (PDF)** button, which also works with the
 safeguards on. Text marked with `**…**` in the script is shown in bold.
@@ -216,20 +216,20 @@ checks that each of these columns is filled and matches what was shown, and
 
 **Read-locks.** Continue stays locked for 1 second per 5 words of text
 (300 words per minute, `CONFIG.read_lock_words_per_second`) and for at least 10
-seconds (`CONFIG.read_lock_min_seconds`). This applies to every scenario page and
-to the instruction page; the words counted are the page's paragraphs and sender
-labels. Four pages have more to take in than their word count says, a dense
+seconds (`CONFIG.read_lock_min_seconds`). This applies to every scenario page;
+the words counted are the page's paragraphs and sender labels. The instruction
+page has a fixed lock of 10 seconds (`CONFIG.instruction_lock_seconds`). Four pages have more to take in than their word count says, a dense
 paragraph or a picture that has to be read, and stay locked for extra seconds
 (`LOCK_EXTRA` in `src/content.js`; the script states the numbers): the first
-page of part 3 (+8), the company's first message (+29), the lab report (+6)
-and the algae explanation (+17). These were set from reading times in testing,
-to about four seconds less than a careful first read took. The resulting locks:
+page of part 3 (+8), the company's first message (+10), the lab report (+6)
+and the algae explanation (+17). These were set from reading times in testing.
+The resulting locks:
 
 | page | lock |
 |---|---|
-| instructions | 14 s |
+| instructions | 10 s |
 | part 1; part 2 | 11 s; 10 s (simple) or 14 s (complex) |
-| part 3, page 1; page 2 (company's first message) | 25 s; 54 s |
+| part 3, page 1; page 2 (company's first message) | 25 s; 35 s |
 | evidence part, page 1; lab report | 10 s; 23 s with the surprise text, 20 s without |
 | the team's question (evidence first) | 10 s |
 | algae explanation | 48 to 51 s, depending on the version |
