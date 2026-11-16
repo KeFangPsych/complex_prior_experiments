@@ -7,7 +7,8 @@ planet. They read a five-part scenario about a technology offered by a company
 (text plus a picture per part) and answer questions after each part. What the
 company and the team write to each other is shown as speech bubbles with a
 sender label (the company's on the left in green with its logo, the team's on
-the right in blue with a hard hat); everything else is the narrator's text.
+the right in blue with a hard hat), and the test results as a lab report box;
+everything else is the narrator's text.
 
 It is a Node project: jsPsych and its plugins come from npm and
 [Vite](https://vite.dev) bundles everything into a static site. The UI and the
@@ -154,9 +155,10 @@ random. `condition_source` records which: `datapipe`, `random`,
 
 **Timeline.** welcome → consent (enters fullscreen) → assignment → picture
 preload → one instruction page → five parts → optional comments → save →
-debrief. Each part is one **scenario screen** (two in part 3, and two in part 5
-of the evidence-first conditions: the team's question, then the company's
-reply; Continue locked for
+debrief. Each part is one or two **scenario screens**: part 3 and the evidence
+part have two (in the evidence part, asking for the sample, then the lab report
+with the picture), and so does part 5 of the evidence-first conditions (the
+team's question, then the company's reply). Continue is locked for
 `CONFIG.scenario_lock_seconds`) followed by its **question screens**. The
 consent form is shown in full (the page scrolls only if the window is too short
 for it) and has a **Save a copy (PDF)** button, which also works with the
@@ -180,9 +182,11 @@ displayed width (`figureLimits` in `src/main.js`). The two most detailed
 pictures, the laboratory results with line graphs and the algae explanation, are
 shown as wide as the text. A picture is shown at its maximum when the page fits
 the window; otherwise the page first switches to a compact text style, and only
-then shrinks the picture towards its minimum. With this, every scenario page
-fits without scrolling in a window of 1366 × 768 or larger; in the smallest
-allowed window (1024 × 600) the longer pages scroll a little.
+then shrinks the picture towards its minimum. The algae explanation is hard to
+read when small, so its minimum is 840px and its page scrolls a little on a
+1366 × 768 screen. Every other scenario page fits without scrolling in a window
+of 1366 × 768 or larger; in the smallest allowed window (1024 × 600) the longer
+pages scroll.
 
 **Pilot and main mode.** `CONFIG.mode = "pilot"` asks every question of the
 script; `"main"` asks only those tagged Main. Participants always get

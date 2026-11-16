@@ -50,7 +50,8 @@ const condsIn = (title) => {
 };
 
 // ---- pages of a block of lines: narration and messages in reading order, plus the figure ----
-// A message is a block quote whose first line is its bold sender label.
+// A message is a block quote whose first line is its bold sender label; one
+// labelled "Lab report" is a report. A quoted line starting with "* " is a bullet.
 function parseBlock(lines, surpriseText) {
   const newPage = () => ({ blocks: [], figures: [] });
   const pages = [newPage()];
@@ -67,7 +68,8 @@ function parseBlock(lines, surpriseText) {
       if (!text) continue;
       if (!quote) {
         const label = text.match(/^\*\*(.+)\*\*$/);
-        quote = { kind: "message", label: label ? unescape(label[1]) : null, paragraphs: label ? [] : [clean(text)] };
+        const name = label ? unescape(label[1]) : null;
+        quote = { kind: name && name.startsWith("Lab report") ? "report" : "message", label: name, paragraphs: label ? [] : [clean(text)] };
         page.blocks.push(quote);
       } else quote.paragraphs.push(clean(text));
       continue;
@@ -167,7 +169,7 @@ for (const cond of Object.keys(CONDITIONS).map(Number)) {
         pg.blocks.forEach((b, k) => {
           const wb = w.blocks[k] || { paragraphs: [] };
           same(at, `block ${k + 1} kind`, b.kind, wb.kind);
-          if (b.kind === "message") same(at, `block ${k + 1} sender label`, b.label, wb.label);
+          if (b.kind !== "narration") same(at, `block ${k + 1} label`, b.label, wb.label);
           sameList(`${at}, block ${k + 1}`, "paragraphs", b.paragraphs, wb.paragraphs);
         });
         // figure: the script names none, one file, or two versions (table first, line second)

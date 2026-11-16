@@ -17,11 +17,11 @@ Three-factor between-participants design.
 
 In the question tables below, Pilot marks pilot-only questions and Main marks questions included in the main study. Alternative marks questions that are kept in this document as alternatives; they are not asked. All rating scales have 5 points.
 
-The participant takes the role of a member of the construction team. Text in block quotes is a written message, shown as a speech bubble with its sender label (Bioenergy's on the left in green with the company logo, the team's on the right in blue with a hard hat). All other text is the narrator's. Figures are the narrator's illustrations and are not part of the messages.
+The participant takes the role of a member of the construction team. Text in block quotes is a written message, shown as a speech bubble with its sender label (Bioenergy's on the left in green with the company logo, the team's on the right in blue with a hard hat). A block quote labelled "Lab report" is shown as a report box instead. All other text is the narrator's. Figures are the narrator's illustrations and are not part of the messages.
 
 Underlined parts are manipulated independently (50% per version).
 
-Underlined text, which highlights the surprise, is displayed only half of the time. A participant sees either all of the underlined text (in the test results and in the team's message to Bioenergy) or none of it.
+Underlined text, which highlights the surprise, is displayed only half of the time. A participant sees either all of the underlined text (in the lab report and in the team's message to Bioenergy) or none of it.
 
 Underlined figure notes mark figures that have two versions, and the version shown is randomized.
 
@@ -73,7 +73,7 @@ The study takes about 15 minutes. Please complete it in one sitting, in full-scr
 
 You are a member of a construction team. Your team is planning to create a place for humans to live on an alien planet. The planet has water, air, and **various kinds of small living things called organisms**.
 
-The planet and its organisms have been studied for years, and **science now understands them very well.**
+The planet and its organisms have been studied for years, and science now understands them very well.
 
 *Figure: vignette1\_img1\_planet\_scene.png*
 
@@ -168,25 +168,37 @@ Presentation order:
 
 ## **Stage 4, evidence-first conditions (cond 1, 2, 3, 4): Evidence**
 
-Before deciding whether to use the technology, your team asks Bioenergy for a sample of the organism. Bioenergy sends the sample, and **you send it to your team's laboratory for testing.**
+Before deciding whether to use the technology, your team wants to make sure that the organism can produce heat as explained. So you ask Bioenergy for a sample of the organism.
 
-Your team's lab tests the sample at four different temperatures. **During the tests, more of the gas is available when it is colder, just as on the planet.**
+Bioenergy sends the sample, and **you send it to your team's laboratory for testing**.
 
-Your team mainly wants to know if the organism can produce heat as explained.
+*Page break*
+
+Your team's lab tests the sample at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet.
 
 ### **High-goal-relevance condition (heat anomaly, cond 1, 3\)**
 
-As it gets colder, from warm to cool to moderately cold, the organism produces more heat and looks more purple. <ins>This is expected.</ins>
-
-**When it is extremely cold, the organism looks even more purple<ins>, as expected</ins>. But it produces less heat than when it is moderately cold.** <ins>This is unexpected, because more gas is available for the organism to use.</ins>
+> **Lab report from your team's lab**
+>
+> From warm to cool to moderately cold, the organism produces more heat and looks more purple as it gets colder. <ins>This is expected.</ins>
+>
+> From moderately cold to extremely cold, the organism:
+>
+> * looks even more purple<ins>, as expected</ins>.
+> * produces less heat than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins>
 
 *Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
 ### **Low-goal-relevance condition (color anomaly, cond 2, 4\)**
 
-As it gets colder, from warm to cool to moderately cold, the organism produces more heat and looks more purple. <ins>This is expected.</ins>
-
-**When it is extremely cold, the organism produces even more heat<ins>, as expected</ins>. But it looks less purple than when it is moderately cold.** <ins>This is unexpected, because more gas is available for the organism to use.</ins>
+> **Lab report from your team's lab**
+>
+> From warm to cool to moderately cold, the organism produces more heat and looks more purple as it gets colder. <ins>This is expected.</ins>
+>
+> From moderately cold to extremely cold, the organism:
+>
+> * produces even more heat<ins>, as expected</ins>.
+> * looks less purple than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins>
 
 *Figure: vignette1\_img4\_evidence\_color\_anomaly.png* or *vignette1\_img4\_evidence\_color\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
@@ -225,13 +237,13 @@ Bioenergy replies.
 >
 > Thank you for reaching out about your test.
 >
-> Even smaller living things called algae live inside the organism. **The organism can produce heat only with the help of the algae.**
+> Even smaller living things called algae live inside the organism.
 >
-> The algae need liquid water to stay active. **When the algae are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.**
+> **The organism can produce heat only with the help of the algae. The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
 >
 > As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more heat.
 >
-> But **when it is extremely cold, most of the water available to the algae freezes**. As a result, the algae become less active and produce less heat, even though more gas is available.
+> **But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less heat**, even though more gas is available.
 >
 > **The organism produces purple pigment on its own, without the algae.** So it keeps looking more purple as the weather gets colder.
 
@@ -251,13 +263,13 @@ Bioenergy replies.
 >
 > Thank you for reaching out about your test.
 >
-> Even smaller living things called algae live inside the organism. **The organism can produce purple pigment only with the help of the algae.**
+> Even smaller living things called algae live inside the organism.
 >
-> The algae need liquid water to stay active. **When the algae are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.**
+> **The organism can produce purple pigment only with the help of the algae. The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
 >
 > As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more purple pigment.
 >
-> But **when it is extremely cold, most of the water available to the algae freezes**. As a result, the algae become less active and produce less purple pigment, even though more gas is available.
+> **But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less purple pigment**, even though more gas is available.
 >
 > **The organism produces heat on its own, without the algae.** So it keeps producing more heat as the weather gets colder.
 
@@ -308,13 +320,13 @@ Bioenergy's message continues.
 
 > **From Bioenergy to your team (continued)**
 >
-> Even smaller living things called algae live inside the organism. **The organism can produce heat only with the help of the algae.**
+> Even smaller living things called algae live inside the organism.
 >
-> The algae need liquid water to stay active. **When the algae are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.**
+> **The organism can produce heat only with the help of the algae. The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
 >
 > As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more heat.
 >
-> But **when it is extremely cold, most of the water available to the algae freezes**. As a result, the algae become less active and produce less heat, even though more gas is available.
+> **But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less heat**, even though more gas is available.
 >
 > **The organism produces purple pigment on its own, without the algae.** So it keeps looking more purple as the weather gets colder.
 
@@ -324,13 +336,13 @@ Bioenergy's message continues.
 
 > **From Bioenergy to your team (continued)**
 >
-> Even smaller living things called algae live inside the organism. **The organism can produce purple pigment only with the help of the algae.**
+> Even smaller living things called algae live inside the organism.
 >
-> The algae need liquid water to stay active. **When the algae are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.**
+> **The organism can produce purple pigment only with the help of the algae. The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
 >
 > As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more purple pigment.
 >
-> But **when it is extremely cold, most of the water available to the algae freezes**. As a result, the algae become less active and produce less purple pigment, even though more gas is available.
+> **But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less purple pigment**, even though more gas is available.
 >
 > **The organism produces heat on its own, without the algae.** So it keeps producing more heat as the weather gets colder.
 
@@ -357,25 +369,37 @@ Bioenergy's message continues.
 
 ## **Stage 5, elaboration-first conditions (cond 5, 6, 7, 8): Evidence**
 
-Before deciding whether to use the technology, your team asks Bioenergy for a sample of the organism. Bioenergy sends the sample, and **you send it to your team's laboratory for testing.**
+Before deciding whether to use the technology, your team wants to make sure that the organism can produce heat as explained. So you ask Bioenergy for a sample of the organism.
 
-Your team's lab tests the sample at four different temperatures. **During the tests, more of the gas is available when it is colder, just as on the planet.**
+Bioenergy sends the sample, and **you send it to your team's laboratory for testing**.
 
-Your team mainly wants to know if the organism can produce heat as explained.
+*Page break*
+
+Your team's lab tests the sample at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet.
 
 ### **High-goal-relevance condition (heat anomaly, cond 5, 7\)**
 
-As it gets colder, from warm to cool to moderately cold, the organism produces more heat and looks more purple.
-
-**When it is extremely cold, the organism looks even more purple. But it produces less heat than when it is moderately cold.**
+> **Lab report from your team's lab**
+>
+> From warm to cool to moderately cold, the organism produces more heat and looks more purple as it gets colder.
+>
+> From moderately cold to extremely cold, the organism:
+>
+> * looks even more purple.
+> * produces less heat than when it is moderately cold.
 
 *Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
 ### **Low-goal-relevance condition (color anomaly, cond 6, 8\)**
 
-As it gets colder, from warm to cool to moderately cold, the organism produces more heat and looks more purple.
-
-**When it is extremely cold, the organism produces even more heat. But it looks less purple than when it is moderately cold.**
+> **Lab report from your team's lab**
+>
+> From warm to cool to moderately cold, the organism produces more heat and looks more purple as it gets colder.
+>
+> From moderately cold to extremely cold, the organism:
+>
+> * produces even more heat.
+> * looks less purple than when it is moderately cold.
 
 *Figure: vignette1\_img4\_evidence\_color\_anomaly.png* or *vignette1\_img4\_evidence\_color\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 

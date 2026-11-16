@@ -75,18 +75,22 @@ const IMG = "vignette1_img";
 //   written messages with a sender label.
 //   scenario(stage, cond, { surpriseText, figureVersion }) -> { pages: [...] }
 //   Each page: { blocks, figure (file name or null), alt, layout }
-//     blocks  in reading order, each { kind: "narration", paragraphs } or
-//             { kind: "message", label, paragraphs }
+//     blocks  in reading order, each { kind: "narration", paragraphs },
+//             { kind: "message", label, paragraphs } (a speech bubble) or
+//             { kind: "report", label, paragraphs } (the lab report box).
+//             A paragraph that starts with "* " is a bullet point.
 //     layout "side"     text on the left, picture on the right
 //            "stacked"  text above the picture
 //            "text"     text only
 //   **double asterisks** in a paragraph mark bold, as in the script.
-//   surpriseText   true / false: the underlined sentences (in the test results and
+//   surpriseText   true / false: the underlined sentences (in the lab report and
 //                  in the team's message to Bioenergy; evidence-first conditions only)
 //   figureVersion  "table" / "line": which version of the evidence figure
 // ============================================================================
 const narration = (...paragraphs) => ({ kind: "narration", paragraphs });
 const message = (label, ...paragraphs) => ({ kind: "message", label, paragraphs });
+const report = (label, ...paragraphs) => ({ kind: "report", label, paragraphs });
+const LAB_REPORT = "Lab report from your team's lab";
 const FROM_BIOENERGY = "From Bioenergy to your team";
 const FROM_TEAM = "From your team to Bioenergy";
 
@@ -101,7 +105,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
   if (stage === "planet") {
     return { pages: [page([narration(
       "You are a member of a construction team. Your team is planning to create a place for humans to live on an alien planet. The planet has water, air, and **various kinds of small living things called organisms**.",
-      "The planet and its organisms have been studied for years, and **science now understands them very well.**",
+      "The planet and its organisms have been studied for years, and science now understands them very well.",
     )], `${IMG}1_planet_scene.png`,
     "Two people in space suits look over a planet with water and red rocks. An inset shows small organisms.", "side")] };
   }
@@ -142,26 +146,33 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
   }
 
   if (stage === "evidence") {
-    return { pages: [page([narration(
-      "Before deciding whether to use the technology, your team asks Bioenergy for a sample of the organism. Bioenergy sends the sample, and **you send it to your team's laboratory for testing.**",
-      "Your team's lab tests the sample at four different temperatures. **During the tests, more of the gas is available when it is colder, just as on the planet.**",
-      "Your team mainly wants to know if the organism can produce heat as explained.",
-      "As it gets colder, from warm to cool to moderately cold, the organism produces more heat and looks more purple." + (s ? " This is expected." : ""),
-      `**When it is extremely cold, the organism ${O.evenMore}` + (s ? ", as expected" : "") +
-        `. But it ${A.less} than when it is moderately cold.**` +
-        (s ? " This is unexpected, because more gas is available for the organism to use." : ""),
-    )], `${IMG}4_evidence_${c.anomaly}_anomaly${figureVersion === "line" ? "_line" : ""}.png`,
-    "Laboratory observations at four temperatures, from warm to extremely cold: gas available, organism color and heat output.", "stacked")] };
+    // two pages: asking for the sample, then the lab's report with the picture
+    return { pages: [
+      page([narration(
+        "Before deciding whether to use the technology, your team wants to make sure that the organism can produce heat as explained. So you ask Bioenergy for a sample of the organism.",
+        "Bioenergy sends the sample, and **you send it to your team's laboratory for testing**.",
+      )]),
+      page([
+        narration("Your team's lab tests the sample at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet."),
+        report(LAB_REPORT,
+          "From warm to cool to moderately cold, the organism produces more heat and looks more purple as it gets colder." + (s ? " This is expected." : ""),
+          "From moderately cold to extremely cold, the organism:",
+          `* ${O.evenMore}` + (s ? ", as expected" : "") + ".",
+          `* ${A.less} than when it is moderately cold.` + (s ? " This is unexpected, because more gas is available for the organism to use." : ""),
+        ),
+      ], `${IMG}4_evidence_${c.anomaly}_anomaly${figureVersion === "line" ? "_line" : ""}.png`,
+      "Laboratory observations at four temperatures, from warm to extremely cold: gas available, organism color and heat output.", "stacked"),
+    ] };
   }
 
   if (stage === "elaboration") {
     // Bioenergy's account of the algae: a reply to the team's question when the
     // evidence came first, otherwise the continuation of its first message
     const algaeParagraphs = [
-      `Even smaller living things called algae live inside the organism. **The organism can produce ${anom} only with the help of the algae.**`,
-      `The algae need liquid water to stay active. **When the algae are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.**`,
+      "Even smaller living things called algae live inside the organism.",
+      `**The organism can produce ${anom} only with the help of the algae. The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.`,
       `As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more ${anom}.`,
-      `But **when it is extremely cold, most of the water available to the algae freezes**. As a result, the algae become less active and produce less ${anom}, even though more gas is available.`,
+      `**But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less ${anom}**, even though more gas is available.`,
       `**The organism produces ${other} on its own, without the algae.** So it ${O.keeps} as the weather gets colder.`,
     ];
     const figure = `${IMG}5_explanation2_${c.anomaly}_anomaly.png`;
@@ -273,9 +284,9 @@ function evidencePilotItems(c) {
       "How different are these results from what you expected based on the company's message?", "Not at all different", "Extremely different"),
     choice("inquiry", "pilot", "Inquiry", "evidence_check",
       "Would you ask Bioenergy about this result?", ["Yes", "No"]),
-    choice("gas_availability", "pilot", "Gas availability", "evidence_check",
+    choice("gas_availability", "pilot", "Gas availability", "evidence_check_2",
       "How much gas was available when it was extremely cold, compared with when it was moderately cold?", AMOUNT("gas"), 2),
-    likert("anomaly_relevance", "pilot", `Anomaly relevance, ${c.anomaly} anomaly version`, "evidence_check",
+    likert("anomaly_relevance", "pilot", `Anomaly relevance, ${c.anomaly} anomaly version`, "evidence_check_2",
       `The organism ${A.less} when it is extremely cold. How much does this matter for your team's goal of keeping apartments warm?`, "Not at all", "Very much"),
   ];
 }

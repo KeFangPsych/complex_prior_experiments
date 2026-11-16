@@ -157,6 +157,20 @@ p.muted, .muted { color: var(--ink-2); font-size: 15px; }
 .message.outgoing .message-bubble::before { left: auto; right: -8.5px; border-left: none; border-bottom: none; border-right: 1.5px solid var(--msg); border-top: 1.5px solid var(--msg); }
 .message-label { font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; color: var(--msg-ink); margin-bottom: 6px; }
 .scenario .scenario-text .message p:last-child { margin-bottom: 0; }
+/* the lab report: a document box with a header strip */
+.report { background: #fff; border: 1.5px solid #B9CDE6; border-radius: 12px; overflow: hidden; margin: 6px 0 12px; box-shadow: var(--shadow-1); }
+.report:last-child { margin-bottom: 0; }
+.report-head { display: flex; align-items: center; gap: 10px; padding: 8px 16px; background: #EEF4FC; border-bottom: 1.5px solid #B9CDE6; font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; color: #245A96; }
+.report-head svg { width: 22px; height: 22px; flex-shrink: 0; }
+.report-body { padding: 12px 18px 13px; }
+.scenario .scenario-text .report-body > :last-child { margin-bottom: 0; }
+.scenario-text ul { margin: 0 0 10px; padding-left: 24px; }
+.scenario-text li { font-size: 17px; line-height: 1.6; margin-bottom: 4px; }
+.scenario-card.compact .report { margin: 2px 0 7px; }
+.scenario-card.compact .report-head { padding: 5px 14px; }
+.scenario-card.compact .report-body { padding: 7px 14px 8px; }
+.scenario-card.compact .scenario-text li { font-size: 16px; line-height: 1.4; margin-bottom: 2px; }
+.scenario-card.compact .scenario-text ul { margin-bottom: 5px; }
 /* emphasis inside a question: underlined, since the question is already bold */
 .q-label strong { font-weight: 700; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
 /* text on the left, picture on the right */

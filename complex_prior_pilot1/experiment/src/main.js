@@ -415,14 +415,17 @@ function showInstructions(el) {
 // width of the text. If the page would need scrolling, it first switches to a
 // compact text style; if that is not enough the picture is shrunk, but never
 // below `min`, where its labels are still readable. Only then does the page scroll.
+// The algae explanation has a larger `min`, so on small windows its page scrolls a little.
 const FIGURE_FRAME = 18;   // padding and border of the picture's frame
-function figureLimits(layout, aspect, textWidth) {
+const ALGAE_PICTURE_MIN = 840;   // the algae explanation is hard to read below this, so its page may scroll a little
+function figureLimits(layout, aspect, textWidth, stage) {
   if (layout === "side") return { max: 560, min: 380 };
+  if (stage === "elaboration") return { max: textWidth - FIGURE_FRAME, min: Math.min(ALGAE_PICTURE_MIN, textWidth - FIGURE_FRAME) };
   return aspect > 2.4 ? { max: textWidth - FIGURE_FRAME, min: 640 } : { max: 660, min: 540 };
 }
 const pageOverflow = () => document.documentElement.scrollHeight - window.innerHeight;
 // Fits a scenario page to the window; returns a function that removes the listeners.
-function fitScenarioPage(el, layout) {
+function fitScenarioPage(el, layout, stage) {
   const cardEl = el.querySelector(".scenario-card");
   const textEl = el.querySelector(".scenario-text");
   const img = el.querySelector(".scenario-figure img");
@@ -431,7 +434,7 @@ function fitScenarioPage(el, layout) {
   const sizeFigure = (shrink) => {
     if (!img || !img.naturalWidth) return pageOverflow() <= 0;
     const aspect = img.naturalWidth / img.naturalHeight;
-    const { max, min } = figureLimits(layout, aspect, textEl.clientWidth);
+    const { max, min } = figureLimits(layout, aspect, textEl.clientWidth, stage);
     img.style.width = `${max}px`;                       // also capped by its column (max-width: 100%)
     const overflow = pageOverflow();
     if (overflow <= 0 || !shrink) return overflow <= 0;
@@ -455,13 +458,29 @@ function fitScenarioPage(el, layout) {
 // on the right in blue with a hard hat.
 const ICON_LEAF = `<svg viewBox="2.5 2.5 19.5 19.5" aria-hidden="true"><path d="M4 20C4 10.5 10 4.5 20.5 4 20 14.5 14 20.5 4 20z" fill="#2E9C5A"/><path d="M4.6 19.4C8.2 14 12 10.4 16.6 7.8" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg>`;
 const ICON_HARD_HAT = `<svg viewBox="1.5 3.5 21 18" aria-hidden="true"><path d="M3.8 16.4a8.2 8.2 0 0 1 16.4 0z" fill="#F4B626"/><rect x="10.4" y="6" width="3.2" height="10.4" rx="1.4" fill="#D9930B"/><rect x="2.2" y="15.8" width="19.6" height="3.8" rx="1.9" fill="#D9930B"/></svg>`;
+const ICON_REPORT = `<svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="17" rx="2" fill="#fff" stroke="#245A96" stroke-width="1.6"/><rect x="9" y="2.4" width="6" height="3.6" rx="1.2" fill="#245A96"/><path d="M8.4 10.5h7.2M8.4 13.7h7.2M8.4 16.9h4.4" stroke="#245A96" stroke-width="1.5" stroke-linecap="round"/></svg>`;
+// paragraphs to HTML; consecutive paragraphs that start with "* " become one bullet list
+function paragraphsHtml(paragraphs) {
+  const out = [];
+  paragraphs.forEach((p) => {
+    if (!p.startsWith("* ")) return out.push(`<p>${rich(p)}</p>`);
+    const item = `<li>${rich(p.slice(2))}</li>`;
+    if (out.length && out[out.length - 1].startsWith("<ul>")) out[out.length - 1] = out[out.length - 1].replace("</ul>", `${item}</ul>`);
+    else out.push(`<ul>${item}</ul>`);
+  });
+  return out.join("");
+}
 function blockHtml(b) {
-  const paragraphs = b.paragraphs.map((p) => `<p>${rich(p)}</p>`).join("");
-  if (b.kind !== "message") return paragraphs;
+  const body = paragraphsHtml(b.paragraphs);
+  if (b.kind === "report") {
+    // the lab's report: a document box, not a speech bubble
+    return `<div class="report"><div class="report-head">${ICON_REPORT}<span>${rich(b.label)}</span></div><div class="report-body">${body}</div></div>`;
+  }
+  if (b.kind !== "message") return body;
   const outgoing = b.label.startsWith("From your team");
   return `<div class="message ${outgoing ? "outgoing" : "incoming"}">
     <div class="message-avatar">${outgoing ? ICON_HARD_HAT : ICON_LEAF}</div>
-    <div class="message-bubble"><div class="message-label">${rich(b.label)}</div>${paragraphs}</div>
+    <div class="message-bubble"><div class="message-label">${rich(b.label)}</div>${body}</div>
   </div>`;
 }
 
@@ -481,7 +500,7 @@ function showScenario(el, s) {
       <button class="btn btn-lg" id="card-btn">${label}</button>
       <span class="small">You will not be able to come back to this page.</span>
     </div>`, `scenario-card layout-${page.layout}`);
-  cleanup = fitScenarioPage(el, page.layout);
+  cleanup = fitScenarioPage(el, page.layout, s.stage);
   const btn = el.querySelector("#card-btn");
   lockButton(btn, lock(CONFIG.scenario_lock_seconds), label);
   btn.addEventListener("click", () => {
