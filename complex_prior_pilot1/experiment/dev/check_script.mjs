@@ -23,7 +23,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, scenario, pageParagraphs, questions, questionPages, randomizePages, orderNotes, scriptText, RANDOMIZATIONS } from "../src/content.js";
+import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentCells, cellFromCounter, assignmentFromIndex, indexFromAssignment, scenario, pageParagraphs, questions, questionPages, randomizePages, orderNotes, scriptText, RANDOMIZATIONS } from "../src/content.js";
 import { CONFIG, WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, fillStudyValues } from "../src/config.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -238,6 +238,12 @@ cells.forEach((a, k) => {
   if (!CONDITIONS[a.cond]) fail("assignment cells", `cell ${k} has no condition`);
   same("assignment cells", `index of cell ${k}`, indexFromAssignment(a), k);
 });
+
+// the counter runs through all 32 cells in order, or through the cells of a top-up list
+same("assignment cells", "all cells in order", assignmentCells(null).join(), Array.from({ length: N_CELLS }, (_, k) => k).join());
+same("assignment cells", "counter beyond 31 wraps", cellFromCounter(37, assignmentCells(null)), 5);
+same("assignment cells", "top-up list", [0, 1, 2, 3, 4, 5, 6].map((c) => cellFromCounter(c, assignmentCells([3, 3, 17]))).join(), "3,3,17,3,3,17,3");
+same("assignment cells", "empty top-up list means all cells", assignmentCells([]).length, N_CELLS);
 
 // ============================================================================
 // 4. Randomization does what the notes say (2000 draws per case)

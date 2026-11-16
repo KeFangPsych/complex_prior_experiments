@@ -44,6 +44,17 @@ export function indexFromAssignment({ cond, figureVersion, surpriseText }) {
   return (cond - 1) + (figureVersion === "line" ? 8 : 0) + (surpriseText ? 0 : 16);
 }
 
+/**
+ * The cells that the assignment counter runs through: all 32 in order, or, for a
+ * top-up batch, the listed cells in the listed order (a cell may be listed more
+ * than once). Counter value c gives cell cells[c % cells.length].
+ */
+export function assignmentCells(topUpCells = null) {
+  const wrap = (k) => ((k % N_CELLS) + N_CELLS) % N_CELLS;
+  return Array.isArray(topUpCells) && topUpCells.length ? topUpCells.map(wrap) : Array.from({ length: N_CELLS }, (_, k) => k);
+}
+export const cellFromCounter = (counter, cells) => cells[((counter % cells.length) + cells.length) % cells.length];
+
 // Stage keys in presentation order (stages 1-5 of the script).
 export const STAGE_SEQUENCE = {
   evidence_first: ["planet", "complexity", "explanation1", "evidence", "elaboration"],

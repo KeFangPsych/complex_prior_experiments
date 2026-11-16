@@ -72,7 +72,8 @@ you switched them on.
 | `debug=1` | testing mode: shows the test setup screen |
 | `cond=1..8`, `fig=table\|line`, `surprise=shown\|hidden`, `orgq=complexity\|more`, `mode=pilot\|main`, `locks=1`, `safeguards=1` | with `debug=1`: prefill the test setup screen |
 | `nofs=1` | without `debug=1`: the participant version, but with no fullscreen requirement and no viewport lock |
-| `condition=k` | forces assignment cell `k` (0–31) when DataPipe is disabled |
+| `condition=k` | forces assignment cell `k` (0–31) when DataPipe is not used |
+| `nopipe=1` | nothing is sent to DataPipe: no counter request, no upload; the last screen offers the data as a download |
 
 The flags always work on the dev server. On the built site they work only while
 `CONFIG.allow_dev_flags` is `true`.
@@ -97,8 +98,10 @@ and publishes it (workflow `.github/workflows/deploy-pages.yml`; it runs
 - testing mode: <https://kefangpsych.github.io/complex_prior_experiments/pilot1_vignette1/?debug=1>
 
 One-time setup in the repository: Settings → Pages → Build and deployment →
-Source: **GitHub Actions**. Until DataPipe is enabled nothing is uploaded; the
-last screen offers the data as a CSV download instead.
+Source: **GitHub Actions**. The site saves to the DataPipe experiment named in
+`src/config.js` (see *DataPipe and Prolific* below). Do not push to `main`
+while data are being collected: every push republishes the site, and
+participants who are part-way through would get a mix of old and new files.
 
 ## Files
 
@@ -114,6 +117,8 @@ last screen offers the data as a CSV download instead.
 | `src/images.js` | resolves picture names to URLs; the pictures stay in `../complex_prior_pilot1_vignette1_images/` |
 | `src/state.js`, `src/styles.css`, `src/autoplay.js` | run-time state, styles, the debug-only test bot |
 | `dev/check_script.mjs` | checks `content.js` against the script (`npm run check:script`) |
+| `dev/count_cells.mjs`, `dev/csv.mjs` | counts completed participants per cell and prints a top-up list (`npm run cells -- <folder>`) |
+| `dev/datapipe_test.cjs` | browser test of the DataPipe and Prolific connection against stand-ins for both (`npm run test:datapipe`) |
 | `dev/readability.mjs` | readability report for everything participants read (`npm run readability`) |
 | `dev/walk.cjs`, `dev/integrity_test.cjs` | browser tests (see *Testing*) |
 
@@ -161,15 +166,18 @@ underlining specifies:
 
 Crossing these gives **32 assignment cells**. Cell `k` maps to condition
 `k % 8 + 1`, figure `table` for `k` in 0–7 and 16–23 (else `line`), and surprise
-text shown for `k` in 0–15 (else hidden). With DataPipe enabled, `k` is its
-condition counter, so consecutive participants fill every cell once per 32.
-Without DataPipe, or if DataPipe does not answer within 8 s, `k` is drawn at
-random. `condition_source` records which: `datapipe`, `random`,
-`random_fallback`, `url`, or `test_setup` when a tester fixed it.
+text shown for `k` in 0–15 (else hidden). With DataPipe in use, `k` is its
+condition counter (`assignment_counter` in the data), so consecutive
+participants fill every cell once per 32, and every 8 in a row cover the 8
+conditions. Without DataPipe, or if DataPipe refuses or does not answer within
+8 s, `k` is drawn at random. `condition_source` records which: `datapipe`,
+`random`, `random_fallback`, `url`, or `test_setup` when a tester fixed it. In
+a top-up batch (`ASSIGNMENT.top_up_cells`, see *DataPipe and Prolific*) the
+counter runs through the listed cells instead, and `top_up` is `true`.
 
 **Timeline.** welcome → consent (enters fullscreen) → assignment → picture
-preload → one instruction page → five parts → optional comments → save →
-debrief. Each part is one or two **scenario screens**: part 3 and the evidence
+preload → one instruction page → five parts → optional comments → debrief →
+the data are saved → back to Prolific. Each part is one or two **scenario screens**: part 3 and the evidence
 part have two (in the evidence part, asking for the sample, then the lab report
 with the picture), and so does part 5 of the evidence-first conditions (the
 team's question, then the company's reply), followed by its **question
@@ -281,13 +289,24 @@ All of these are off in testing mode unless Safeguards (or Read-locks) is
 switched on on the test setup screen.
 
 The page loads nothing from other servers: jsPsych, the fonts and the pictures
-are all bundled. Only DataPipe (when enabled) and the Prolific redirect are
-contacted.
+are all bundled. Only DataPipe (one request for the condition counter after
+consent, one upload at the end) and the Prolific redirect are contacted. With
+`DATAPIPE.stream` switched on, the browser also keeps a connection to DataPipe's
+staging database (Google Firebase) during the study.
 
 ## Data
 
-One CSV per participant (uploaded through DataPipe, or downloadable on the last
-screen when DataPipe is disabled or the upload failed).
+One CSV per participant, uploaded through DataPipe to the storage connected to
+the DataPipe experiment (a Google Drive folder) when the participant clicks the
+button on the debrief screen. The file is named after `subject_id`, a random ID
+(`p_…` for Prolific participants, `test_…` for testing-mode runs and visits
+without a Prolific ID); the Prolific ID is the column `prolific_pid` inside the
+file, not part of the name. If DataPipe cannot be reached, the upload is tried
+up to `DATAPIPE.save_attempts` times (`save_attempts` in the data is set when a
+retry was needed). If the data still cannot be stored, or DataPipe refuses
+them, the participant gets a page with a download button and the way back to
+Prolific. Without DataPipe (`?nopipe=1`, or `DATAPIPE.enabled: false`) the
+debrief screen offers the file as a download.
 
 **Every answer is a participant-level column** named after the item's `id` in
 `content.js` (for example `complexity_overall`, `trust_tell`, `pred_heat`,
@@ -298,7 +317,8 @@ responses as text. Multiple-choice questions with a right answer also get
 mode has no value.
 
 Other participant-level columns: `subject_id`, `prolific_pid`, `study_id`,
-`session_id`, `mode`, `condition_index`, `condition_source`, `cond` (1–8),
+`session_id`, `mode`, `condition_index`, `condition_source`,
+`assignment_counter`, `top_up`, `cond` (1–8),
 `order`, `complexity`, `anomaly`, `goal_relevance`, `evidence_figure`,
 `surprise_text` (`shown` / `hidden` / `not_applicable`), `stage_order`,
 `general_feedback`, `completion_status`, `start_time`, `completion_time`,
@@ -323,7 +343,7 @@ Row-level detail, by `task`:
 | `consent` | `consented`, `fullscreen_ok`, `consent_pdf_saves` |
 | `test_back` | testing mode only: a Back or Change settings press (`from_task`, or `to: "setup"`) |
 | `test_setup` | testing mode only: `test_cond`, `test_figure`, `test_surprise`, `test_organism_question`, `test_mode`, `test_locks`, `test_safeguards` |
-| `save_data` | `success`, `attempts` |
+| `debrief` | `rt` (until the participant clicks the button that saves the data) |
 
 **Timing.** Every screen a participant sees has a row with:
 
@@ -331,7 +351,7 @@ Row-level detail, by `task`:
 - `screen`: the screen's name: `welcome`, `consent`, `instructions`,
   `scenario_<stage>_<page>` (for example `scenario_explanation1_2`),
   `questions_<screen key>` (for example `questions_trust`; the key is the `page`
-  of the items in `content.js`), `comments` (and `setup` in testing mode);
+  of the items in `content.js`), `comments`, `debrief` (and `setup` in testing mode);
 - `screen_hidden_ms` and `screen_blur_count`: how much of `rt` the tab was
   hidden, and how often the window lost focus during it, so that a long time can
   be told apart from a participant who was away;
@@ -339,7 +359,7 @@ Row-level detail, by `task`:
   experiment to the end of that screen.
 
 The same `rt` is also written to a participant-level column **`rt_<screen>`**
-(for example `rt_scenario_planet_1`, `rt_questions_prediction`, `rt_comments`),
+(for example `rt_scenario_planet_1`, `rt_questions_prediction`, `rt_comments`, `rt_debrief`),
 so the last row holds every screen time next to the answers. Within a question
 screen, each item's entry in `responses` has `first_ms` and `last_ms`, the time
 from the screen appearing to the first and to the last answer given to that item
@@ -348,8 +368,8 @@ from the screen appearing to the first and to the last answer given to that item
 sent, and `start_time` / `completion_time` are the clock times.
 
 Not timed: the short "Loading…" screen while the pictures preload (its length
-shows in `time_elapsed`), and the debrief screen, which comes after the data
-are saved. `npm run test:walk` checks that every screen has its `rt`, its
+shows in `time_elapsed`), and the upload itself, which happens after the last
+row is written. `npm run test:walk` checks that every screen has its `rt`, its
 `rt_<screen>` column and its away time, and that every item has its answer
 times.
 
@@ -401,8 +421,144 @@ npm run test:integrity
   settings bar, Back (with answers refilled) and Change settings work. It takes
   about two minutes, because it waits out the read-locks.
 
+- `test:datapipe` runs the whole study eight times with stand-ins for DataPipe
+  and Prolific (the browser's requests to both are answered by the test, in the
+  way their documentation describes), so it needs no account and writes no
+  data. It checks the counter request and the cell it maps to, the uploaded
+  file (name, format, Prolific IDs, assignment, every screen time), the return
+  to Prolific with the completion code, the retry of an upload that did not
+  arrive, the download page when DataPipe refuses the data, the random fallback
+  when the counter is switched off, and that `nopipe=1` contacts nothing.
+
 Set `BASE_URL` to test another address (for example the built site under
 `npm run preview`), and `CHROME_PATH` to use an existing Chrome.
+
+## DataPipe and Prolific
+
+This follows DataPipe's documentation after its September 2026 update
+(<https://pipe.jspsych.org/docs>) and Prolific's help centre
+(<https://researcher-help.prolific.com>, articles dated May to September 2026).
+
+**How it is wired.** The experiment uses DataPipe's jsPsych extension,
+`@jspsych/extension-pipe`, which is the integration DataPipe now recommends;
+the older `jsPsychPipe` save trial is no longer used. The version is pinned in
+`package.json`. After consent the experiment asks DataPipe for the next
+condition number. When the participant leaves the debrief screen, the extension
+uploads the whole CSV, and only after DataPipe has answered is a Prolific
+participant sent to `https://app.prolific.com/submissions/complete?cc=<code>`.
+
+### 1. Test with the test experiment
+
+`DATAPIPE.experiment_id` is currently the test experiment
+(`complex_prior_pilot1_test`). On its DataPipe dashboard:
+
+| setting | set to |
+|---|---|
+| Accept new data | on |
+| Assign conditions in sequence | on, **32** conditions (type the number in) |
+| Stop after a set number of sessions | off while testing |
+| Accept base64 file uploads | off (not needed) |
+| Validation | leave as it is: on, CSV allowed, required field `trial_type` |
+| Psych-DS metadata | your choice, but decide before the first file arrives, because it locks then. Off gives one plain CSV per participant. |
+
+Then:
+
+1. Open the site with `?debug=1`, leave Condition on Random, and run through
+   (`__autoplay()` in the browser console does it in a few seconds). The bar
+   under the progress bar shows `DataPipe on`.
+2. A file `test_….csv` should appear in the Google Drive folder, and the
+   dashboard's count of completed sessions should go up. In the file's last
+   row, `condition_source` is `datapipe`, and `assignment_counter` goes 0, 1,
+   2, … from run to run.
+3. Run once as a participant with made-up Prolific IDs:
+   `…/pilot1_vignette1/?PROLIFIC_PID=test123&STUDY_ID=test&SESSION_ID=test`.
+   The file should contain them, and the study should end on Prolific's site
+   (which will not accept the code until the real one is filled in).
+4. Switch *Accept new data* off and finish a run: you should get the "Your
+   responses could not be saved" page with its download button.
+
+Testing-mode runs upload too, into the same folder. Add `&nopipe=1` to a
+testing address when you do not want that.
+
+### 2. Set up the Prolific study
+
+- **Study details.** Mark the study as desktop only and say so in the
+  description. Prolific shows the device setting to participants but does not
+  enforce it; the experiment itself turns phones and tablets away. The study
+  name may not contain the word "Prolific".
+- **Data collection, study URL.** Choose the external study link, select
+  *I'll use URL parameters*, and use
+  `https://kefangpsych.github.io/complex_prior_experiments/pilot1_vignette1/?PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}`.
+  Prolific adds these parameters itself when the option is selected; keep the
+  three default names, which are the ones the experiment reads.
+- **Completion paths.** Choose *I'll redirect them using a URL*, and copy the
+  code from the completion URL that Prolific shows into
+  `PROLIFIC.completion_code`. Choose *manually review* rather than *approve and
+  pay*, so that you can check each data file first. The code is unique to each
+  study, so a later study (the main study, or a duplicate) needs its own.
+- **Recruit participants.** 96 places give three full rounds of the 32 cells
+  (12 per condition); 100 give 12 or 13 per condition. Standard sample, one
+  submission per participant. To keep pilot participants out of a later study,
+  use the *Exclude participants from other studies* filter there (both studies
+  must be in the same project).
+- **Preview** the study from Prolific from start to finish before publishing.
+
+### 3. Go live
+
+1. Create a **new** DataPipe experiment for the real data. A counter cannot be
+   reset, so the test experiment's counter is no longer at 0. Set it up as in
+   step 1, and switch on *Stop after a set number of sessions* with a limit
+   comfortably above the target (for example 130 for 96 places). Prolific
+   decides how many people take part; a participant who finishes after
+   DataPipe's limit is refused and gets the download page.
+2. In `src/config.js`: put the new ID in `DATAPIPE.experiment_id` and the code
+   in `PROLIFIC.completion_code`, set `CONFIG.mode`, and set
+   `CONFIG.allow_dev_flags` to `false`. Testing mode then no longer exists on
+   the site, so no test run can reach the real data or use up a counter value.
+3. Push, wait for the site to republish, and preview once from Prolific. That
+   run uses up counter value 0 and writes one file. Delete the file and note
+   that cell 0 is one short, or let the count in step 4 pick it up.
+4. Publish. Do not push to `main` until collection is over.
+
+### 4. Keep the conditions balanced
+
+DataPipe hands out the 32 cells in a fixed order and moves on as soon as a
+participant asks, whether or not that participant finishes. Prolific replaces
+people who return the study or time out, and the replacement gets the next
+number. So the participants who *start* are exactly balanced, and the
+participants who *finish* are slightly uneven, by about as many as dropped out.
+
+To even them out afterwards, download the data folder and run
+
+```bash
+npm run cells -- path/to/the/data/folder
+```
+
+It counts the completed participants per condition and per cell (leaving out
+test runs, unfinished files, and a second file from the same Prolific ID) and
+prints a line such as `top_up_cells: [3, 17, 30]`. Paste it into `ASSIGNMENT`
+in `src/config.js`, push, and add that many places to the Prolific study. The
+counter then runs through only those cells. Set it back to `null` afterwards.
+Leave DataPipe's number of conditions at 32 for a top-up. A top-up batch has
+dropouts too, so run the count once more at the end.
+
+### 5. Afterwards
+
+- Switch *Accept new data* and *Assign conditions in sequence* off on DataPipe.
+  Anyone who reads the site's code can see the experiment ID, and the ID is all
+  it takes to send a file. The switches, the session limit and validation are
+  what keep stray files out.
+- The files contain Prolific IDs (`prolific_pid`, `study_id`, `session_id`).
+  Keep the Drive folder private and remove these columns before sharing data.
+
+### Sending each screen as it happens (off)
+
+DataPipe can also receive every screen as it happens (`DATAPIPE.stream: true`),
+so that a participant who quits leaves a `….partial.json` file. It is off
+because it keeps data from people who left, and the consent form says
+participants may withdraw at any time. If the protocol allows keeping such
+data, switching it on shows where in the study people drop out. Partial files
+do not count toward the session limit and are ignored by `npm run cells`.
 
 ## Before collecting data
 
@@ -411,10 +567,7 @@ Set `BASE_URL` to test another address (for example the built site under
   PDF. If they change, change the script too; `check:script` compares the
   filled-in text. Check the consent form against the approved protocol; it
   mentions attention checks, and the experiment currently has none.
-- Fill in `DATAPIPE.experiment_id`, set `enabled: true`, and turn on DataPipe's
-  condition assignment with **32 conditions** (or a multiple of 32).
-- Fill in `PROLIFIC.completion_code`.
-- Set `CONFIG.mode` (`"pilot"` or `"main"`).
-- Set `CONFIG.allow_dev_flags` to `false`, then `npm run build` and deploy `dist/`.
+- Follow *DataPipe and Prolific* above (experiment ID, completion code,
+  `CONFIG.mode`, `CONFIG.allow_dev_flags`).
 - Each picture is 1.3–2 MB (about 9 MB per participant); they are preloaded
   before the scenario starts. Compressing the PNGs would shorten that wait.

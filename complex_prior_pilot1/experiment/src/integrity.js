@@ -212,7 +212,7 @@ export function installIntegrityListeners() {
   window.addEventListener("blur", () => { integrity.window_blur_count++; shield.blurred = true; updateShield(); });
   window.addEventListener("focus", () => { shield.blurred = false; updateShield(); });
   window.onbeforeunload = function () {
-    if (state.safeguards && state.consented && !state.finished) return "The study is not finished. If you leave now your progress will be lost.";
+    if (state.safeguards && state.consented && !state.saved) return "The study is not finished. If you leave now your progress will be lost.";
     return undefined;
   };
 }

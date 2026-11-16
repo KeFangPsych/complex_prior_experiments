@@ -49,7 +49,7 @@ const shotDir = path.join(__dirname, "shots");
         await page.screenshot({ path: path.join(shotDir, label.replace(/[^a-z0-9]+/gi, "_").slice(0, 70) + ".png"), fullPage: true });
       });
     }
-    await page.goto(clickSetup ? `${BASE}/?debug=1&nofs=1` : `${BASE}/?debug=1&nofs=1&cond=${cond}&mode=${mode}&fig=${fig}&surprise=${surprise}`);
+    await page.goto(clickSetup ? `${BASE}/?debug=1&nofs=1&nopipe=1` : `${BASE}/?debug=1&nofs=1&nopipe=1&cond=${cond}&mode=${mode}&fig=${fig}&surprise=${surprise}`);
     await page.waitForFunction(() => typeof window.__autoplay === "function" && document.querySelector("#setup-start"));
     // either the URL flags prefill the test-setup screen, or the choices are clicked on it
     if (clickSetup) {
@@ -148,13 +148,13 @@ const shotDir = path.join(__dirname, "shots");
       if (!applies && col in last) bad(`randomization column ${col} recorded in main mode`);
     }));
     // every screen has its time: in its row, and in the participant-level column rt_<screen>
-    const SCREEN_TASKS = ["test_setup", "welcome", "consent", "instructions", "scenario", "questions", "general_feedback"];
+    const SCREEN_TASKS = ["test_setup", "welcome", "consent", "instructions", "scenario", "questions", "general_feedback", "debrief"];
     const screenRows = data.filter((r) => SCREEN_TASKS.includes(r.task));
     const wantScreens = ["setup", "welcome", "consent", "instructions",
       ...stages.flatMap((s) => [
         ...content.scenario(s, cond, { figureVersion: fig }).pages.map((_, n) => `scenario_${s}_${n + 1}`),
         ...content.questionPages(s, cond, mode).map((p) => `questions_${p.key}`)]),
-      "comments"];
+      "comments", "debrief"];
     expect("screens with a time", screenRows.map((r) => r.screen).sort(), [...wantScreens].sort());
     screenRows.forEach((r) => {
       if (!(Number.isInteger(r.rt) && r.rt >= 0)) bad(`${r.screen}: rt is ${JSON.stringify(r.rt)}`);

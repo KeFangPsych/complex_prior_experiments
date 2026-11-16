@@ -10,13 +10,18 @@ export const URL_PARAMS = urlParams;
 export const DEV_FLAGS = import.meta.env.DEV || CONFIG.allow_dev_flags;
 export const DEBUG = DEV_FLAGS && urlParams.get("debug") === "1";
 export const NOFS = (DEV_FLAGS && urlParams.get("nofs") === "1") || !CONFIG.require_fullscreen;
+// ?nopipe=1 (testing only): nothing is sent to DataPipe; the data can be downloaded at the end
+export const NOPIPE = DEV_FLAGS && urlParams.get("nopipe") === "1";
 // a testing flag's value, if it is one of `allowed` (testing mode only)
 const flag = (name, allowed) => (DEBUG && allowed.includes(urlParams.get(name)) ? urlParams.get(name) : null);
 
 export const prolificPID = urlParams.get("PROLIFIC_PID") || null;
 export const studyID = urlParams.get("STUDY_ID") || null;
 export const sessionID = urlParams.get("SESSION_ID") || null;
-export const subjectId = prolificPID || "test_" + Math.random().toString(36).substring(2, 10) + "_" + Date.now();
+// A random ID names the data file. The Prolific ID is a column inside the file and
+// is kept out of the file name, as DataPipe advises. "test_" marks a visit that
+// did not come from Prolific or that used testing mode.
+export const subjectId = (prolificPID && !DEBUG ? "p_" : "test_") + Math.random().toString(36).substring(2, 12).padEnd(10, "0") + "_" + Date.now();
 
 export const state = {
   phase: "intro",
@@ -60,7 +65,8 @@ export const state = {
   needsAssignment: true,    // false once assigned; a tester's "Start" on the setup screen sets it again
   answers: {},              // { item id: { value, index } }, to refill a screen a tester returns to
   currentItems: [],         // items on the screen being shown (used by the dev bot)
-  saveFailed: false,
+  saveResult: null,         // DataPipe's answer to the final upload: { ok, status, body }
+  saved: false,             // true once the data are stored (or no upload is due); the leave-page warning stops then
 };
 
 /** Whether fullscreen and the viewport lock apply right now. */

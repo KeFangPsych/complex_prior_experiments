@@ -10,7 +10,7 @@
  * Timeline: welcome -> consent (enters fullscreen) -> assignment -> preload ->
  * instructions -> five stages, each one or two scenario screens (text, or text +
  * picture; read-locked) followed by its question screens (scenario hidden) ->
- * comments -> save -> debrief.
+ * comments -> debrief -> the data are saved (DataPipe) -> back to Prolific.
  *
  * Timing: every screen's row has `rt` (ms from the screen appearing to leaving
  * it) and `screen`, a name for the screen; the same time is also written to the
@@ -25,7 +25,8 @@
  * URL flags: ?debug=1  testing mode: test-setup screen first, safeguards and
  *                      read-locks off unless switched on there, loads the dev bot
  *            ?nofs=1   no fullscreen requirement and no viewport lock (dev only)
- *            ?condition=k   forces assignment cell k (0-31) when DataPipe is disabled
+ *            ?condition=k   forces assignment cell k (0-31) when DataPipe is not used
+ *            ?nopipe=1  nothing is sent to DataPipe (the data can be downloaded at the end)
  * With ?debug=1 the first screen is a test-setup screen where the tester picks the
  * condition, the figure version, the surprise text, pilot / main questions,
  * the randomly shown question, read-locks and safeguards; ?cond=1..8,
@@ -35,7 +36,8 @@
 import { initJsPsych } from "jspsych";
 import jsPsychPreload from "@jspsych/plugin-preload";
 import jsPsychCallFunction from "@jspsych/plugin-call-function";
-import jsPsychPipe from "@jspsych-contrib/plugin-pipe";
+import PipeExtension from "@jspsych/extension-pipe";
+import { saveData as pipeSaveData } from "datapipe-client";
 // fonts are bundled, so the page makes no third-party requests
 import "@fontsource/lora/latin-400.css";
 import "@fontsource/lora/latin-500.css";
@@ -46,10 +48,10 @@ import "@fontsource/ibm-plex-sans/latin-700.css";
 import "./styles.css";
 
 import PagePlugin from "./page-plugin.js";
-import { CONFIG, DATAPIPE, PROLIFIC, STUDY, WELCOME, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, CONSENT, fillStudyValues, readLockSeconds } from "./config.js";
-import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, scenario, countWords, pageWordCount, questionPages, randomizePages } from "./content.js";
+import { CONFIG, DATAPIPE, ASSIGNMENT, PROLIFIC, STUDY, WELCOME, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, CONSENT, fillStudyValues, readLockSeconds } from "./config.js";
+import { CONDITIONS, STAGE_SEQUENCE, assignmentCells, cellFromCounter, assignmentFromIndex, indexFromAssignment, scenario, countWords, pageWordCount, questionPages, randomizePages } from "./content.js";
 import { imageUrl } from "./images.js";
-import { state, integrityProps, fullscreenRequired, DEBUG, DEV_FLAGS, NOFS, URL_PARAMS, prolificPID, studyID, sessionID, subjectId } from "./state.js";
+import { state, integrityProps, fullscreenRequired, DEBUG, DEV_FLAGS, NOFS, NOPIPE, URL_PARAMS, prolificPID, studyID, sessionID, subjectId } from "./state.js";
 import { buildFrame, setPhase, setProgress, setTestBar, card, lockButton, rich, questionsHtml, bindQuestions, N_STAGES } from "./ui.js";
 import { saveConsentPdf } from "./consent-pdf.js";
 import { requestFullscreenSafe, isFullscreen, hideFullscreenOverlay, isMobileDevice, enableSafeguards, disableSafeguards, installIntegrityListeners } from "./integrity.js";
@@ -71,16 +73,64 @@ target.id = "jspsych-target";
 document.body.appendChild(target);
 buildFrame();
 
+// Whether this run talks to DataPipe (condition counter and data upload).
+const PIPE_ON = DATAPIPE.enabled && !NOPIPE && /^[A-Za-z0-9]{12}$/.test(DATAPIPE.experiment_id);
+const DATA_FILE = `${subjectId}.csv`;
+const COMPLETION_URL = `https://app.prolific.com/submissions/complete?cc=${PROLIFIC.completion_code}`;
+const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+const endCard = (inner) => { target.innerHTML = `<div class="end-wrap">${card(`${eyebrow(STUDY.title)}${inner}`, "card-narrow card-center")}</div>`; };
+
 const jsPsych = initJsPsych({
   display_element: "jspsych-target",
-  on_finish: function () {
-    if (prolificPID) {
-      window.location.href = `https://app.prolific.com/submissions/complete?cc=${PROLIFIC.completion_code}`;
-    } else {
-      target.innerHTML = `<div class="end-wrap">${card(`${eyebrow(STUDY.title)}<h1>All done</h1><p>You can now close this window.</p>`, "card-narrow card-center")}</div>`;
-    }
-  },
+  // DataPipe's extension uploads the whole data file when the timeline ends, and
+  // only then runs on_finish below. (It is not a trial, so nothing is added to the timeline.)
+  extensions: [{
+    type: PipeExtension,
+    params: {
+      experiment_id: DATAPIPE.experiment_id,
+      filename: DATA_FILE,
+      enabled: PIPE_ON,
+      stream: DATAPIPE.stream,
+      wait_message: card(`<h2>Saving your responses…</h2><div class="spinner"></div><p class="muted">Please do not close this window.</p>`, "card-narrow card-center"),
+      on_save: (result) => { state.saveResult = result; },
+    },
+  }],
+  on_finish: endOfStudy,
 });
+
+// After the last screen: makes sure the data are stored, then sends a Prolific
+// participant back to Prolific. If the upload did not reach DataPipe it is tried
+// again; if the data still cannot be stored, the participant can download the
+// file and is not left without a way back.
+async function endOfStudy() {
+  let stored = !PIPE_ON || !!(state.saveResult && state.saveResult.ok);
+  for (let n = 2; PIPE_ON && !stored && n <= DATAPIPE.save_attempts; n++) {
+    // a refusal (data collection off, session limit, invalid data) would be refused again
+    if (state.saveResult && state.saveResult.status >= 400 && state.saveResult.status < 500) break;
+    await wait(DEBUG ? 100 : 1500);
+    jsPsych.data.addProperties({ save_attempts: n });
+    const r = await pipeSaveData({ experimentID: DATAPIPE.experiment_id, filename: DATA_FILE, data: jsPsych.data.get().csv() });
+    state.saveResult = r;
+    // "FILE_EXISTS": the earlier attempt did arrive, only its answer was lost
+    stored = r.ok || !!(r.body && r.body.error === "FILE_EXISTS");
+  }
+  state.saved = true;                      // from here on, leaving the page gives no warning
+  const back = prolificPID
+    ? `<p><a class="btn btn-lg" id="prolific-link" href="${COMPLETION_URL}">Return to Prolific</a></p>
+       <p class="small">Completion code: <strong>${PROLIFIC.completion_code}</strong></p>`
+    : "";
+  if (!stored) {
+    endCard(`<h1>Your responses could not be saved</h1>
+      <p>Please download your responses with the button below and keep the file.${prolificPID ? " Then return to Prolific and send us a message, so that we can arrange to receive it." : ""}</p>
+      <p><button class="btn btn-lg btn-secondary" id="download-btn" type="button">Download my responses</button></p>${back}`);
+    document.getElementById("download-btn").addEventListener("click", () => jsPsych.data.get().localSave("csv", DATA_FILE));
+  } else if (prolificPID) {
+    endCard(`<h1>Returning you to Prolific…</h1><p>Your responses are saved. If nothing happens within a few seconds, use the button below.</p>${back}`);
+    window.location.href = COMPLETION_URL;
+  } else {
+    endCard(`<h1>All done</h1><p>${PIPE_ON ? "Your responses are saved. " : ""}You can now close this window.</p>`);
+  }
+}
 
 jsPsych.data.addProperties({
   subject_id: subjectId,
@@ -102,7 +152,11 @@ jsPsych.data.addProperties({
 //    A cell index 0-31 fixes the condition, the evidence-figure version and the
 //    surprise text (assignmentFromIndex in content.js).
 // ============================================================================
-function applyAssignment(index, source) {
+// The cells the counter runs through: all 32, or the list of a top-up batch.
+const CELLS = assignmentCells(ASSIGNMENT.top_up_cells);
+const TOP_UP = Array.isArray(ASSIGNMENT.top_up_cells) && ASSIGNMENT.top_up_cells.length > 0;
+
+function applyAssignment(index, source, counter = null) {
   const a = assignmentFromIndex(index);
   // testing mode: whatever was fixed on the test-setup screen replaces the draw
   const t = state.test;
@@ -128,6 +182,8 @@ function applyAssignment(index, source) {
   jsPsych.data.addProperties({
     condition_index: index,
     condition_source: source,       // "datapipe" | "url" | "random" | "random_fallback" (DataPipe did not answer) | "test_setup"
+    assignment_counter: counter,    // the number DataPipe handed out (null when it was not asked or did not answer)
+    top_up: TOP_UP,                 // true in a top-up batch (ASSIGNMENT.top_up_cells)
     mode: state.mode,
     safeguards: state.safeguards,   // false only in testing mode with the safeguards left off
     cond: state.cond,
@@ -165,7 +221,7 @@ function buildScreens() {
 
 const scenarioOf = (stage) => scenario(stage, state.cond, { surpriseText: state.surpriseText !== false, figureVersion: state.figureVersion });
 
-const randomCell = () => randomInt(0, N_CELLS - 1);
+const randomCell = () => CELLS[randomInt(0, CELLS.length - 1)];
 const assignCondition = {
   type: jsPsychCallFunction,
   async: true,
@@ -174,7 +230,9 @@ const assignCondition = {
     // a tester who went back and did not change the setup keeps the assignment
     if (!state.needsAssignment) return done();
     state.needsAssignment = false;
-    if (!DATAPIPE.enabled) {
+    // No counter request when DataPipe is not used, and none when a tester fixed
+    // the condition on the test-setup screen (it would use up a number for nothing).
+    if (!PIPE_ON || (DEBUG && state.test.cond)) {
       const forced = DEV_FLAGS ? parseInt(URL_PARAMS.get("condition")) : NaN;
       const ok = Number.isFinite(forced) && forced >= 0;
       applyAssignment(ok ? forced : randomCell(), ok ? "url" : "random");
@@ -186,11 +244,12 @@ const assignCondition = {
       if (settled) return;
       settled = true;
       const ok = Number.isInteger(c) && c >= 0;
-      applyAssignment(ok ? c : randomCell(), ok ? "datapipe" : "random_fallback");
+      applyAssignment(ok ? cellFromCounter(c, CELLS) : randomCell(), ok ? "datapipe" : "random_fallback", ok ? c : null);
       done();
     };
     setTimeout(() => settle(null), DATAPIPE.condition_timeout_ms);
-    Promise.resolve().then(() => jsPsychPipe.getCondition(DATAPIPE.experiment_id)).then((c) => settle(parseInt(c)), () => settle(null));
+    // getCondition rejects when DataPipe cannot be reached or condition assignment is switched off
+    PipeExtension.getCondition(DATAPIPE.experiment_id).then((c) => settle(c), (e) => { console.warn("No condition from DataPipe; drawing a cell at random.", e); settle(null); });
   },
 };
 
@@ -268,6 +327,7 @@ function showTestBar(current) {
       ["Questions", state.mode],
       ["Read-locks", state.locks ? "on" : "off"],
       ["Safeguards", state.safeguards ? "on" : "off"],
+      ["DataPipe", PIPE_ON ? "on" : "off"],
     ],
     canGoBack: state.position !== "end" && !(state.position === "pre" && state.preCursor === 0),
     canChange: state.position !== "end",
@@ -613,7 +673,7 @@ const mainScreen = {
 const mainLoop = { timeline: [mainScreen], loop_function: () => !state.backToPre && state.cursor < state.screens.length };
 
 // ============================================================================
-// 6. SAVE, DEBRIEF
+// 6. DEBRIEF (the data are saved after it, by endOfStudy in section 1)
 // ============================================================================
 const finalize = {
   type: jsPsychCallFunction,
@@ -631,34 +691,6 @@ const finalize = {
   },
 };
 
-// Uploads the CSV to DataPipe, retrying on failure; if every attempt fails the
-// debrief screen offers the file as a download.
-const saveData = {
-  type: PagePlugin,
-  data: { task: "save_data" },
-  on_start: () => setPhase("wrap"),
-  render: function (el, done) {
-    el.innerHTML = card(`<h2>Saving your responses…</h2><div class="spinner"></div><p class="muted">Please do not close this window.</p>`, "card-narrow card-center");
-    const csv = jsPsych.data.get().csv();
-    const attempt = async (n) => {
-      let ok = false;
-      try {
-        const result = await jsPsychPipe.saveData(DATAPIPE.experiment_id, `${subjectId}.csv`, csv);
-        ok = !!result && !(result instanceof Error) && !result.error;
-      } catch (e) {
-        ok = false;
-      }
-      if (ok || n >= DATAPIPE.save_attempts) {
-        state.saveFailed = !ok;
-        done({ success: ok, attempts: n });
-      } else {
-        setTimeout(() => attempt(n + 1), DEBUG ? 100 : 1500);
-      }
-    };
-    attempt(1);
-  },
-};
-
 const debrief = {
   type: PagePlugin,
   data: { task: "debrief" },
@@ -669,22 +701,21 @@ const debrief = {
     if (isFullscreen() && document.exitFullscreen) document.exitFullscreen().catch(() => {});
   },
   render: function (el, done) {
-    // without DataPipe (or if saving failed) the data can be downloaded here
-    const download = !DATAPIPE.enabled || state.saveFailed
-      ? `<div class="download-box"><p class="muted">${state.saveFailed
-          ? "Your responses could not be saved automatically. Please download them and send the file to the research team."
-          : "DataPipe is disabled, so nothing was uploaded."}</p>
+    // without DataPipe nothing is uploaded, so the data can be downloaded here
+    const download = !PIPE_ON
+      ? `<div class="download-box"><p class="muted">DataPipe is not in use, so nothing is uploaded.</p>
           <button class="btn btn-secondary" id="download-btn" type="button">Download data (CSV)</button></div>`
       : "";
     const label = prolificPID ? "Complete and return to Prolific" : "Complete study";
     el.innerHTML = card(`${eyebrow("Thank you")}<h1>${rich(DEBRIEF.title)}</h1>
       ${DEBRIEF.paragraphs.map((p) => `<p>${rich(p)}</p>`).join("")}${download}
-      ${prolificPID ? '<p class="muted">Click below to complete the study and return to Prolific.</p>' : ""}
+      ${prolificPID ? '<p class="muted">Click below to save your responses and return to Prolific.</p>' : ""}
       <div class="btn-row"><button class="btn btn-lg" id="card-btn">${label}</button></div>`, "card-narrow");
     const b = el.querySelector("#download-btn");
-    if (b) b.addEventListener("click", () => jsPsych.data.get().localSave("csv", `${subjectId}.csv`));
-    el.querySelector("#card-btn").addEventListener("click", () => done());
+    if (b) b.addEventListener("click", () => jsPsych.data.get().localSave("csv", DATA_FILE));
+    el.querySelector("#card-btn").addEventListener("click", () => done({ screen: "debrief" }));
   },
+  on_finish: recordScreenTime,
 };
 
 // ============================================================================
@@ -708,7 +739,6 @@ const timeline = [
     },
   },
   finalize,
-  ...(DATAPIPE.enabled ? [saveData] : []),
   debrief,
 ];
 

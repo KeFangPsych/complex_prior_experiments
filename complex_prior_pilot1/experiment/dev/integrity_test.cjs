@@ -30,7 +30,7 @@ const LOCK_WAIT = 60000;   // longest wait for a read-lock to open
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto(`${BASE}/?condition=0`);
+  await page.goto(`${BASE}/?condition=0&nopipe=1`);
   await page.click("#card-btn");                                         // welcome
   // the whole consent form is on the page (no scrolling box), and can be saved as a PDF with the safeguards on
   await page.waitForSelector("#consent-pdf");
@@ -146,7 +146,7 @@ const LOCK_WAIT = 60000;   // longest wait for a read-lock to open
 
   // ---- 1c. testing mode: safeguards off by default, on when chosen ----
   const pt = await browser.newPage({ viewport: { width: 900, height: 560 } });   // below the minimum window size
-  await pt.goto(`${BASE}/?debug=1`);
+  await pt.goto(`${BASE}/?debug=1&nopipe=1`);
   await pt.waitForSelector("#setup-start");
   await pt.click("#setup-start");
   await pt.waitForSelector("#card-btn");
@@ -171,7 +171,7 @@ const LOCK_WAIT = 60000;   // longest wait for a read-lock to open
   await pt.close();
 
   const ps = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-  await ps.goto(`${BASE}/?debug=1`);
+  await ps.goto(`${BASE}/?debug=1&nopipe=1`);
   await ps.waitForSelector("#setup-start");
   await ps.locator('.setup-group[data-group="safeguards"] .opt[data-value="on"]').click();
   await ps.click("#setup-start");
@@ -188,7 +188,7 @@ const LOCK_WAIT = 60000;   // longest wait for a read-lock to open
   const pb = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   const backErrors = [];
   pb.on("pageerror", (e) => backErrors.push(e.message));
-  await pb.goto(`${BASE}/?debug=1&cond=1&fig=table&surprise=shown`);
+  await pb.goto(`${BASE}/?debug=1&nopipe=1&cond=1&fig=table&surprise=shown`);
   await pb.waitForSelector("#setup-start");
   const barText = () => pb.locator("#test-bar").innerText();
   const eyebrowIs = (text) => pb.waitForFunction((x) => (document.querySelector(".eyebrow") || {}).textContent === x, text);

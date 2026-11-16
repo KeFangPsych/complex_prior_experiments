@@ -11,22 +11,50 @@
  */
 
 // ============================================================================
-// DATAPIPE — create a project at https://pipe.jspsych.org/, paste the ID, set
-// enabled. Turn on its condition assignment with 32 conditions (or a multiple):
-// the counter is mapped onto condition x figure version x surprise text
-// (see assignmentFromIndex in content.js). If the counter cannot be read within
-// condition_timeout_ms, the cell is drawn at random instead.
+// DATAPIPE (https://pipe.jspsych.org) — stores each participant's data file in
+// the storage connected to the experiment (Google Drive), and hands out the
+// assignment cells in order. The experiment uses DataPipe's jsPsych extension
+// (@jspsych/extension-pipe), which uploads the data when the study ends.
+//
+// On the experiment's DataPipe dashboard:
+//   - "Accept new data": on while collecting, off afterwards.
+//   - "Assign conditions in sequence": on, with 32 conditions. The counter is
+//     mapped onto condition x figure version x surprise text (assignmentFromIndex
+//     in content.js). If it cannot be read within condition_timeout_ms, the cell
+//     is drawn at random instead (condition_source = "random_fallback").
+// See "DataPipe and Prolific" in the README for the full checklist.
 // ============================================================================
 export const DATAPIPE = {
-  experiment_id: "REPLACE_WITH_YOUR_DATAPIPE_EXPERIMENT_ID",
-  enabled: false,
+  // The TEST experiment "complex_prior_pilot1_test". REPLACE with the ID of the
+  // real experiment before recruiting, and set CONFIG.allow_dev_flags to false in
+  // the same change, so that no test run can reach the real data or its counter.
+  experiment_id: "D4qnt4FqnpkJ",
+  enabled: true,
+  // false: the data are sent once, when the participant finishes.
+  // true:  every screen is also sent as it happens, so a participant who quits
+  //        leaves a partial file. That keeps data of people who withdrew; check
+  //        it against the consent form and the protocol before switching it on.
+  stream: false,
   condition_timeout_ms: 8000,
-  save_attempts: 3,
+  save_attempts: 3,               // tries of the final upload when DataPipe cannot be reached
 };
 
 // ============================================================================
-// PROLIFIC — participants arriving with ?PROLIFIC_PID=... are redirected here
-// when they finish.
+// ASSIGNMENT — which of the 32 assignment cells DataPipe's counter runs through.
+//   null         all 32 cells in order (the normal case)
+//   [3, 3, 17]   a top-up batch: only these cells, in this order, again and again.
+//                `npm run cells -- <folder with the data files>` counts the
+//                completed participants per cell and prints the list to paste here.
+// ============================================================================
+export const ASSIGNMENT = {
+  top_up_cells: null,
+};
+
+// ============================================================================
+// PROLIFIC — participants arriving with ?PROLIFIC_PID=... are sent back to
+// https://app.prolific.com/submissions/complete?cc=<completion_code> once their
+// data are saved. The code is on the study's setup page ("Completion paths");
+// it is unique to each Prolific study, so set it again for every new study.
 // ============================================================================
 export const PROLIFIC = {
   completion_code: "REPLACE_WITH_YOUR_PROLIFIC_COMPLETION_CODE",
@@ -49,7 +77,7 @@ export const fillStudyValues = (text) => text.replace(/\bXX\b/g, () => STUDY.min
 
 export const CONFIG = {
   experiment_name: "complex_prior_pilot1_vignette1",
-  experiment_version: "0.10.0",
+  experiment_version: "0.11.0",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.
