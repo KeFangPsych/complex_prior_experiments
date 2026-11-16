@@ -7,8 +7,10 @@ planet. They read a five-part scenario about a technology offered by a company
 (text plus a picture per part) and answer questions after each part. What the
 company and the team write to each other is shown as speech bubbles with a
 sender label (the company's on the left in green with its logo, the team's on
-the right in blue with a hard hat), and the test results as a lab report box;
-everything else is the narrator's text.
+the right in blue with a hard hat), and the test results as a lab report box
+that also holds the laboratory-observations picture and colors the four
+temperature words (warm, cool, cold, freezing); everything else is the
+narrator's text.
 
 It is a Node project: jsPsych and its plugins come from npm and
 [Vite](https://vite.dev) bundles everything into a static site. The UI and the

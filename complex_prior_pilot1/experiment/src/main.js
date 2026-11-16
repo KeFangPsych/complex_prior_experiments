@@ -418,10 +418,10 @@ function showInstructions(el) {
 // The algae explanation has a larger `min`, so on small windows its page scrolls a little.
 const FIGURE_FRAME = 18;   // padding and border of the picture's frame
 const ALGAE_PICTURE_MIN = 840;   // the algae explanation is hard to read below this, so its page may scroll a little
-function figureLimits(layout, aspect, textWidth, stage) {
+function figureLimits(layout, aspect, textWidth, stage, frame = FIGURE_FRAME) {
   if (layout === "side") return { max: 560, min: 380 };
-  if (stage === "elaboration") return { max: textWidth - FIGURE_FRAME, min: Math.min(ALGAE_PICTURE_MIN, textWidth - FIGURE_FRAME) };
-  return aspect > 2.4 ? { max: textWidth - FIGURE_FRAME, min: 640 } : { max: 660, min: 540 };
+  if (stage === "elaboration") return { max: textWidth - frame, min: Math.min(ALGAE_PICTURE_MIN, textWidth - frame) };
+  return aspect > 2.4 ? { max: textWidth - frame, min: 640 } : { max: 660, min: 540 };
 }
 const pageOverflow = () => document.documentElement.scrollHeight - window.innerHeight;
 // Fits a scenario page to the window; returns a function that removes the listeners.
@@ -434,7 +434,14 @@ function fitScenarioPage(el, layout, stage) {
   const sizeFigure = (shrink) => {
     if (!img || !img.naturalWidth) return pageOverflow() <= 0;
     const aspect = img.naturalWidth / img.naturalHeight;
-    const { max, min } = figureLimits(layout, aspect, textEl.clientWidth, stage);
+    // the width the picture may take: the text column, or the report's text when it sits inside the report
+    const reportBody = img.closest(".report-body");
+    let available = textEl.clientWidth;
+    if (reportBody) {
+      const cs = getComputedStyle(reportBody);
+      available = reportBody.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    }
+    const { max, min } = figureLimits(layout, aspect, available, stage, reportBody ? 0 : FIGURE_FRAME);
     img.style.width = `${max}px`;                       // also capped by its column (max-width: 100%)
     const overflow = pageOverflow();
     if (overflow <= 0 || !shrink) return overflow <= 0;
@@ -470,11 +477,15 @@ function paragraphsHtml(paragraphs) {
   });
   return out.join("");
 }
-function blockHtml(b) {
+// In the lab report the four temperatures are colored as in its picture:
+// warm orange, cool light blue, cold blue, freezing dark blue.
+const colorTemperatures = (html) => html.replace(/\b(warm|cool|cold|freezing)\b/g, '<span class="temp temp-$1">$1</span>');
+// `figureHtml` is the page's picture when it belongs inside this block (the lab report)
+function blockHtml(b, figureHtml = "") {
   const body = paragraphsHtml(b.paragraphs);
   if (b.kind === "report") {
     // the lab's report: a document box, not a speech bubble
-    return `<div class="report"><div class="report-head">${ICON_REPORT}<span>${rich(b.label)}</span></div><div class="report-body">${body}</div></div>`;
+    return `<div class="report"><div class="report-head">${ICON_REPORT}<span>${rich(b.label)}</span></div><div class="report-body">${colorTemperatures(body)}${figureHtml}</div></div>`;
   }
   if (b.kind !== "message") return body;
   const outgoing = b.label.startsWith("From your team");
@@ -490,10 +501,11 @@ function showScenario(el, s) {
   const figure = page.figure
     ? `<div class="scenario-figure"><img src="${imageUrl(page.figure)}" alt="${rich(page.alt)}" draggable="${state.safeguards ? "false" : "true"}"></div>`
     : "";
+  const inReport = page.figureInReport;      // the picture sits inside the lab report box
   el.innerHTML = card(`${stageEyebrow(i)}
     <div class="scenario ${page.layout}">
-      <div class="scenario-text">${page.blocks.map(blockHtml).join("")}</div>
-      ${figure}
+      <div class="scenario-text">${page.blocks.map((b) => blockHtml(b, inReport && b.kind === "report" ? figure : "")).join("")}</div>
+      ${inReport ? "" : figure}
     </div>
     <div class="scenario-foot">
       <span></span>

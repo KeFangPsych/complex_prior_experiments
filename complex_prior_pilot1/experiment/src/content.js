@@ -54,9 +54,9 @@ export const STAGE_SEQUENCE = {
 // substances the organism produces (`name`). As observed outcomes, heat is
 // produced, while the pigment shows as how purple the organism looks.
 const OUTPUT = {
-  heat: { name: "heat", less: "produces less heat", lessPast: "produced less heat", lessBare: "produce less heat",
+  heat: { name: "heat", less: "produces less heat", lessCaps: "produces LESS heat", lessPast: "produced less heat", lessBare: "produce less heat",
     evenMore: "produces even more heat", keeps: "keeps producing more heat", keepBare: "keep producing more heat" },
-  color: { name: "purple pigment", less: "looks less purple", lessPast: "looked less purple", lessBare: "look less purple",
+  color: { name: "purple pigment", less: "looks less purple", lessCaps: "looks LESS purple", lessPast: "looked less purple", lessBare: "look less purple",
     evenMore: "looks even more purple", keeps: "keeps looking more purple", keepBare: "keep looking more purple" },
 };
 // The output that shows the anomaly (and depends on the algae), and the other one:
@@ -74,7 +74,8 @@ const IMG = "vignette1_img";
 //   by a narrator; what Bioenergy and the team write to each other is shown as
 //   written messages with a sender label.
 //   scenario(stage, cond, { surpriseText, figureVersion }) -> { pages: [...] }
-//   Each page: { blocks, figure (file name or null), alt, layout }
+//   Each page: { blocks, figure (file name or null), alt, layout, figureInReport }
+//     figureInReport  the picture is shown inside the page's lab report box
 //     blocks  in reading order, each { kind: "narration", paragraphs },
 //             { kind: "message", label, paragraphs } (a speech bubble) or
 //             { kind: "report", label, paragraphs } (the lab report box).
@@ -100,7 +101,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
   const evidenceFirst = c.order === "evidence_first";
   // the underlined sentences exist only in the evidence-first conditions
   const s = evidenceFirst && surpriseText;
-  const page = (blocks, figure = null, alt = "", layout = "text") => ({ blocks, figure, alt, layout });
+  const page = (blocks, figure = null, alt = "", layout = "text", extra = {}) => ({ blocks, figure, alt, layout, figureInReport: false, ...extra });
 
   if (stage === "planet") {
     return { pages: [page([narration(
@@ -129,7 +130,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
   if (stage === "explanation1") {
     return { pages: [
       page([narration(
-        "Your team is building apartments on this planet. The planet has four seasons: warm, cool, moderately cold, and extremely cold.",
+        "Your team is building apartments on this planet. The planet has four seasons: warm, cool, cold, and freezing.",
         "Your team announces that it needs technology that can **produce heat to keep apartments warm**. An energy company called Bioenergy has a technology that uses one kind of organism found on the planet.",
         "Bioenergy understands very well how this kind of organism works because it has closely studied the organism. Scientific findings suggest that the organism is representative of other life forms on the planet in terms of its level of complexity.",
       )]),
@@ -155,13 +156,13 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
       page([
         narration("Your team's lab tests the sample at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet."),
         report(LAB_REPORT,
-          "From warm to cool to moderately cold, the organism produces more heat and looks more purple as it gets colder." + (s ? " This is expected." : ""),
-          "From moderately cold to extremely cold, the organism:",
+          "From warm to cool to cold, the organism produces more heat and looks more purple" + (s ? ", as expected" : "") + ".",
+          "From cold to freezing, the organism:",
           `* ${O.evenMore}` + (s ? ", as expected" : "") + ".",
-          `* ${A.less} than when it is moderately cold.` + (s ? " This is unexpected, because more gas is available for the organism to use." : ""),
+          `* ${A.lessCaps} than when it is cold.` + (s ? " This is unexpected, because more gas is there for the organism to use." : ""),
         ),
       ], `${IMG}4_evidence_${c.anomaly}_anomaly${figureVersion === "line" ? "_line" : ""}.png`,
-      "Laboratory observations at four temperatures, from warm to extremely cold: gas available, organism color and heat output.", "stacked"),
+      "Laboratory observations at four temperatures, from warm to freezing: gas available, organism color and heat output.", "stacked", { figureInReport: true }),
     ] };
   }
 
@@ -171,19 +172,19 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
     const algaeParagraphs = [
       "Even smaller living things called algae live inside the organism.",
       `**The organism can produce ${anom} only with the help of the algae. The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.`,
-      `As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more ${anom}.`,
-      `**But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less ${anom}**, even though more gas is available.`,
+      `As the weather gets colder, more gas is available in the air. When it is cold, the algae use the extra gas to produce more ${anom}.`,
+      `**But when it is freezing, most of the water available to the algae freezes. As a result, the algae become less active and produce less ${anom}**, even though more gas is available.`,
       `**The organism produces ${other} on its own, without the algae.** So it ${O.keeps} as the weather gets colder.`,
     ];
     const figure = `${IMG}5_explanation2_${c.anomaly}_anomaly.png`;
-    const alt = "Bioenergy's explanation of what happens inside the organism when it is moderately cold and when it is extremely cold.";
+    const alt = "Bioenergy's explanation of what happens inside the organism when it is cold and when it is freezing.";
     if (!evidenceFirst) {
       return { pages: [page([narration("Bioenergy's message continues."), message(`${FROM_BIOENERGY} (continued)`, ...algaeParagraphs)], figure, alt, "stacked")] };
     }
     return { pages: [
       page([
         narration("Your team decides to ask Bioenergy about the test."),
-        message(FROM_TEAM, `We tested the sample. When it was extremely cold, the organism ${A.lessPast} than when it was moderately cold.` +
+        message(FROM_TEAM, `We tested the sample. When it was freezing, the organism ${A.lessPast} than when it was cold.` +
           (s ? " This is not what we expected." : "") + " Can you explain why?"),
       ]),
       page([narration("Bioenergy replies."), message(FROM_BIOENERGY, "Thank you for reaching out about your test.", ...algaeParagraphs)], figure, alt, "stacked"),
@@ -225,10 +226,10 @@ const AMOUNT = (noun) => [`Less ${noun}`, `About the same amount of ${noun}`, `M
 function predictionItems() {
   return [
     likert("pred_heat", "main", "Heat prediction", "prediction",
-      "Compared with when it is **moderately cold**, how much **heat** would you expect the organism to produce when it is **extremely cold**?",
+      "Compared with when it is **cold**, how much **heat** would you expect the organism to produce when it is **freezing**?",
       "Much less heat", "Much more heat", "About the same amount of heat"),
     likert("pred_color", "main", "Color prediction", "prediction",
-      "Compared with when it is **moderately cold**, how **purple** would you expect the organism to look when it is **extremely cold**?",
+      "Compared with when it is **cold**, how **purple** would you expect the organism to look when it is **freezing**?",
       "Much less purple", "Much more purple", "About as purple"),
   ];
 }
@@ -262,17 +263,17 @@ function finalMeasures() {
     likert("expl2_explains", "main", "Further measure: explanation 2 evaluations", "explanation2",
       "How well does the company's explanation about the algae explain the test results?", "Not well at all", "Very well"),
     likert("expl2_real_reason", "main", "Further measure: explanation 2 evaluations", "explanation2",
-      "How likely is it that the algae processes are the real reason for the test results when it was extremely cold?", "Very unlikely", "Very likely"),
+      "How likely is it that the algae processes are the real reason for the test results when it was freezing?", "Very unlikely", "Very likely"),
   ].map((q) => (blocks.includes(q.page) ? { ...q, pageShuffle: "final_blocks" } : q));
 }
 
 function observedItems(c) {
   return [
     choice("obs_heat", "main", "Observed heat production", "observed",
-      "How much heat did the organism produce when it was extremely cold, compared with when it was moderately cold?",
+      "How much heat did the organism produce when it was freezing, compared with when it was cold?",
       AMOUNT("heat"), c.anomaly === "heat" ? 0 : 2),
     choice("obs_color", "main", "Observed color", "observed",
-      "How purple did the organism look when it was extremely cold, compared with when it was moderately cold?",
+      "How purple did the organism look when it was freezing, compared with when it was cold?",
       ["Less purple", "About as purple", "More purple", "I don't remember"], c.anomaly === "color" ? 0 : 2),
   ];
 }
@@ -285,9 +286,9 @@ function evidencePilotItems(c) {
     choice("inquiry", "pilot", "Inquiry", "evidence_check",
       "Would you ask Bioenergy about this result?", ["Yes", "No"]),
     choice("gas_availability", "pilot", "Gas availability", "evidence_check_2",
-      "How much gas was available when it was extremely cold, compared with when it was moderately cold?", AMOUNT("gas"), 2),
+      "How much gas was available when it was freezing, compared with when it was cold?", AMOUNT("gas"), 2),
     likert("anomaly_relevance", "pilot", `Anomaly relevance, ${c.anomaly} anomaly version`, "evidence_check_2",
-      `The organism ${A.less} when it is extremely cold. How much does this matter for your team's goal of keeping apartments warm?`, "Not at all", "Very much"),
+      `The organism ${A.less} when it is freezing. How much does this matter for your team's goal of keeping apartments warm?`, "Not at all", "Very much"),
   ];
 }
 
@@ -303,16 +304,16 @@ function algaeOpenItems(c) {
   const { A, O } = outputs(c.anomaly);
   return [
     open("open_decrease", "pilot", `Causal knowledge: explain the decrease, ${c.anomaly} anomaly version`, "algae_open",
-      `Why does the organism ${A.lessBare} when it is extremely cold, even though more gas is available?`),
+      `Why does the organism ${A.lessBare} when it is freezing, even though more gas is available?`),
     open("open_increase", "pilot", `Causal knowledge: explain the continuing increase, ${c.anomaly} anomaly version`, "algae_open",
-      `Why does the organism ${O.keepBare} when it is extremely cold?`),
+      `Why does the organism ${O.keepBare} when it is freezing?`),
   ];
 }
 // Alternatives to those open responses; documented in the script, not asked.
 function algaeAlternativeItems() {
   return [
     choice("ck_liquid_water", "alternative", "Alternative measure of causal knowledge: liquid water", "algae",
-      "According to the company, what happens to the amount of liquid water available to the algae when it is extremely cold?",
+      "According to the company, what happens to the amount of liquid water available to the algae when it is freezing?",
       ["There is less liquid water", "There is about the same amount of liquid water", "There is more liquid water", "I don't remember"], 0),
     choice("ck_algae_activity", "alternative", "Alternative measure of causal knowledge: algae activity", "algae",
       "According to the company, what happens to the algae when there is too little liquid water?",

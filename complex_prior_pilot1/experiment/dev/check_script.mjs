@@ -53,7 +53,7 @@ const condsIn = (title) => {
 // A message is a block quote whose first line is its bold sender label; one
 // labelled "Lab report" is a report. A quoted line starting with "* " is a bullet.
 function parseBlock(lines, surpriseText) {
-  const newPage = () => ({ blocks: [], figures: [] });
+  const newPage = () => ({ blocks: [], figures: [], figureInReport: false });
   const pages = [newPage()];
   let quote = null;                                   // the message being read
   const clean = (line) => {
@@ -66,6 +66,11 @@ function parseBlock(lines, surpriseText) {
     if (line.startsWith(">")) {
       const text = line.replace(/^>\s?/, "").trim();
       if (!text) continue;
+      if (text.startsWith("*Figure:")) {              // a picture inside the lab report
+        page.figures.push(...unescape(text).match(/vignette1_[A-Za-z0-9_]+(?:\.png)?/g));
+        page.figureInReport = quote && quote.kind === "report";
+        continue;
+      }
       if (!quote) {
         const label = text.match(/^\*\*(.+)\*\*$/);
         const name = label ? unescape(label[1]) : null;
@@ -119,7 +124,7 @@ const same = (where, what, got, want) => {
   checked++;
   if (got !== want) fail(where, `${what}\n     experiment: ${JSON.stringify(got)}\n     script:     ${JSON.stringify(want)}`);
 };
-const newEmptyPage = { blocks: [], figures: [] };
+const newEmptyPage = { blocks: [], figures: [], figureInReport: false };
 const sameList = (where, what, got, want) => {
   same(where, `number of ${what}`, got.length, want.length);
   got.forEach((g, k) => same(where, `${what} ${k + 1}`, g, want[k]));
@@ -175,6 +180,7 @@ for (const cond of Object.keys(CONDITIONS).map(Number)) {
         // figure: the script names none, one file, or two versions (table first, line second)
         const wantFig = w.figures.length === 2 ? w.figures[figureVersion === "line" ? 1 : 0] : w.figures[0] || null;
         same(at, "figure", pg.figure, wantFig);
+        same(at, "figure inside the lab report", pg.figureInReport, !!w.figureInReport);
         if (pg.figure && !fs.existsSync(path.join(IMAGES, pg.figure))) fail(where, `image file not found: ${pg.figure}`);
         if ((pg.layout === "text") !== !pg.figure) fail(where, `page ${n + 1}: layout "${pg.layout}" does not fit ${pg.figure ? "a page with" : "a page without"} a figure`);
         if (/\bstor(y|ies)\b/i.test(pageParagraphs(pg).join(" "))) fail(where, 'contains the word "story"');
