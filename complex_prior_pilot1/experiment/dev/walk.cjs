@@ -14,8 +14,10 @@
  * pages in the script's order with the script's figures; exactly the questions
  * content.js lists for the condition and mode, each with an answer column, in the
  * script's order except where the script says it is random; that the recorded
- * random orders are the ones shown; and that the check questions are scored
- * correct when the bot answers them correctly.
+ * random orders are the ones shown; that the check questions are scored
+ * correct when the bot answers them correctly; that every randomization listed
+ * in content.js (RANDOMIZATIONS) has its column; and that every screen has its
+ * time, in its row (rt) and in the participant-level column rt_<screen>.
  */
 const { chromium } = require("playwright");
 const fs = require("fs");
@@ -138,6 +140,35 @@ const shotDir = path.join(__dirname, "shots");
     const all = new Set(Object.keys(content.CONDITIONS).flatMap((k) => content.STAGE_SEQUENCE[content.CONDITIONS[k].order].flatMap((s) => content.questions(s, Number(k)).map((q) => q.id))));
     const askedIds = new Set(items.map((q) => q.id));
     [...all].filter((id) => !askedIds.has(id) && id in last).forEach((id) => bad(`${id}: has a column but was not asked`));
+
+    // every randomization has its column (pilot-only ones in pilot mode)
+    content.RANDOMIZATIONS.forEach((r) => r.columns.forEach((col) => {
+      const applies = r.appliesTo !== "Pilot" || mode === "pilot";
+      if (applies && (last[col] === undefined || last[col] === null || last[col] === "")) bad(`randomization column ${col} is empty`);
+      if (!applies && col in last) bad(`randomization column ${col} recorded in main mode`);
+    }));
+    // every screen has its time: in its row, and in the participant-level column rt_<screen>
+    const SCREEN_TASKS = ["test_setup", "welcome", "consent", "instructions", "scenario", "questions", "general_feedback"];
+    const screenRows = data.filter((r) => SCREEN_TASKS.includes(r.task));
+    const wantScreens = ["setup", "welcome", "consent", "instructions",
+      ...stages.flatMap((s) => [
+        ...content.scenario(s, cond, { figureVersion: fig }).pages.map((_, n) => `scenario_${s}_${n + 1}`),
+        ...content.questionPages(s, cond, mode).map((p) => `questions_${p.key}`)]),
+      "comments"];
+    expect("screens with a time", screenRows.map((r) => r.screen).sort(), [...wantScreens].sort());
+    screenRows.forEach((r) => {
+      if (!(Number.isInteger(r.rt) && r.rt >= 0)) bad(`${r.screen}: rt is ${JSON.stringify(r.rt)}`);
+      if (last[`rt_${r.screen}`] !== r.rt) bad(`rt_${r.screen} is ${JSON.stringify(last[`rt_${r.screen}`])}, the row has ${r.rt}`);
+      if (!(Number.isInteger(r.screen_hidden_ms) && Number.isInteger(r.screen_blur_count))) bad(`${r.screen}: no away time`);
+    });
+    if (!(Number.isInteger(last.total_time_ms) && last.total_time_ms > 0)) bad(`total_time_ms is ${JSON.stringify(last.total_time_ms)}`);
+    // each item has the time of its first and last answer
+    answered.forEach((a) => { if (!(Number.isInteger(a.first_ms) && Number.isInteger(a.last_ms) && a.last_ms >= a.first_ms)) bad(`${a.id}: answer times ${a.first_ms}, ${a.last_ms}`); });
+    // scenario rows carry the page's word count (the bot runs with the read-locks off)
+    const wantWords = stages.flatMap((s) => content.scenario(s, cond, { surpriseText: surprise === "shown", figureVersion: fig }).pages.map(content.pageWordCount));
+    expect("n_words", scenarios.map((r) => r.n_words), wantWords);
+    expect("lock_seconds", scenarios.map((r) => r.lock_seconds), wantWords.map(() => 0));
+    for (const k of ["screenshot_key_count", "tab_hidden_count", "window_blur_count", "paste_attempts"]) if (!Number.isInteger(last[k])) bad(`${k} is ${JSON.stringify(last[k])}`);
     return { tag, rows: data.length, screens: scenarios.length + gotPages.length, questions: items.length };
   }
 

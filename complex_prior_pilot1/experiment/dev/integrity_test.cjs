@@ -11,13 +11,17 @@
  * needs the minimum length; the context menu, text selection and copy are
  * blocked; the viewport lock and the mobile block appear. It also checks testing
  * mode (?debug=1): all of those safeguards are off unless switched on on the
- * test-setup screen, and that the settings bar, Back and Change settings work. Takes about 30 s because it waits out the read-locks.
+ * test-setup screen, and that the settings bar, Back and Change settings work. Takes about two minutes because it waits out the read-locks.
  * Needs Playwright (see dev/walk.cjs).
  */
 const { chromium, devices } = require("playwright");
 const BASE = process.env.BASE_URL || "http://localhost:8765";
 
+const LOCK_WAIT = 60000;   // longest wait for a read-lock to open
+
 (async () => {
+  const content = await import("../src/content.js");
+  const config = await import("../src/config.js");
   const browser = await chromium.launch(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {});
   const results = [];
   const check = (name, ok, detail = "") => results.push({ name, ok: !!ok, detail });
@@ -39,6 +43,30 @@ const BASE = process.env.BASE_URL || "http://localhost:8765";
   check("consent enters fullscreen", await page.evaluate(() => !!document.fullscreenElement));
 
   check("instructions are read-locked", await page.isDisabled("#card-btn"));
+  // the read-lock grows with the text: 1 second per 5 words, at least 10 seconds
+  const lockShown = async () => parseInt(await page.locator("#card-btn .lock-count").textContent());
+  const iWords = content.countWords(config.INSTRUCTIONS.title) + config.INSTRUCTIONS.bullets.reduce((n, b) => n + content.countWords(b), 0);
+  const iLock = await lockShown();
+  check("instruction read-lock follows the word count", Math.abs(iLock - config.readLockSeconds(iWords)) <= 1 && iLock >= 10, `${iWords} words, ${iLock} s shown`);
+
+  // screenshots: the study is covered on a screenshot key and while the window is not active
+  const shieldShown = () => page.evaluate(() => (document.getElementById("capture-shield") || { style: {} }).style.display === "flex");
+  await page.keyboard.press("PrintScreen");
+  check("PrintScreen covers the study", await shieldShown());
+  await page.click("#capture-shield");
+  check("clicking the cover brings the study back", !(await shieldShown()));
+  await page.keyboard.down("Meta"); await page.keyboard.down("Shift");
+  check("Cmd / Win + Shift covers the study", await shieldShown());
+  await page.keyboard.up("Shift"); await page.keyboard.up("Meta");
+  await page.waitForFunction(() => document.getElementById("capture-shield").style.display === "none");
+  check("the cover goes when the keys are let go", true);
+  await page.evaluate(() => window.dispatchEvent(new Event("blur")));
+  check("an inactive window covers the study", await shieldShown());
+  await page.evaluate(() => window.dispatchEvent(new Event("focus")));
+  check("the cover goes when the window is active again", !(await shieldShown()));
+  await page.emulateMedia({ media: "print" });
+  check("printing gives an empty page", await page.evaluate(() => getComputedStyle(document.getElementById("jspsych-target")).display === "none"));
+  await page.emulateMedia({ media: "screen" });
   await page.evaluate(() => document.exitFullscreen());
   await page.waitForSelector("#fs-return-btn", { state: "visible" });
   check("leaving fullscreen shows the overlay", true);
@@ -47,16 +75,22 @@ const BASE = process.env.BASE_URL || "http://localhost:8765";
   check("returning hides the overlay", await page.evaluate(() => !!document.fullscreenElement));
   check("context menu is blocked", await page.evaluate(() => !document.body.dispatchEvent(new MouseEvent("contextmenu", { cancelable: true, bubbles: true }))));
 
-  await page.waitForSelector("#card-btn:not([disabled])", { timeout: 10000 });
+  await page.waitForSelector("#card-btn:not([disabled])", { timeout: LOCK_WAIT });
   await page.click("#card-btn");                                         // -> part 1 scenario
   await page.waitForSelector(".scenario-text");
   check("scenario page is read-locked", await page.isDisabled("#card-btn"));
+  const p1Words = content.pageWordCount(content.scenario("planet", 1).pages[0]);
+  const p1Lock = await lockShown();
+  check("scenario read-lock follows the word count", Math.abs(p1Lock - config.readLockSeconds(p1Words)) <= 1 && p1Lock >= 10, `${p1Words} words, ${p1Lock} s shown`);
+  const longPage = content.scenario("elaboration", 1).pages[1];
+  check("a longer page has a longer read-lock", config.readLockSeconds(content.pageWordCount(longPage)) > config.readLockSeconds(p1Words) && config.readLockSeconds(1) === 10,
+    `${content.pageWordCount(longPage)} words: ${config.readLockSeconds(content.pageWordCount(longPage))} s`);
   check("scenario picture is loaded", await page.evaluate(() => { const i = document.querySelector(".scenario-figure img"); return i.complete && i.naturalWidth > 0; }));
   check("text and picture fit the window", await page.evaluate(() => document.documentElement.scrollHeight <= window.innerHeight + 1));
-  await page.waitForSelector("#card-btn:not([disabled])", { timeout: 15000 });
+  await page.waitForSelector("#card-btn:not([disabled])", { timeout: LOCK_WAIT });
   await page.click("#card-btn");                                         // -> part 2 scenario
   await page.waitForFunction(() => document.querySelector(".eyebrow").textContent.startsWith("Part 2"));
-  await page.waitForSelector("#card-btn:not([disabled])", { timeout: 15000 });
+  await page.waitForSelector("#card-btn:not([disabled])", { timeout: LOCK_WAIT });
   await page.click("#card-btn");                                         // -> part 2 questions
 
   // question screen: three scales in pilot mode; Continue only after all are answered
@@ -83,7 +117,7 @@ const BASE = process.env.BASE_URL || "http://localhost:8765";
   for (let guard = 0; guard < 20; guard++) {
     await page.waitForSelector("#q-submit, #card-btn");
     if (await page.locator("#card-btn").count()) {
-      await page.waitForSelector("#card-btn:not([disabled])", { timeout: 15000 });
+      await page.waitForSelector("#card-btn:not([disabled])", { timeout: LOCK_WAIT });
       await page.click("#card-btn");
       continue;
     }
@@ -121,12 +155,19 @@ const BASE = process.env.BASE_URL || "http://localhost:8765";
   check("testing: paste is allowed", await pt.evaluate(() => document.dispatchEvent(new ClipboardEvent("paste", { cancelable: true, bubbles: true }))));
   check("testing: context menu is allowed", await pt.evaluate(() => document.body.dispatchEvent(new MouseEvent("contextmenu", { cancelable: true, bubbles: true }))));
   check("testing: no viewport lock in a small window", (await pt.locator("#viewport-lock-overlay").count()) === 0);
+  await pt.emulateMedia({ media: "print" });
+  check("testing: printing is allowed", await pt.evaluate(() => getComputedStyle(document.getElementById("jspsych-target")).display !== "none"));
+  await pt.emulateMedia({ media: "screen" });
   await pt.click("#card-btn");                                           // welcome
   check("testing: consent does not mention full screen", !/full-screen/.test(await pt.textContent(".card")));
   await pt.click("#card-btn");                                           // consent
   await pt.waitForSelector(".eyebrow:text('Instructions')");
   check("testing: consent does not enter fullscreen", !(await pt.evaluate(() => !!document.fullscreenElement)));
   check("testing: no leave-page warning", await pt.evaluate(() => window.onbeforeunload() === undefined));
+  await pt.keyboard.press("PrintScreen");
+  await pt.evaluate(() => window.dispatchEvent(new Event("blur")));
+  check("testing: no cover on a screenshot key or an inactive window", (await pt.locator("#capture-shield").count()) === 0);
+  check("testing: instructions are not read-locked", await pt.isEnabled("#card-btn"));
   await pt.close();
 
   const ps = await browser.newPage({ viewport: { width: 1280, height: 900 } });

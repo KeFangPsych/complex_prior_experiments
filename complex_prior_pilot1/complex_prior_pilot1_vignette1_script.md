@@ -27,6 +27,27 @@ Underlined figure notes mark figures that have two versions, and the version sho
 
 In the pilot, each participant sees one of the two questions on the complexity of the organism's processes after Stage 3 (how simple or complex the organism is as a whole; how much more there is to know about how it works), chosen at random.
 
+## **Randomization and timing (summary)**
+
+Everything that is randomized, and the data column that records what was drawn:
+
+| Randomized | Versions | Applies to | Data column |
+| :---- | :---- | :---- | :---- |
+| Condition (order × complexity × evidence) | 8 conditions | All participants | `cond`, `order`, `complexity`, `anomaly` |
+| Evidence figure | Table only; table with line graphs | All participants | `evidence_figure` |
+| Surprise text (underlined) | Shown; hidden | Evidence-first conditions | `surprise_text` |
+| Order of the two Stage 2 question blocks | 2 orders | All participants | `order_planet_blocks` |
+| Order of the answer options of the team's goal question | 24 orders ("I don't remember" always last) | All participants | `team_goal_option_order` |
+| Order of the two relevance questions | 2 orders | Pilot | `order_relevance` |
+| Which question on the complexity of the organism's processes is shown after Stage 3 | 2 questions | Pilot | `organism_question` |
+| Order of the three end-evaluation blocks (complexity, source trust, utility) | 6 orders | All participants | `order_final_blocks` |
+
+The condition, the evidence figure and the surprise text are crossed into 32 assignment cells that are filled in turn, so they stay balanced. Everything else is drawn separately for each participant, with every version equally likely. Nothing else is randomized: all other pages, questions and answer options keep the order of this document.
+
+Reading time: on each scenario page and on the instruction page, the Continue button stays locked for 1 second per 5 words of text, and for at least 10 seconds.
+
+Recorded timing: the time spent on every screen, and for every question the time of the first and of the last answer.
+
 ## **Welcome screen (all conditions)**
 
 **Decision-Making Study**
@@ -152,7 +173,7 @@ Bioenergy writes to your team to recommend its technology.
 | Main | Color prediction (cond 1, 2, 3, 4 only) | Compared with when it is **cold**, how **purple** would you expect the organism to look when it is **freezing**? (1 \= Much less purple; 3 \= About as purple; 5 \= Much more purple) |
 | Main | Team's goal | What is your team's main reason for considering the technology? (To keep apartments warm in cold weather; To produce purple pigment; To study how the organism changes color; To increase the amount of gas in the air; I don't remember) |
 | Pilot | Relevance of heat | How important is the amount of **heat** produced for your team's goal? (1 \= Not at all important; 5 \= Extremely important) |
-| Pilot | Relevance of color | How important is **how purple the organism looks** for your team's goal? (1 \= Not at all important; 5 \= Extremely important) |
+| Pilot | Relevance of color | How important is how **purple** the organism looks for your team's goal? (1 \= Not at all important; 5 \= Extremely important) |
 | Pilot | Company knowledge | How well does the company understand how the organism works? (1 \= Not well at all; 5 \= Very well) |
 | Pilot | Complexity of the organism's processes | Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
 | Pilot | Complexity of the organism's processes | Besides what the company has said, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |

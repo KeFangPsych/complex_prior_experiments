@@ -1,6 +1,6 @@
 /**
  * integrity.js — fullscreen enforcement, viewport lock, mobile block, copy /
- * devtools protections, tab-hidden and window-blur logging, leave-page warning.
+ * devtools / screenshot protections, tab-hidden and window-blur logging, leave-page warning.
  * Nothing here ends the study; everything is counted for exclusion decisions at
  * analysis time (see integrityProps in state.js).
  */
@@ -85,6 +85,64 @@ export function isMobileDevice() {
     (navigator.maxTouchPoints > 1 && window.innerWidth < 900);
 }
 
+// ---- screenshots ----
+// A web page cannot stop the operating system from capturing the screen, and it
+// cannot see most screenshot shortcuts. What is done here, while the safeguards
+// are on and between consent and the end:
+//   - the study is covered while its window is not active (capture tools such as
+//     the Windows Snipping Tool take the focus away);
+//   - it is covered as soon as a screenshot key or shortcut is seen: PrintScreen,
+//     or Cmd / Win + Shift held together (macOS Cmd+Shift+3/4/5, Windows Win+Shift+S);
+//   - after PrintScreen the clipboard is overwritten;
+//   - printing shows an empty page (styles.css) and Ctrl/Cmd+P is blocked.
+// Each key press is counted (screenshot_key_count, screenshot_key_log). A phone
+// camera, or a capture tool started in another way, cannot be detected.
+const shield = { blurred: false, keys: false, timer: null, lastCount: 0 };
+const shieldApplies = () => state.safeguards && state.consented && !state.finished;
+function updateShield() {
+  const on = shieldApplies() && (shield.blurred || shield.keys);
+  let el = document.getElementById("capture-shield");
+  if (!on) { if (el) el.style.display = "none"; return; }
+  if (!el || el.style.display !== "flex") {
+    el = makeOverlay("capture-shield", `
+      <h2>The study is hidden</h2>
+      <p>The study is hidden while this window is not active, and when a screenshot key is pressed.</p>
+      <p class="muted">Please do not take screenshots. Click here to continue.</p>`);
+    el.onclick = () => { shield.keys = false; shield.blurred = !document.hasFocus(); updateShield(); };
+    el.style.display = "flex";
+  }
+}
+// uncovers the study `ms` after the screenshot keys were let go
+function releaseShieldKeys(ms) {
+  clearTimeout(shield.timer);
+  shield.timer = setTimeout(() => { shield.keys = false; updateShield(); }, ms);
+}
+function onCaptureKey(e) {
+  if (!shieldApplies()) return;
+  const printScreen = e.key === "PrintScreen" || e.code === "PrintScreen";
+  const combo = e.metaKey && e.shiftKey;
+  if (!printScreen && !combo) {
+    if (shield.keys && e.type === "keyup") releaseShieldKeys(800);   // the shortcut keys were let go
+    return;
+  }
+  e.preventDefault();
+  clearTimeout(shield.timer);
+  // one count per press: PrintScreen may arrive as keydown, keyup or both, and held keys repeat
+  const now = performance.now();
+  if (!shield.keys && now - shield.lastCount > 1000) {
+    shield.lastCount = now;
+    integrity.screenshot_key_count++;
+    integrity.screenshot_key_log.push({ t: new Date().toISOString(), phase: state.phase, key: printScreen ? "PrintScreen" : `Meta+Shift${/^(Meta|Shift|OS)$/.test(e.key) ? "" : "+" + e.key}` });
+  }
+  shield.keys = true;
+  updateShield();
+  if (printScreen) {
+    // replaces the captured picture on the clipboard, where the browser allows it
+    try { navigator.clipboard.writeText("").catch(() => {}); } catch (err) { /* not available */ }
+    releaseShieldKeys(1500);
+  }
+}
+
 // ---- protections ----
 let protectionsApplied = false;
 function applyProductionProtections() {
@@ -99,6 +157,7 @@ function applyProductionProtections() {
     if (ev === "paste") integrity.paste_attempts++;
   }, true));
   document.addEventListener("drop", (e) => { if (state.safeguards && e.target && e.target.tagName === "TEXTAREA") e.preventDefault(); }, true);
+  ["keydown", "keyup"].forEach((ev) => document.addEventListener(ev, onCaptureKey, true));
   document.addEventListener("keydown", (e) => {
     if (!state.safeguards) return;
     const k = (e.key || "").toLowerCase();
@@ -111,7 +170,8 @@ function applyProductionProtections() {
 
 /**
  * Switches the safeguards on: text cannot be selected, copy / cut / paste, the
- * context menu and devtools shortcuts are blocked, and the viewport lock applies.
+ * context menu, printing, devtools shortcuts and screenshot keys are blocked, the
+ * study is covered while its window is not active, and the viewport lock applies.
  * (Fullscreen is entered on consent; see fullscreenRequired in state.js.)
  * Called at start for participants, and from the test-setup screen if the tester
  * asks for it. In testing mode it is otherwise never called.
@@ -128,6 +188,8 @@ export function disableSafeguards() {
   state.safeguards = false;
   document.documentElement.classList.remove("no-select");
   hideFullscreenOverlay();
+  shield.keys = false;
+  updateShield();
   const lockEl = document.getElementById("viewport-lock-overlay");
   if (lockEl) lockEl.style.display = "none";
   if (isFullscreen() && document.exitFullscreen) document.exitFullscreen().catch(() => {});
@@ -147,7 +209,8 @@ export function installIntegrityListeners() {
       integrity._hiddenSince = null;
     }
   });
-  window.addEventListener("blur", () => { integrity.window_blur_count++; });
+  window.addEventListener("blur", () => { integrity.window_blur_count++; shield.blurred = true; updateShield(); });
+  window.addEventListener("focus", () => { shield.blurred = false; updateShield(); });
   window.onbeforeunload = function () {
     if (state.safeguards && state.consented && !state.finished) return "The study is not finished. If you leave now your progress will be lost.";
     return undefined;

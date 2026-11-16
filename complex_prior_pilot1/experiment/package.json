@@ -9,6 +9,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "check:script": "node dev/check_script.mjs",
+    "readability": "node dev/readability.mjs",
     "test:walk": "node dev/walk.cjs",
     "test:integrity": "node dev/integrity_test.cjs"
   },

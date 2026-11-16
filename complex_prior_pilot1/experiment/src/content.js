@@ -197,6 +197,11 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
 /** All paragraphs of a page, narration and messages, in reading order. */
 export const pageParagraphs = (page) => page.blocks.flatMap((b) => b.paragraphs);
 
+/** Number of words in a text; the bold marks and the bullet mark are not words. */
+export const countWords = (text) => text.replace(/\*\*/g, "").replace(/^\* /, "").trim().split(/\s+/).filter(Boolean).length;
+/** Number of words a participant reads on a scenario page: every paragraph and every sender label. */
+export const pageWordCount = (page) => page.blocks.reduce((n, b) => n + (b.label ? countWords(b.label) : 0) + b.paragraphs.reduce((m, p) => m + countWords(p), 0), 0);
+
 // ============================================================================
 // QUESTIONS
 //   Each item: { id, use ("main" | "pilot" | "alternative"), measure, page, type, prompt, ... }
@@ -358,7 +363,7 @@ export function questions(stage, cond) {
       { ...likert("relevance_heat", "pilot", "Relevance of heat", "goal",
         "How important is the amount of **heat** produced for your team's goal?", "Not at all important", "Extremely important"), itemShuffle: "relevance" },
       { ...likert("relevance_color", "pilot", "Relevance of color", "goal",
-        "How important is **how purple the organism looks** for your team's goal?", "Not at all important", "Extremely important"), itemShuffle: "relevance" },
+        "How important is how **purple** the organism looks for your team's goal?", "Not at all important", "Extremely important"), itemShuffle: "relevance" },
       likert("company_knowledge", "pilot", "Company knowledge", "organism",
         "How well does the company understand how the organism works?", "Not well at all", "Very well"),
       // each participant gets one of these two, chosen at random
@@ -455,6 +460,23 @@ export function orderNotes(stage, cond) {
   }
   return [];
 }
+
+/**
+ * Everything that is randomized, as in the script's "Randomization and timing"
+ * table (check:script compares the two): what, its versions, who gets it, and
+ * the data columns that record what was drawn. dev/walk.cjs checks that every
+ * column is in the data.
+ */
+export const RANDOMIZATIONS = [
+  { what: "Condition (order × complexity × evidence)", versions: "8 conditions", appliesTo: "All participants", columns: ["cond", "order", "complexity", "anomaly"] },
+  { what: "Evidence figure", versions: "Table only; table with line graphs", appliesTo: "All participants", columns: ["evidence_figure"] },
+  { what: "Surprise text (underlined)", versions: "Shown; hidden", appliesTo: "Evidence-first conditions", columns: ["surprise_text"] },
+  { what: "Order of the two Stage 2 question blocks", versions: "2 orders", appliesTo: "All participants", columns: ["order_planet_blocks"] },
+  { what: "Order of the answer options of the team's goal question", versions: "24 orders (\"I don't remember\" always last)", appliesTo: "All participants", columns: ["team_goal_option_order"] },
+  { what: "Order of the two relevance questions", versions: "2 orders", appliesTo: "Pilot", columns: ["order_relevance"] },
+  { what: "Which question on the complexity of the organism's processes is shown after Stage 3", versions: "2 questions", appliesTo: "Pilot", columns: ["organism_question"] },
+  { what: "Order of the three end-evaluation blocks (complexity, source trust, utility)", versions: "6 orders", appliesTo: "All participants", columns: ["order_final_blocks"] },
+];
 
 function shuffled(list, rand) {
   const a = [...list];

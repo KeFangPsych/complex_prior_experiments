@@ -49,7 +49,7 @@ export const fillStudyValues = (text) => text.replace(/\bXX\b/g, () => STUDY.min
 
 export const CONFIG = {
   experiment_name: "complex_prior_pilot1_vignette1",
-  experiment_version: "0.9.0",
+  experiment_version: "0.10.0",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.
@@ -61,10 +61,13 @@ export const CONFIG = {
   // site: keep true to test a build, set to false before collecting data.
   allow_dev_flags: true,
 
-  // Read-locks: Continue unlocks after this many seconds (off in testing mode
-  // unless switched on on the test-setup screen).
-  scenario_lock_seconds: 8,       // scenario pages (text, or text + picture)
-  instruction_lock_seconds: 4,    // instruction page
+  // Read-locks on the scenario pages and the instruction page: Continue unlocks
+  // after a reading time that grows with the page's text, 1 second per
+  // `read_lock_words_per_second` words, and is never below `read_lock_min_seconds`
+  // (see readLockSeconds below). Off in testing mode unless switched on on the
+  // test-setup screen. The script (.md) states both numbers.
+  read_lock_words_per_second: 5,  // 300 words per minute
+  read_lock_min_seconds: 10,
 
   // Open-response questions need at least this many characters.
   open_min_chars: 10,
@@ -75,6 +78,9 @@ export const CONFIG = {
   block_mobile: true,
   production_protections: true,   // context menu / copy / devtools shortcuts (off in testing mode)
 };
+
+/** Seconds that Continue stays locked on a page with `nWords` words of text. */
+export const readLockSeconds = (nWords) => Math.max(CONFIG.read_lock_min_seconds, Math.ceil(nWords / CONFIG.read_lock_words_per_second));
 
 // ============================================================================
 // TEXT AROUND THE SCENARIO. Plain text; **double asterisks** mark bold.

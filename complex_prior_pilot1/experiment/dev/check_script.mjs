@@ -15,14 +15,16 @@
  *     Main / Pilot tag;
  *   - the "Presentation order" notes (what is randomized) are the same.
  * It also checks the welcome, consent, instruction, final-comment and debrief
- * text against the script, the assignment cells, and that the randomization
- * does what the notes say. Exits with code 1 on any mismatch.
+ * text against the script, the assignment cells, that the randomization does
+ * what the notes say, and the script's "Randomization and timing" summary: its
+ * table lists exactly what content.js randomizes, with the data columns, and its
+ * read-lock sentence states the numbers of config.js. Exits with code 1 on any mismatch.
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, scenario, pageParagraphs, questions, questionPages, randomizePages, orderNotes, scriptText } from "../src/content.js";
-import { WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, fillStudyValues } from "../src/config.js";
+import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, scenario, pageParagraphs, questions, questionPages, randomizePages, orderNotes, scriptText, RANDOMIZATIONS } from "../src/content.js";
+import { CONFIG, WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, fillStudyValues } from "../src/config.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.join(here, "../../complex_prior_pilot1_vignette1_script.md");
@@ -315,6 +317,31 @@ for (const [cond, stage] of [[1, "planet"], [1, "evidence"], [5, "planet"], [5, 
   const r = randomizePages(canon);
   same(`randomization, ${stage} (cond ${cond})`, "order", JSON.stringify(r.pages), JSON.stringify(canon));
   same(`randomization, ${stage} (cond ${cond})`, "recorded orders", Object.keys(r.orders).length, 0);
+}
+
+// ============================================================================
+// 5. The script's "Randomization and timing" summary
+// ============================================================================
+{
+  const where = "randomization and timing summary";
+  const intro = section(/^Randomization and timing/).intro.map((l) => l.trim());
+  const rows = intro.filter((l) => l.startsWith("|") && !/^\| (Randomized|:-)/.test(l)).map((l) => l.split("|").slice(1, -1).map((x) => unescape(x.trim())).join(" | "));
+  sameList(where, "table rows", RANDOMIZATIONS.map((r) => [r.what, r.versions, r.appliesTo, r.columns.map((c) => `\`${c}\``).join(", ")].join(" | ")), rows);
+  // every random order that randomizePages can draw has a row in the table, and the other way round
+  const drawn = new Set();
+  for (const cond of Object.keys(CONDITIONS).map(Number)) for (const mode of ["pilot", "main"]) {
+    const keys = STAGE_SEQUENCE[CONDITIONS[cond].order].flatMap((s) => questionPages(s, cond, mode).map((p) => p.key));
+    // (the data have a column rt_questions_<screen key>, so a key occurs once per participant)
+    const twice = keys.filter((k, i) => keys.indexOf(k) !== i);
+    if (twice.length) fail(`cond ${cond} ${mode}`, `question screen key used twice: ${twice.join(", ")}`);
+    for (let n = 0; n < 20; n++) STAGE_SEQUENCE[CONDITIONS[cond].order].forEach((s) => Object.keys(randomizePages(questionPages(s, cond, mode)).orders).forEach((k) => drawn.add(k)));
+  }
+  const ASSIGNED = ["cond", "order", "complexity", "anomaly", "evidence_figure", "surprise_text"];   // set by the assignment cell
+  const listed = RANDOMIZATIONS.flatMap((r) => r.columns);
+  same(where, "columns of the random orders", [...drawn].sort().join(), listed.filter((c) => !ASSIGNED.includes(c)).sort().join());
+  same(where, "columns of the assignment", listed.filter((c) => ASSIGNED.includes(c)).sort().join(), [...ASSIGNED].sort().join());
+  const lockLine = `Reading time: on each scenario page and on the instruction page, the Continue button stays locked for 1 second per ${CONFIG.read_lock_words_per_second} words of text, and for at least ${CONFIG.read_lock_min_seconds} seconds.`;
+  same(where, "read-lock sentence", intro.includes(lockLine) ? lockLine : intro.find((l) => l.startsWith("Reading time:")) || null, lockLine);
 }
 
 if (errors.length) {

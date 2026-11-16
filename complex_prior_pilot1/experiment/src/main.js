@@ -12,6 +12,11 @@
  * picture; read-locked) followed by its question screens (scenario hidden) ->
  * comments -> save -> debrief.
  *
+ * Timing: every screen's row has `rt` (ms from the screen appearing to leaving
+ * it) and `screen`, a name for the screen; the same time is also written to the
+ * participant-level column rt_<screen>. Question rows hold the time of the first
+ * and last answer to each item. See "Data" in the README.
+ *
  * The screens from welcome to comments are drawn by two looping trials that each
  * show "the screen at the cursor" (sections 4 and 5). Participants only ever move
  * forward. In testing mode a bar under the progress bar shows the settings in
@@ -41,8 +46,8 @@ import "@fontsource/ibm-plex-sans/latin-700.css";
 import "./styles.css";
 
 import PagePlugin from "./page-plugin.js";
-import { CONFIG, DATAPIPE, PROLIFIC, STUDY, WELCOME, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, CONSENT, fillStudyValues } from "./config.js";
-import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, scenario, pageParagraphs, questionPages, randomizePages } from "./content.js";
+import { CONFIG, DATAPIPE, PROLIFIC, STUDY, WELCOME, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, CONSENT, fillStudyValues, readLockSeconds } from "./config.js";
+import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, scenario, countWords, pageWordCount, questionPages, randomizePages } from "./content.js";
 import { imageUrl } from "./images.js";
 import { state, integrityProps, fullscreenRequired, DEBUG, DEV_FLAGS, NOFS, URL_PARAMS, prolificPID, studyID, sessionID, subjectId } from "./state.js";
 import { buildFrame, setPhase, setProgress, setTestBar, card, lockButton, rich, questionsHtml, bindQuestions, N_STAGES } from "./ui.js";
@@ -50,7 +55,9 @@ import { saveConsentPdf } from "./consent-pdf.js";
 import { requestFullscreenSafe, isFullscreen, hideFullscreenOverlay, isMobileDevice, enableSafeguards, disableSafeguards, installIntegrityListeners } from "./integrity.js";
 
 document.title = STUDY.title;
-const lock = (seconds) => (state.locks ? seconds : 0);
+// read-lock of a page with `nWords` words of text (0 when a tester has the read-locks off)
+const lock = (nWords) => (state.locks ? readLockSeconds(nWords) : 0);
+const T0 = performance.now();   // page load, for total_time_ms
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const eyebrow = (text) => `<div class="eyebrow">${text}</div>`;
 
@@ -196,6 +203,13 @@ const PRE = [...(DEBUG ? ["setup"] : []), "welcome", "consent"];   // screens be
 const N_INTRO = 2;                                                 // welcome and consent, for the progress bar
 let leave = null;      // ends the screen being shown: leave(data)
 let cleanup = null;    // removes that screen's listeners
+let screenName = "";   // name of the screen being shown; the `screen` column of its row
+// Each screen's time also becomes a participant-level column rt_<screen>, so that
+// the last row of the file holds every screen time. (A tester who goes back and
+// sees a screen twice gets the time of the last visit there; each visit has its own row.)
+const recordScreenTime = (data) => {
+  if (data.screen && data.task !== "test_back") jsPsych.data.addProperties({ [`rt_${data.screen}`]: data.rt });
+};
 
 function showProgress() {
   // before the assignment the number of screens is not known yet; ~30 is typical
@@ -217,7 +231,7 @@ function go(step, data = {}) {
   }
   const end = leave;
   leave = null;
-  end(step < 0 ? { task: "test_back", from_task: data.task } : data);
+  end(step < 0 ? { task: "test_back", from_task: data.task, screen: screenName } : { screen: screenName, ...data });
 }
 
 // testing mode: back to the test-setup screen from anywhere before the data are saved
@@ -228,7 +242,7 @@ function backToSetup() {
   if (state.position === "main") state.backToPre = true;
   const end = leave;
   leave = null;
-  end({ task: "test_back", to: "setup" });
+  end({ task: "test_back", to: "setup", screen: screenName });
 }
 
 // The bar under the progress bar in testing mode: settings in use, Back, Change settings.
@@ -285,7 +299,7 @@ function setupGroups() {
     { key: "locks", title: "Read-locks", cols: 2,
       options: [{ value: "off", label: "Off · Continue works at once" }, { value: "on", label: "On · as for participants" }] },
     { key: "safeguards", title: "Safeguards", cols: 2,
-      note: `Full screen, the minimum window size, blocked text selection, copy and paste, right-click and devtools shortcuts, and the leave-page warning.${NOFS && CONFIG.require_fullscreen ? " The address contains <code>nofs=1</code>, so full screen and the window-size lock stay off either way." : ""}`,
+      note: `Full screen, the minimum window size, blocked text selection, copy and paste, right-click, printing, devtools shortcuts and screenshot keys, hiding the study while its window is not active, and the leave-page warning.${NOFS && CONFIG.require_fullscreen ? " The address contains <code>nofs=1</code>, so full screen and the window-size lock stay off either way." : ""}`,
       options: [{ value: "off", label: "Off · copy, paste and any window allowed" }, { value: "on", label: "On · as for participants" }] },
   ];
 }
@@ -385,12 +399,14 @@ const preScreen = {
   render: function (el, done) {
     const current = PRE[state.preCursor];
     state.position = "pre";
+    screenName = current;
     leave = done;
     setPhase("intro");
     showProgress();
     showTestBar(current);
     ({ setup: showSetup, welcome: showWelcome, consent: showConsent })[current](el);
   },
+  on_finish: recordScreenTime,
 };
 const preLoop = { timeline: [preScreen], loop_function: () => state.preCursor < PRE.length };
 
@@ -405,8 +421,9 @@ function showInstructions(el) {
     <ul>${INSTRUCTIONS.bullets.map((b) => `<li>${rich(b)}</li>`).join("")}</ul>
     <div class="btn-row"><button class="btn btn-lg" id="card-btn">${label}</button></div>`, "card-narrow");
   const btn = el.querySelector("#card-btn");
-  lockButton(btn, lock(CONFIG.instruction_lock_seconds), label);
-  btn.addEventListener("click", () => go(+1, { task: "instructions" }));
+  const nWords = countWords(INSTRUCTIONS.title) + INSTRUCTIONS.bullets.reduce((n, b) => n + countWords(b), 0);
+  lockButton(btn, lock(nWords), label);
+  btn.addEventListener("click", () => go(+1, { task: "instructions", n_words: nWords, lock_seconds: lock(nWords) }));
 }
 
 // Picture sizes, in CSS pixels of displayed width. A picture is shown at `max`
@@ -514,7 +531,8 @@ function showScenario(el, s) {
     </div>`, `scenario-card layout-${page.layout}`);
   cleanup = fitScenarioPage(el, page.layout, s.stage);
   const btn = el.querySelector("#card-btn");
-  lockButton(btn, lock(CONFIG.scenario_lock_seconds), label);
+  const nWords = pageWordCount(page);          // the read-lock grows with the text
+  lockButton(btn, lock(nWords), label);
   btn.addEventListener("click", () => {
     const img = el.querySelector(".scenario-figure img");
     go(+1, {
@@ -526,8 +544,8 @@ function showScenario(el, s) {
       compact_text: el.querySelector(".scenario-card").classList.contains("compact"),
       needed_scrolling: document.documentElement.scrollHeight > window.innerHeight + 1,
       viewport_width: window.innerWidth, viewport_height: window.innerHeight,
-      n_words: pageParagraphs(page).join(" ").split(/\s+/).length,
-      lock_seconds: lock(CONFIG.scenario_lock_seconds),
+      n_words: nWords,
+      lock_seconds: lock(nWords),
     });
   });
 }
@@ -581,6 +599,7 @@ const mainScreen = {
   render: function (el, done) {
     const s = state.screens[state.cursor];
     state.position = "main";
+    screenName = s.kind === "scenario" ? `scenario_${s.stage}_${s.pageNo}` : s.kind === "questions" ? `questions_${s.page.key}` : s.kind;
     leave = done;
     if (s.kind === "instructions") setPhase("intro");
     else if (s.kind === "comments") setPhase("wrap");
@@ -589,6 +608,7 @@ const mainScreen = {
     showTestBar(s.kind);
     ({ instructions: showInstructions, scenario: showScenario, questions: showQuestions, comments: showComments })[s.kind](el, s);
   },
+  on_finish: recordScreenTime,
 };
 const mainLoop = { timeline: [mainScreen], loop_function: () => !state.backToPre && state.cursor < state.screens.length };
 
@@ -605,6 +625,7 @@ const finalize = {
     jsPsych.data.addProperties({
       completion_status: "completed",
       completion_time: new Date().toISOString(),
+      total_time_ms: Math.round(performance.now() - T0),   // from the page loading to the comments being sent
       ...integrityProps(),
     });
   },

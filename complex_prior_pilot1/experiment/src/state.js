@@ -24,7 +24,8 @@ export const state = {
   // participants; in testing mode it is chosen on the test-setup screen.
   mode: flag("mode", ["pilot", "main"]) || CONFIG.mode,
   // Safeguards: fullscreen, viewport lock, blocked text selection / copy / paste /
-  // context menu / devtools shortcuts, and the leave-page warning. Always on for
+  // context menu / printing / devtools shortcuts / screenshot keys, the cover shown
+  // while the window is not active, and the leave-page warning. Always on for
   // participants; off in testing mode unless switched on on the test-setup screen.
   safeguards: !DEBUG || urlParams.get("safeguards") === "1",
   // read-locks on the instruction and scenario pages (off by default in testing mode)
@@ -75,8 +76,12 @@ export const integrity = {
   window_blur_count: 0,
   viewport_lock_count: 0,
   paste_attempts: 0,
+  screenshot_key_count: 0,       // presses of a screenshot key or shortcut (see integrity.js)
+  screenshot_key_log: [],        // [{t, phase, key}]
   _hiddenSince: null,
 };
+/** Total ms the tab has been hidden so far, including a period that is still running. */
+export const hiddenMsNow = () => integrity.tab_hidden_total_ms + (integrity._hiddenSince === null ? 0 : performance.now() - integrity._hiddenSince);
 export function integrityProps() {
   return {
     fullscreen_entered: integrity.fullscreen_entered,
@@ -87,5 +92,7 @@ export function integrityProps() {
     window_blur_count: integrity.window_blur_count,
     viewport_lock_count: integrity.viewport_lock_count,
     paste_attempts: integrity.paste_attempts,
+    screenshot_key_count: integrity.screenshot_key_count,
+    screenshot_key_log: JSON.stringify(integrity.screenshot_key_log),
   };
 }
