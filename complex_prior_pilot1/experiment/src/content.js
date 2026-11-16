@@ -90,8 +90,8 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
 
   if (stage === "planet") {
     return { pages: [page([narration(
-      "You are a member of a construction team. Your team is planning to create a place for humans to live on an alien planet. The planet has water, air, and various kinds of small living things called organisms.",
-      "The planet and its organisms have been studied for years, and science now understands them very well.",
+      "You are a member of a construction team. Your team is planning to create a place for humans to live on an alien planet. The planet has water, air, and **various kinds of small living things called organisms**.",
+      "The planet and its organisms have been studied for years, and **science now understands them very well.**",
     )], `${IMG}1_planet_scene.png`,
     "Two people in space suits look over a planet with water and red rocks. An inset shows small organisms.", "side")] };
   }
@@ -116,7 +116,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
     return { pages: [
       page([narration(
         "Your team is building apartments on this planet. The planet has four seasons: warm, cool, moderately cold, and extremely cold.",
-        "Your team announces that it is looking for a way to **keep the apartments warm**. An energy company called Bioenergy has a technology that uses one kind of organism found on the planet.",
+        "Your team announces that it needs technology that can **produce heat to keep apartments warm**. An energy company called Bioenergy has a technology that uses one kind of organism found on the planet.",
         "Bioenergy understands very well how this kind of organism works because it has closely studied the organism. Scientific findings suggest that the organism is representative of other life forms on the planet in terms of its level of complexity.",
       )]),
       page([
@@ -133,12 +133,12 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
 
   if (stage === "evidence") {
     return { pages: [page([narration(
-      "Before deciding whether to use the technology, your team asks Bioenergy for a sample of the organism. Bioenergy sends the sample, and you send it to your team's laboratory for testing.",
-      "Your team's lab tests the sample at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet.",
+      "Before deciding whether to use the technology, your team asks Bioenergy for a sample of the organism. Bioenergy sends the sample, and **you send it to your team's laboratory for testing.**",
+      "Your team's lab tests the sample at four different temperatures. **During the tests, more of the gas is available when it is colder, just as on the planet.**",
       "Your team mainly wants to know if the organism can produce heat as explained.",
       "As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment." + (s ? " This is expected." : ""),
-      `When it is extremely cold, the organism produces even more ${other}` + (s ? ", as expected" : "") +
-        `. But it produces less ${anom} than when it is moderately cold.` +
+      `**When it is extremely cold, the organism produces even more ${other}` + (s ? ", as expected" : "") +
+        `. But it produces less ${anom} than when it is moderately cold.**` +
         (s ? " This is unexpected, because more gas is available for the organism to use." : ""),
     )], `${IMG}4_evidence_${c.anomaly}_anomaly${figureVersion === "line" ? "_line" : ""}.png`,
     "Laboratory observations at four temperatures, from warm to extremely cold: gas available, organism color and heat output.", "stacked")] };
@@ -147,23 +147,25 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
   if (stage === "elaboration") {
     // Bioenergy's account of the algae: a reply to the team's question when the
     // evidence came first, otherwise the continuation of its first message
-    const algae = message(evidenceFirst ? FROM_BIOENERGY : `${FROM_BIOENERGY} (continued)`,
+    const algaeParagraphs = [
       `Even smaller living things called algae live inside the organism. **The organism can produce ${anom} only with the help of the algae.**`,
       `The algae need liquid water to stay active. **When the algae are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.**`,
       `As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more ${anom}.`,
       `But **when it is extremely cold, most of the water available to the algae freezes**. As a result, the algae become less active and produce less ${anom}, even though more gas is available.`,
       `**The organism produces ${other} on its own, without the algae.** So it keeps producing more ${other} as the weather gets colder.`,
-    );
+    ];
     const figure = `${IMG}5_explanation2_${c.anomaly}_anomaly.png`;
     const alt = "Bioenergy's explanation of what happens inside the organism when it is moderately cold and when it is extremely cold.";
-    if (!evidenceFirst) return { pages: [page([narration("Bioenergy's message continues."), algae], figure, alt, "stacked")] };
+    if (!evidenceFirst) {
+      return { pages: [page([narration("Bioenergy's message continues."), message(`${FROM_BIOENERGY} (continued)`, ...algaeParagraphs)], figure, alt, "stacked")] };
+    }
     return { pages: [
       page([
         narration("Your team decides to ask Bioenergy about the test."),
         message(FROM_TEAM, `We tested the sample. When it was extremely cold, the organism produced less ${anom} than when it was moderately cold.` +
           (s ? " This is not what we expected." : "") + " Can you explain why?"),
       ]),
-      page([narration("Bioenergy replies."), algae], figure, alt, "stacked"),
+      page([narration("Bioenergy replies."), message(FROM_BIOENERGY, "Thank you for reaching out about your test.", ...algaeParagraphs)], figure, alt, "stacked"),
     ] };
   }
 

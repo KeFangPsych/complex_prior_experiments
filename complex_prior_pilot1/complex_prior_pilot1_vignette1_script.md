@@ -17,7 +17,7 @@ Three-factor between-participants design.
 
 In the question tables below, Pilot marks pilot-only questions and Main marks questions included in the main study. Alternative marks questions that are kept in this document as alternatives; they are not asked. All rating scales have 5 points.
 
-The participant takes the role of a member of the construction team. Text in block quotes is a written message, shown with its sender label. All other text is the narrator's. Figures are the narrator's illustrations and are not part of the messages.
+The participant takes the role of a member of the construction team. Text in block quotes is a written message, shown as a speech bubble with its sender label (Bioenergy's on the left in green with the company logo, the team's on the right in blue with a hard hat). All other text is the narrator's. Figures are the narrator's illustrations and are not part of the messages.
 
 Underlined parts are manipulated independently (50% per version).
 
@@ -71,9 +71,9 @@ The study takes about 15 minutes. Please complete it in one sitting, in full-scr
 
 ## **Stage 1: Common planet introduction (all conditions)**
 
-You are a member of a construction team. Your team is planning to create a place for humans to live on an alien planet. The planet has water, air, and various kinds of small living things called organisms.
+You are a member of a construction team. Your team is planning to create a place for humans to live on an alien planet. The planet has water, air, and **various kinds of small living things called organisms**.
 
-The planet and its organisms have been studied for years, and science now understands them very well.
+The planet and its organisms have been studied for years, and **science now understands them very well.**
 
 *Figure: vignette1\_img1\_planet\_scene.png*
 
@@ -118,7 +118,7 @@ Presentation order:
 
 Your team is building apartments on this planet. The planet has four seasons: warm, cool, moderately cold, and extremely cold.
 
-Your team announces that it is looking for a way to **keep the apartments warm**. An energy company called Bioenergy has a technology that uses one kind of organism found on the planet.
+Your team announces that it needs technology that can **produce heat to keep apartments warm**. An energy company called Bioenergy has a technology that uses one kind of organism found on the planet.
 
 Bioenergy understands very well how this kind of organism works because it has closely studied the organism. Scientific findings suggest that the organism is representative of other life forms on the planet in terms of its level of complexity.
 
@@ -168,9 +168,9 @@ Presentation order:
 
 ## **Stage 4, evidence-first conditions (cond 1, 2, 3, 4): Evidence**
 
-Before deciding whether to use the technology, your team asks Bioenergy for a sample of the organism. Bioenergy sends the sample, and you send it to your team's laboratory for testing.
+Before deciding whether to use the technology, your team asks Bioenergy for a sample of the organism. Bioenergy sends the sample, and **you send it to your team's laboratory for testing.**
 
-Your team's lab tests the sample at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet.
+Your team's lab tests the sample at four different temperatures. **During the tests, more of the gas is available when it is colder, just as on the planet.**
 
 Your team mainly wants to know if the organism can produce heat as explained.
 
@@ -178,7 +178,7 @@ Your team mainly wants to know if the organism can produce heat as explained.
 
 As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment. <ins>This is expected.</ins>
 
-When it is extremely cold, the organism produces even more purple pigment<ins>, as expected</ins>. But it produces less heat than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins>
+**When it is extremely cold, the organism produces even more purple pigment<ins>, as expected</ins>. But it produces less heat than when it is moderately cold.** <ins>This is unexpected, because more gas is available for the organism to use.</ins>
 
 *Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
@@ -186,7 +186,7 @@ When it is extremely cold, the organism produces even more purple pigment<ins>, 
 
 As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment. <ins>This is expected.</ins>
 
-When it is extremely cold, the organism produces even more heat<ins>, as expected</ins>. But it produces less purple pigment than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins>
+**When it is extremely cold, the organism produces even more heat<ins>, as expected</ins>. But it produces less purple pigment than when it is moderately cold.** <ins>This is unexpected, because more gas is available for the organism to use.</ins>
 
 *Figure: vignette1\_img4\_evidence\_color\_anomaly.png* or *vignette1\_img4\_evidence\_color\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
@@ -223,6 +223,8 @@ Bioenergy replies.
 
 > **From Bioenergy to your team**
 >
+> Thank you for reaching out about your test.
+>
 > Even smaller living things called algae live inside the organism. **The organism can produce heat only with the help of the algae.**
 >
 > The algae need liquid water to stay active. **When the algae are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.**
@@ -246,6 +248,8 @@ Bioenergy replies.
 Bioenergy replies.
 
 > **From Bioenergy to your team**
+>
+> Thank you for reaching out about your test.
 >
 > Even smaller living things called algae live inside the organism. **The organism can produce purple pigment only with the help of the algae.**
 >
@@ -353,9 +357,9 @@ Bioenergy's message continues.
 
 ## **Stage 5, elaboration-first conditions (cond 5, 6, 7, 8): Evidence**
 
-Before deciding whether to use the technology, your team asks Bioenergy for a sample of the organism. Bioenergy sends the sample, and you send it to your team's laboratory for testing.
+Before deciding whether to use the technology, your team asks Bioenergy for a sample of the organism. Bioenergy sends the sample, and **you send it to your team's laboratory for testing.**
 
-Your team's lab tests the sample at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet.
+Your team's lab tests the sample at four different temperatures. **During the tests, more of the gas is available when it is colder, just as on the planet.**
 
 Your team mainly wants to know if the organism can produce heat as explained.
 
@@ -363,7 +367,7 @@ Your team mainly wants to know if the organism can produce heat as explained.
 
 As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment.
 
-When it is extremely cold, the organism produces even more purple pigment. But it produces less heat than when it is moderately cold.
+**When it is extremely cold, the organism produces even more purple pigment. But it produces less heat than when it is moderately cold.**
 
 *Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
@@ -371,7 +375,7 @@ When it is extremely cold, the organism produces even more purple pigment. But i
 
 As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment.
 
-When it is extremely cold, the organism produces even more heat. But it produces less purple pigment than when it is moderately cold.
+**When it is extremely cold, the organism produces even more heat. But it produces less purple pigment than when it is moderately cold.**
 
 *Figure: vignette1\_img4\_evidence\_color\_anomaly.png* or *vignette1\_img4\_evidence\_color\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 

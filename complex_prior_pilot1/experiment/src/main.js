@@ -418,7 +418,7 @@ function showInstructions(el) {
 const FIGURE_FRAME = 18;   // padding and border of the picture's frame
 function figureLimits(layout, aspect, textWidth) {
   if (layout === "side") return { max: 560, min: 380 };
-  return aspect > 2.4 ? { max: textWidth - FIGURE_FRAME, min: 660 } : { max: 660, min: 540 };
+  return aspect > 2.4 ? { max: textWidth - FIGURE_FRAME, min: 640 } : { max: 660, min: 540 };
 }
 const pageOverflow = () => document.documentElement.scrollHeight - window.innerHeight;
 // Fits a scenario page to the window; returns a function that removes the listeners.
@@ -450,13 +450,19 @@ function fitScenarioPage(el, layout) {
   return () => window.removeEventListener("resize", fit);
 }
 
-// Narration is plain text; a message is a framed block with its sender label
-// (messages written by the participant's own team are marked as outgoing).
+// Narration is plain text. A message is a speech bubble with its sender label:
+// Bioenergy's on the left in green with the company's leaf logo, the team's own
+// on the right in blue with a hard hat.
+const ICON_LEAF = `<svg viewBox="2.5 2.5 19.5 19.5" aria-hidden="true"><path d="M4 20C4 10.5 10 4.5 20.5 4 20 14.5 14 20.5 4 20z" fill="#2E9C5A"/><path d="M4.6 19.4C8.2 14 12 10.4 16.6 7.8" fill="none" stroke="#fff" stroke-width="1.7" stroke-linecap="round"/></svg>`;
+const ICON_HARD_HAT = `<svg viewBox="1.5 3.5 21 18" aria-hidden="true"><path d="M3.8 16.4a8.2 8.2 0 0 1 16.4 0z" fill="#F4B626"/><rect x="10.4" y="6" width="3.2" height="10.4" rx="1.4" fill="#D9930B"/><rect x="2.2" y="15.8" width="19.6" height="3.8" rx="1.9" fill="#D9930B"/></svg>`;
 function blockHtml(b) {
   const paragraphs = b.paragraphs.map((p) => `<p>${rich(p)}</p>`).join("");
   if (b.kind !== "message") return paragraphs;
-  return `<div class="message ${b.label.startsWith("From your team") ? "outgoing" : ""}">
-    <div class="message-label">${rich(b.label)}</div>${paragraphs}</div>`;
+  const outgoing = b.label.startsWith("From your team");
+  return `<div class="message ${outgoing ? "outgoing" : "incoming"}">
+    <div class="message-avatar">${outgoing ? ICON_HARD_HAT : ICON_LEAF}</div>
+    <div class="message-bubble"><div class="message-label">${rich(b.label)}</div>${paragraphs}</div>
+  </div>`;
 }
 
 function showScenario(el, s) {
