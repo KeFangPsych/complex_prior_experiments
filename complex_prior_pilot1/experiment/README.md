@@ -262,7 +262,7 @@ Row-level detail, by `task`:
 | `test_setup` | testing mode only: `test_cond`, `test_figure`, `test_surprise`, `test_organism_question`, `test_mode`, `test_locks`, `test_safeguards` |
 | `save_data` | `success`, `attempts` |
 
-Predictions (`pred_heat`, `pred_pigment`) are asked after part 3 in the
+Predictions (`pred_heat`, `pred_color`) are asked after part 3 in the
 evidence-first conditions and after part 4 in the elaboration-first ones; the
 `stage_index` of their `questions` row says which.
 

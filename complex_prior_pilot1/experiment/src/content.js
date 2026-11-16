@@ -50,11 +50,21 @@ export const STAGE_SEQUENCE = {
   elaboration_first: ["planet", "complexity", "explanation1", "elaboration", "evidence"],
 };
 
-// The output that shows the anomaly (and depends on the algae), and the other one.
-const outputs = (anomaly) =>
-  anomaly === "heat"
-    ? { anom: "heat", other: "purple pigment" }
-    : { anom: "purple pigment", other: "heat" };
+// How the two outputs are talked about. Where the mechanism is explained they are
+// substances the organism produces (`name`). As observed outcomes, heat is
+// produced, while the pigment shows as how purple the organism looks.
+const OUTPUT = {
+  heat: { name: "heat", less: "produces less heat", lessPast: "produced less heat", lessBare: "produce less heat",
+    evenMore: "produces even more heat", keeps: "keeps producing more heat", keepBare: "keep producing more heat" },
+  color: { name: "purple pigment", less: "looks less purple", lessPast: "looked less purple", lessBare: "look less purple",
+    evenMore: "looks even more purple", keeps: "keeps looking more purple", keepBare: "keep looking more purple" },
+};
+// The output that shows the anomaly (and depends on the algae), and the other one:
+// `anom` / `other` are their names as substances, `A` / `O` their outcome phrases.
+const outputs = (anomaly) => {
+  const a = anomaly === "heat" ? "heat" : "color", o = a === "heat" ? "color" : "heat";
+  return { anom: OUTPUT[a].name, other: OUTPUT[o].name, A: OUTPUT[a], O: OUTPUT[o] };
+};
 
 const IMG = "vignette1_img";
 
@@ -82,7 +92,7 @@ const FROM_TEAM = "From your team to Bioenergy";
 
 export function scenario(stage, cond, { surpriseText = true, figureVersion = "table" } = {}) {
   const c = CONDITIONS[cond];
-  const { anom, other } = outputs(c.anomaly);
+  const { anom, other, A, O } = outputs(c.anomaly);
   const evidenceFirst = c.order === "evidence_first";
   // the underlined sentences exist only in the evidence-first conditions
   const s = evidenceFirst && surpriseText;
@@ -123,11 +133,11 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
         narration("Bioenergy writes to your team to recommend its technology."),
         message(FROM_BIOENERGY,
           "We saw that your team is looking for a way to keep apartments warm. We recommend our technology.",
-          "Our technology relies on one of the organism's biological processes. In this process, **the organism uses a certain gas from the air to produce heat and a purple substance called a pigment**. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. **When more of this gas is available, the organism produces more heat and more purple pigment.**",
+          "Our technology relies on one of the organism's biological processes. In this process, **the organism uses a certain gas from the air to produce heat and a purple substance called a pigment**. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. **When more of this gas is available, the organism produces more heat and looks more purple.**",
           "**The planet's air holds more of this gas when the weather is colder**. So in colder weather, there is more gas around the organism.",
         ),
       ], `${IMG}3_explanation1.png`,
-      "Bioenergy's explanation: with more gas, the organism can produce more heat and more purple pigment. Colder weather means more gas in the air.", "stacked"),
+      "Bioenergy's explanation: with more gas, the organism can produce more heat and more purple pigment, which makes it look more purple. Colder weather means more gas in the air.", "stacked"),
     ] };
   }
 
@@ -136,9 +146,9 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
       "Before deciding whether to use the technology, your team asks Bioenergy for a sample of the organism. Bioenergy sends the sample, and **you send it to your team's laboratory for testing.**",
       "Your team's lab tests the sample at four different temperatures. **During the tests, more of the gas is available when it is colder, just as on the planet.**",
       "Your team mainly wants to know if the organism can produce heat as explained.",
-      "As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment." + (s ? " This is expected." : ""),
-      `**When it is extremely cold, the organism produces even more ${other}` + (s ? ", as expected" : "") +
-        `. But it produces less ${anom} than when it is moderately cold.**` +
+      "As it gets colder, from warm to cool to moderately cold, the organism produces more heat and looks more purple." + (s ? " This is expected." : ""),
+      `**When it is extremely cold, the organism ${O.evenMore}` + (s ? ", as expected" : "") +
+        `. But it ${A.less} than when it is moderately cold.**` +
         (s ? " This is unexpected, because more gas is available for the organism to use." : ""),
     )], `${IMG}4_evidence_${c.anomaly}_anomaly${figureVersion === "line" ? "_line" : ""}.png`,
     "Laboratory observations at four temperatures, from warm to extremely cold: gas available, organism color and heat output.", "stacked")] };
@@ -152,7 +162,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
       `The algae need liquid water to stay active. **When the algae are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.**`,
       `As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more ${anom}.`,
       `But **when it is extremely cold, most of the water available to the algae freezes**. As a result, the algae become less active and produce less ${anom}, even though more gas is available.`,
-      `**The organism produces ${other} on its own, without the algae.** So it keeps producing more ${other} as the weather gets colder.`,
+      `**The organism produces ${other} on its own, without the algae.** So it ${O.keeps} as the weather gets colder.`,
     ];
     const figure = `${IMG}5_explanation2_${c.anomaly}_anomaly.png`;
     const alt = "Bioenergy's explanation of what happens inside the organism when it is moderately cold and when it is extremely cold.";
@@ -162,7 +172,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
     return { pages: [
       page([
         narration("Your team decides to ask Bioenergy about the test."),
-        message(FROM_TEAM, `We tested the sample. When it was extremely cold, the organism produced less ${anom} than when it was moderately cold.` +
+        message(FROM_TEAM, `We tested the sample. When it was extremely cold, the organism ${A.lessPast} than when it was moderately cold.` +
           (s ? " This is not what we expected." : "") + " Can you explain why?"),
       ]),
       page([narration("Bioenergy replies."), message(FROM_BIOENERGY, "Thank you for reaching out about your test.", ...algaeParagraphs)], figure, alt, "stacked"),
@@ -206,9 +216,9 @@ function predictionItems() {
     likert("pred_heat", "main", "Heat prediction", "prediction",
       "Compared with when it is **moderately cold**, how much **heat** would you expect the organism to produce when it is **extremely cold**?",
       "Much less heat", "Much more heat", "About the same amount of heat"),
-    likert("pred_pigment", "main", "Pigment prediction", "prediction",
-      "Compared with when it is **moderately cold**, how much **purple pigment** would you expect the organism to produce when it is **extremely cold**?",
-      "Much less purple pigment", "Much more purple pigment", "About the same amount of purple pigment"),
+    likert("pred_color", "main", "Color prediction", "prediction",
+      "Compared with when it is **moderately cold**, how **purple** would you expect the organism to look when it is **extremely cold**?",
+      "Much less purple", "Much more purple", "About as purple"),
   ];
 }
 
@@ -250,14 +260,14 @@ function observedItems(c) {
     choice("obs_heat", "main", "Observed heat production", "observed",
       "How much heat did the organism produce when it was extremely cold, compared with when it was moderately cold?",
       AMOUNT("heat"), c.anomaly === "heat" ? 0 : 2),
-    choice("obs_pigment", "main", "Observed pigment production", "observed",
-      "How much purple pigment did the organism produce when it was extremely cold, compared with when it was moderately cold?",
-      AMOUNT("purple pigment"), c.anomaly === "color" ? 0 : 2),
+    choice("obs_color", "main", "Observed color", "observed",
+      "How purple did the organism look when it was extremely cold, compared with when it was moderately cold?",
+      ["Less purple", "About as purple", "More purple", "I don't remember"], c.anomaly === "color" ? 0 : 2),
   ];
 }
 
 function evidencePilotItems(c) {
-  const { anom } = outputs(c.anomaly);
+  const { A } = outputs(c.anomaly);
   return [
     likert("surprise", "pilot", "Difference from expectations / Surprise", "evidence_check",
       "How different are these results from what you expected based on the company's message?", "Not at all different", "Extremely different"),
@@ -266,7 +276,7 @@ function evidencePilotItems(c) {
     choice("gas_availability", "pilot", "Gas availability", "evidence_check",
       "How much gas was available when it was extremely cold, compared with when it was moderately cold?", AMOUNT("gas"), 2),
     likert("anomaly_relevance", "pilot", `Anomaly relevance, ${c.anomaly} anomaly version`, "evidence_check",
-      `The organism produces less ${anom} when it is extremely cold. How much does this matter for your team's goal of keeping apartments warm?`, "Not at all", "Very much"),
+      `The organism ${A.less} when it is extremely cold. How much does this matter for your team's goal of keeping apartments warm?`, "Not at all", "Very much"),
   ];
 }
 
@@ -279,12 +289,12 @@ function algaeDependenceItem(c) {
 
 // The causal-knowledge measure for the algae explanation: two open responses.
 function algaeOpenItems(c) {
-  const { anom, other } = outputs(c.anomaly);
+  const { A, O } = outputs(c.anomaly);
   return [
     open("open_decrease", "pilot", `Causal knowledge: explain the decrease, ${c.anomaly} anomaly version`, "algae_open",
-      `Why does the organism produce less ${anom} when it is extremely cold, even though more gas is available?`),
+      `Why does the organism ${A.lessBare} when it is extremely cold, even though more gas is available?`),
     open("open_increase", "pilot", `Causal knowledge: explain the continuing increase, ${c.anomaly} anomaly version`, "algae_open",
-      `Why does the organism keep producing more ${other} when it is extremely cold?`),
+      `Why does the organism ${O.keepBare} when it is extremely cold?`),
   ];
 }
 // Alternatives to those open responses; documented in the script, not asked.
@@ -335,8 +345,8 @@ export function questions(stage, cond) {
         shuffleOptions: true, pinLast: 1 },
       { ...likert("relevance_heat", "pilot", "Relevance of heat", "goal",
         "How important is the amount of **heat** produced for your team's goal?", "Not at all important", "Extremely important"), itemShuffle: "relevance" },
-      { ...likert("relevance_pigment", "pilot", "Relevance of pigment", "goal",
-        "How important is the amount of **purple pigment** produced for your team's goal?", "Not at all important", "Extremely important"), itemShuffle: "relevance" },
+      { ...likert("relevance_color", "pilot", "Relevance of color", "goal",
+        "How important is **how purple the organism looks** for your team's goal?", "Not at all important", "Extremely important"), itemShuffle: "relevance" },
       likert("company_knowledge", "pilot", "Company knowledge", "organism",
         "How well does the company understand how the organism works?", "Not well at all", "Very well"),
       // each participant gets one of these two, chosen at random
@@ -427,7 +437,7 @@ export function orderNotes(stage, cond) {
   if (stage === "explanation1") {
     return [
       "The answer options of the team's goal question are shown in random order, except that \"I don't remember\" is always last.",
-      "The two relevance questions (heat, pigment) are shown in random order.",
+      "The two relevance questions (heat, color) are shown in random order.",
       "Each participant sees one of the two questions on the complexity of the organism's processes (how simple or complex the organism is as a whole; how much more there is to know about how it works), chosen at random.",
     ];
   }
