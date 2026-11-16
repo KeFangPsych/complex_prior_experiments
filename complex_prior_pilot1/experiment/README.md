@@ -2,8 +2,11 @@
 
 A jsPsych 8 experiment built from
 [`../complex_prior_pilot1_vignette1_script.md`](../complex_prior_pilot1_vignette1_script.md).
-Participants read a five-part scenario about a technology on an alien planet
-(text plus a picture per part) and answer questions after each part.
+Participants take the role of a member of a construction team on an alien
+planet. They read a five-part scenario about a technology offered by a company
+(text plus a picture per part) and answer questions after each part. What the
+company and the team write to each other is shown as written messages with a
+sender label; everything else is the narrator's text.
 
 It is a Node project: jsPsych and its plugins come from npm and
 [Vite](https://vite.dev) bundles everything into a static site. The UI and the
@@ -96,7 +99,7 @@ last screen offers the data as a CSV download instead.
 
 | file | role |
 |---|---|
-| `src/content.js` | the scenario text, page breaks, figure names, questions and randomization for every condition, transcribed from the script; also the design table and the assignment cells |
+| `src/content.js` | the scenario text (narration and messages), page breaks, figure names, questions and randomization for every condition, transcribed from the script; also the design table and the assignment cells |
 | `src/config.js` | DataPipe and Prolific settings, pilot / main mode, read-lock times, and the text around the scenario (welcome, informed consent, instructions, final comments, debrief), also transcribed from the script |
 | `src/consent-pdf.js` | writes the consent form to a PDF when a participant clicks "Save a copy (PDF)" |
 | `src/main.js` | the jsPsych timeline and the screens; the screens from welcome to the final comments are drawn from a cursor, which is what lets testing mode go back |
@@ -121,7 +124,7 @@ npm run check:script
 
 For all 8 conditions, both surprise-text settings and both figure versions, this
 renders the scenario and the questions from `content.js` and compares them with
-the script: every paragraph and page break, every figure name (and that the file
+the script: every paragraph, every message with its sender label, every page break, every figure name (and that the file
 exists), every question with its scale or options, measure label and Main / Pilot / Alternative
 tag, the "Presentation order" notes that say what is randomized, the order of the
 stages, and the design table. It also compares the text in `config.js` with the
@@ -150,7 +153,9 @@ random. `condition_source` records which: `datapipe`, `random`,
 
 **Timeline.** welcome → consent (enters fullscreen) → assignment → picture
 preload → one instruction page → five parts → optional comments → save →
-debrief. Each part is one **scenario screen** (two in part 3; Continue locked for
+debrief. Each part is one **scenario screen** (two in part 3, and two in part 5
+of the evidence-first conditions: the team's question, then the company's
+reply; Continue locked for
 `CONFIG.scenario_lock_seconds`) followed by its **question screens**. The
 consent form is shown in full (the page scrolls only if the window is too short
 for it) and has a **Save a copy (PDF)** button, which also works with the
@@ -180,9 +185,9 @@ allowed window (1024 × 600) the longer pages scroll a little.
 
 **Pilot and main mode.** `CONFIG.mode = "pilot"` asks every question of the
 script; `"main"` asks only those tagged Main. Participants always get
-`CONFIG.mode`; in testing mode it is chosen on the test setup screen. Pilot mode has 37
-questions in the evidence-first conditions and 36 in the elaboration-first
-ones; main mode has 22 and 21.
+`CONFIG.mode`; in testing mode it is chosen on the test setup screen. Pilot mode has 39
+questions in the evidence-first conditions and 38 in the elaboration-first
+ones; main mode has 23 and 22.
 Rows tagged **Alternative** in the script are documented alternatives and are
 never asked.
 

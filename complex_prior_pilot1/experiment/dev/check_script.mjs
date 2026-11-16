@@ -6,9 +6,9 @@
  *
  * For every condition (1-8), both settings of the surprise text and both figure
  * versions, it checks that
- *   - the scenario paragraphs of each stage are, in order and page by page,
- *     exactly the paragraphs of the matching script section (underlined text
- *     kept or removed, "Page break" lines honoured);
+ *   - the scenario of each stage is, page by page and in order, exactly the
+ *     narration and messages (with their sender labels) of the matching script
+ *     section (underlined text kept or removed, "Page break" lines honoured);
  *   - the figure file is the one the script names, and exists in the image folder;
  *   - the questions are, in order, exactly the rows of the script's question table
  *     that apply to the condition: same text, scale / options, measure label and
@@ -21,7 +21,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, scenario, questions, questionPages, randomizePages, orderNotes, scriptText } from "../src/content.js";
+import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, scenario, pageParagraphs, questions, questionPages, randomizePages, orderNotes, scriptText } from "../src/content.js";
 import { WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, fillStudyValues } from "../src/config.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
@@ -49,19 +49,40 @@ const condsIn = (title) => {
   return m ? m[1].split(",").map((x) => parseInt(x)) : null;
 };
 
-// ---- pages (paragraphs + figure) of a block of lines ----
+// ---- pages of a block of lines: narration and messages in reading order, plus the figure ----
+// A message is a block quote whose first line is its bold sender label.
 function parseBlock(lines, surpriseText) {
-  const pages = [{ paragraphs: [], figures: [] }];
+  const newPage = () => ({ blocks: [], figures: [] });
+  const pages = [newPage()];
+  let quote = null;                                   // the message being read
+  const clean = (line) => {
+    const s = surpriseText ? line.replace(/<\/?ins>/g, "") : line.replace(/<ins>.*?<\/ins>/g, "");
+    return unescape(s).replace(/\s+/g, " ").replace(/ \./g, ".").trim();
+  };
   for (const raw of lines) {
-    let line = raw.trim();
-    if (!line || line.startsWith("|") || line.startsWith("* ")) continue;
-    if (/^\*Page break\*$/i.test(line)) { pages.push({ paragraphs: [], figures: [] }); continue; }
-    if (line.startsWith("*Figure:")) {
-      pages[pages.length - 1].figures.push(...unescape(line).match(/vignette1_[A-Za-z0-9_]+(?:\.png)?/g));
+    const line = raw.trim();
+    const page = pages[pages.length - 1];
+    if (line.startsWith(">")) {
+      const text = line.replace(/^>\s?/, "").trim();
+      if (!text) continue;
+      if (!quote) {
+        const label = text.match(/^\*\*(.+)\*\*$/);
+        quote = { kind: "message", label: label ? unescape(label[1]) : null, paragraphs: label ? [] : [clean(text)] };
+        page.blocks.push(quote);
+      } else quote.paragraphs.push(clean(text));
       continue;
     }
-    line = surpriseText ? line.replace(/<\/?ins>/g, "") : line.replace(/<ins>.*?<\/ins>/g, "");
-    pages[pages.length - 1].paragraphs.push(unescape(line).replace(/\s+/g, " ").replace(/ \./g, ".").trim());
+    if (!line) continue;                              // a blank line does not end a message; any other line does
+    quote = null;
+    if (line.startsWith("|") || line.startsWith("* ")) continue;
+    if (/^\*Page break\*$/i.test(line)) { pages.push(newPage()); continue; }
+    if (line.startsWith("*Figure:")) {
+      page.figures.push(...unescape(line).match(/vignette1_[A-Za-z0-9_]+(?:\.png)?/g));
+      continue;
+    }
+    const last = page.blocks[page.blocks.length - 1];
+    if (last && last.kind === "narration") last.paragraphs.push(clean(line));
+    else page.blocks.push({ kind: "narration", paragraphs: [clean(line)] });
   }
   return pages;
 }
@@ -96,6 +117,7 @@ const same = (where, what, got, want) => {
   checked++;
   if (got !== want) fail(where, `${what}\n     experiment: ${JSON.stringify(got)}\n     script:     ${JSON.stringify(want)}`);
 };
+const newEmptyPage = { blocks: [], figures: [] };
 const sameList = (where, what, got, want) => {
   same(where, `number of ${what}`, got.length, want.length);
   got.forEach((g, k) => same(where, `${what} ${k + 1}`, g, want[k]));
@@ -139,14 +161,21 @@ for (const cond of Object.keys(CONDITIONS).map(Number)) {
       const got = scenario(stage, cond, { surpriseText, figureVersion }).pages;
       same(where, "number of pages", got.length, want.length);
       got.forEach((pg, n) => {
-        const w = want[n] || { paragraphs: [], figures: [] };
-        sameList(`${where}, page ${n + 1}`, "paragraphs", pg.paragraphs, w.paragraphs);
+        const w = want[n] || newEmptyPage;
+        const at = `${where}, page ${n + 1}`;
+        same(at, "number of blocks", pg.blocks.length, w.blocks.length);
+        pg.blocks.forEach((b, k) => {
+          const wb = w.blocks[k] || { paragraphs: [] };
+          same(at, `block ${k + 1} kind`, b.kind, wb.kind);
+          if (b.kind === "message") same(at, `block ${k + 1} sender label`, b.label, wb.label);
+          sameList(`${at}, block ${k + 1}`, "paragraphs", b.paragraphs, wb.paragraphs);
+        });
         // figure: the script names none, one file, or two versions (table first, line second)
         const wantFig = w.figures.length === 2 ? w.figures[figureVersion === "line" ? 1 : 0] : w.figures[0] || null;
-        same(`${where}, page ${n + 1}`, "figure", pg.figure, wantFig);
+        same(at, "figure", pg.figure, wantFig);
         if (pg.figure && !fs.existsSync(path.join(IMAGES, pg.figure))) fail(where, `image file not found: ${pg.figure}`);
         if ((pg.layout === "text") !== !pg.figure) fail(where, `page ${n + 1}: layout "${pg.layout}" does not fit ${pg.figure ? "a page with" : "a page without"} a figure`);
-        if (/\bstor(y|ies)\b/i.test(pg.paragraphs.join(" "))) fail(where, 'contains the word "story"');
+        if (/\bstor(y|ies)\b/i.test(pageParagraphs(pg).join(" "))) fail(where, 'contains the word "story"');
       });
     }
 

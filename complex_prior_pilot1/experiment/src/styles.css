@@ -143,6 +143,15 @@ p.muted, .muted { color: var(--ink-2); font-size: 15px; }
 .scenario-text p:last-child { margin-bottom: 0; }
 .scenario-figure { background: var(--bg-2); border: 1px solid var(--line); border-radius: var(--radius); padding: 8px; width: fit-content; max-width: 100%; }
 .scenario-figure img { display: block; max-width: 100%; height: auto; border-radius: 8px; }
+/* a written message: framed, with its sender label */
+.message { background: #FFFDF7; border: 1px solid var(--line-2); border-left: 4px solid var(--ink-2); border-radius: 10px; padding: 12px 18px 13px; margin: 4px 0 12px; }
+.message.outgoing { border-left-color: #2F6FB5; }
+.message:last-child { margin-bottom: 0; }
+.message-label { font-size: 11.5px; letter-spacing: 0.1em; text-transform: uppercase; font-weight: 700; color: var(--ink-3); margin-bottom: 6px; }
+.message.outgoing .message-label { color: #2F6FB5; }
+.scenario .scenario-text .message p:last-child { margin-bottom: 0; }
+/* emphasis inside a question: underlined, since the question is already bold */
+.q-label strong { font-weight: 700; text-decoration: underline; text-decoration-thickness: 1.5px; text-underline-offset: 3px; }
 /* text on the left, picture on the right */
 .scenario.side { display: grid; grid-template-columns: minmax(0, 4fr) minmax(0, 5fr); gap: 32px; align-items: center; }
 .scenario.side .scenario-text p { font-size: 17.5px; line-height: 1.65; margin-bottom: 14px; }
@@ -155,9 +164,11 @@ p.muted, .muted { color: var(--ink-2); font-size: 15px; }
 /* compact style, used only when the page would otherwise need scrolling */
 .scenario-card.compact { padding: 16px 36px 14px; }
 .scenario-card.compact .eyebrow { margin-bottom: 6px; }
-.scenario-card.compact .scenario-text p { font-size: 16px; line-height: 1.45; margin-bottom: 7px; }
+.scenario-card.compact .scenario-text p { font-size: 16px; line-height: 1.42; margin-bottom: 6px; }
 .scenario-card.compact .scenario.stacked .scenario-figure { margin-top: 10px; padding: 6px; }
 .scenario-card.compact .scenario-foot { margin-top: 10px; }
+.scenario-card.compact .message { padding: 7px 14px 8px; margin: 2px 0 7px; }
+.scenario-card.compact .message-label { margin-bottom: 3px; }
 .scenario-card.compact .btn-lg { padding: 10px 24px; }
 
 /* ── Question screens ──────────────────────────────────────── */

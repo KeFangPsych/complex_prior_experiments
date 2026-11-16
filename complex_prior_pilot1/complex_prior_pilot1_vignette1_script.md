@@ -1,4 +1,4 @@
-# **Complexity priors vignette script**
+# **Complexity priors vignette script (message version)**
 
 ## **Design**
 
@@ -17,7 +17,13 @@ Three-factor between-participants design.
 
 In the question tables below, Pilot marks pilot-only questions and Main marks questions included in the main study. Alternative marks questions that are kept in this document as alternatives; they are not asked. All rating scales have 5 points.
 
-Underlined parts are manipulated independently (50% per version). Underlined text, which highlights the surprise, is displayed only half of the time. Underlined figure notes mark figures that have two versions, and the version shown is randomized.
+The participant takes the role of a member of the construction team. Text in block quotes is a written message, shown with its sender label. All other text is the narrator's. Figures are the narrator's illustrations and are not part of the messages.
+
+Underlined parts are manipulated independently (50% per version).
+
+Underlined text, which highlights the surprise, is displayed only half of the time. A participant sees either all of the underlined text (in the test results and in the team's message to Bioenergy) or none of it.
+
+Underlined figure notes mark figures that have two versions, and the version shown is randomized.
 
 In the pilot, each participant sees one of the two questions on the complexity of the organism's processes after Stage 3 (how simple or complex the organism is as a whole; how much more there is to know about how it works), chosen at random.
 
@@ -25,7 +31,7 @@ In the pilot, each participant sees one of the two questions on the complexity o
 
 **Decision-Making Study**
 
-In this study you will read about a hypothetical scenario. It is presented in five parts, each with a short text and a picture. After each part you will answer questions about it.
+In this study you will read about a hypothetical scenario. The scenario is presented in five parts, each with a short text and a picture. After each part you will answer questions about it.
 
 We are interested in the decisions you would make in real-life situations, so please respond as you would if you were actually facing the scenario.
 
@@ -51,9 +57,9 @@ The study takes about 15 minutes. Please complete it in one sitting, in full-scr
 
 **Voluntary participation:** Your participation is completely voluntary, and you may quit at any time. Refusal to participate or stopping your participation will involve no penalty or loss of benefits to which you are otherwise entitled.
 
-**Questions:** If you have questions or concerns about this research, please contact: Ke Fang (fangke@stanford.edu, 516-288-2692) You may also contact the Protocol Director, Robert Hawkins (rdhawkins@stanford.edu).
+**Questions:** If you have questions or concerns about this research, please contact: Ke Fang (fangke@stanford.edu, 516-288-2692). You may also contact the Protocol Director, Robert Hawkins (rdhawkins@stanford.edu).
 
-**Independent Contact:** If your questions, concerns, suggestions, or complaints that are not being addressed by the researcher, or research-related harm, please contact the Stanford Institutional Review Board (IRB) to speak to someone independent of the research team at 650-723-2480 or toll free at 1-866-680-2906, or email at irbnonmed@stanford.edu. You can also write to the Stanford IRB, Stanford University, 1705 El Camino Real, Palo Alto, CA 94306.
+**Independent Contact:** If your questions, concerns, suggestions, or complaints are not being addressed by the researcher, or research-related harm, please contact the Stanford Institutional Review Board (IRB) to speak to someone independent of the research team at 650-723-2480 or toll free at 1-866-680-2906, or email at irbnonmed@stanford.edu. You can also write to the Stanford IRB, Stanford University, 1705 El Camino Real, Palo Alto, CA 94306.
 
 ## **Instructions (all conditions)**
 
@@ -65,9 +71,9 @@ The study takes about 15 minutes. Please complete it in one sitting, in full-scr
 
 ## **Stage 1: Common planet introduction (all conditions)**
 
-People are planning to create a place for humans to live on an alien planet. The planet has water, air, and various kinds of small living things called organisms.
+You are a member of a construction team. Your team is planning to create a place for humans to live on an alien planet. The planet has water, air, and various kinds of small living things called organisms.
 
-In science, the planet and its living organisms have been studied extensively and are now very well understood.
+The planet and its organisms have been studied for years, and science now understands them very well.
 
 *Figure: vignette1\_img1\_planet\_scene.png*
 
@@ -97,9 +103,9 @@ These processes usually involve many chemical reactions and several different fa
 
 | Use | Measure | Question |
 | :---- | :---- | :---- |
-| Main | Perceived complexity of biological processes | Overall, how simple or complex are the biological processes on this planet? (1 \= Very simple; 5 \= Very complex) |
-| Pilot | Perceived complexity of biological processes | How many different factors usually affect a biological process on this planet? (1 \= Very few; 5 \= Very many) |
-| Pilot | Perceived complexity of biological processes | How much does the effect of one factor change when other factors change? (1 \= Not at all; 5 \= Very much) |
+| Main | Perceived complexity of biological processes | Overall, how simple or complex do you think the biological processes on this planet are? (1 \= Very simple; 5 \= Very complex) |
+| Pilot | Perceived complexity of biological processes | How many different factors do you think usually affect a biological process on this planet? (1 \= Very few; 5 \= Very many) |
+| Pilot | Perceived complexity of biological processes | How much do you expect the effect of one factor to change when other factors change? (1 \= Not at all; 5 \= Very much) |
 | Main | Perceived scientific understanding | How well does science understand the biological processes on this planet? (1 \= Not well at all; 5 \= Very well) |
 | Pilot | Perceived scientific understanding | How well does science understand which factors affect these processes? (1 \= Not well at all; 5 \= Very well) |
 | Pilot | Perceived scientific understanding | How well does science understand how these factors affect one another? (1 \= Not well at all; 5 \= Very well) |
@@ -110,25 +116,29 @@ Presentation order:
 
 ## **Stage 3: Common explanation 1 (all conditions)**
 
-A construction team is building apartments on this planet. The planet has four seasons: warm, cool, moderately cold, and extremely cold. The construction team needs technology that can produce heat to keep apartments warm.
+Your team is building apartments on this planet. The planet has four seasons: warm, cool, moderately cold, and extremely cold.
 
-An energy company called Bioenergy suggests one of its technologies that uses one kind of the organisms found on the planet.
+Your team announces that it is looking for a way to **keep the apartments warm**. An energy company called Bioenergy has a technology that uses one kind of organism found on the planet.
 
-The company understands very well how this kind of organism works because it has closely studied the organism. Scientific findings suggest that the organism is representative of other life forms on the planet in terms of its level of complexity.
+Bioenergy understands very well how this kind of organism works because it has closely studied the organism. Scientific findings suggest that the organism is representative of other life forms on the planet in terms of its level of complexity.
 
 *Page break*
 
-The company explains the technology relies on part of the organism's biological process.
+Bioenergy writes to your team to recommend its technology.
 
-In this process, **the organism uses a certain gas from the air to produce heat and a purple substance called a pigment**. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. When more of this gas is available, the organism produces more heat and more purple pigment.
-
-The company also explains that **the planet's air holds more of this gas when the weather is colder**. So in colder weather, there is more gas around the organism.
+> **From Bioenergy to your team**
+>
+> We saw that your team is looking for a way to keep apartments warm. We recommend our technology.
+>
+> Our technology relies on one of the organism's biological processes. In this process, **the organism uses a certain gas from the air to produce heat and a purple substance called a pigment**. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. **When more of this gas is available, the organism produces more heat and more purple pigment.**
+>
+> **The planet's air holds more of this gas when the weather is colder**. So in colder weather, there is more gas around the organism.
 
 *Figure: vignette1\_img3\_explanation1.png*
 
 ### **Stage 3 potential measurements**
 
-* Whether participants encode the goal of the construction team.
+* Whether participants encode their team's goal.
 * Whether participants recognize the company as knowledgeable.
 * Whether participants understand the initial explanation, including the relationship between the weather and the gas.
 * Whether participants use the explanation to expect increasing heat and pigment production.
@@ -138,37 +148,37 @@ The company also explains that **the planet's air holds more of this gas when th
 
 | Use | Measure | Question |
 | :---- | :---- | :---- |
-| Main | Heat prediction (cond 1, 2, 3, 4 only) | How much heat would you expect the organism to produce when it is extremely cold, compared with when it is moderately cold? (1 \= Much less heat; 3 \= About the same amount of heat; 5 \= Much more heat) |
-| Main | Pigment prediction (cond 1, 2, 3, 4 only) | How much purple pigment would you expect the organism to produce when it is extremely cold, compared with when it is moderately cold? (1 \= Much less purple pigment; 3 \= About the same amount of purple pigment; 5 \= Much more purple pigment) |
-| Main | Construction team's goal | What is the construction team's main reason for considering the technology? (To keep apartments warm in cold weather; To produce purple pigment; To study how the organism changes color; To increase the amount of gas in the air; I don't remember) |
-| Pilot | Relevance of heat | How important is the amount of heat produced for the construction team's goal? (1 \= Not at all important; 5 \= Extremely important) |
-| Pilot | Relevance of pigment | How important is the amount of purple pigment produced for the construction team's goal? (1 \= Not at all important; 5 \= Extremely important) |
+| Main | Heat prediction (cond 1, 2, 3, 4 only) | Compared with when it is **moderately cold**, how much **heat** would you expect the organism to produce when it is **extremely cold**? (1 \= Much less heat; 3 \= About the same amount of heat; 5 \= Much more heat) |
+| Main | Pigment prediction (cond 1, 2, 3, 4 only) | Compared with when it is **moderately cold**, how much **purple pigment** would you expect the organism to produce when it is **extremely cold**? (1 \= Much less purple pigment; 3 \= About the same amount of purple pigment; 5 \= Much more purple pigment) |
+| Main | Team's goal | What is your team's main reason for considering the technology? (To keep apartments warm in cold weather; To produce purple pigment; To study how the organism changes color; To increase the amount of gas in the air; I don't remember) |
+| Pilot | Relevance of heat | How important is the amount of **heat** produced for your team's goal? (1 \= Not at all important; 5 \= Extremely important) |
+| Pilot | Relevance of pigment | How important is the amount of **purple pigment** produced for your team's goal? (1 \= Not at all important; 5 \= Extremely important) |
 | Pilot | Company knowledge | How well does the company understand how the organism works? (1 \= Not well at all; 5 \= Very well) |
-| Pilot | Complexity of the organism's processes | Thinking about this organism as a whole, not just the process explained, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
-| Pilot | Complexity of the organism's processes | Besides what the company has explained, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |
+| Pilot | Complexity of the organism's processes | Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
+| Pilot | Complexity of the organism's processes | Besides what the company has said, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |
 | Pilot | Causal knowledge | In your own words, explain how the weather, the gas, the heat, and the purple pigment are connected. (Open response) |
 | Alternative | Alternative measure of causal knowledge: weather and gas | According to the company, what happens to the amount of the gas in the air when the weather gets colder? (There is less gas; There is about the same amount of gas; There is more gas; I don't remember) |
 | Alternative | Alternative measure of causal knowledge: gas and outputs | According to the company, what does the organism produce from the gas? (Heat only; Purple pigment only; Both heat and purple pigment; I don't remember) |
 
 Presentation order:
 
-* The answer options of the construction team's goal question are shown in random order, except that "I don't remember" is always last.
+* The answer options of the team's goal question are shown in random order, except that "I don't remember" is always last.
 * The two relevance questions (heat, pigment) are shown in random order.
 * Each participant sees one of the two questions on the complexity of the organism's processes (how simple or complex the organism is as a whole; how much more there is to know about how it works), chosen at random.
 
 ## **Stage 4, evidence-first conditions (cond 1, 2, 3, 4): Evidence**
 
-Before deciding whether to use the technology, the construction team gets a sample of the organism from the company.
+Before deciding whether to use the technology, your team asks Bioenergy for a sample of the organism. Bioenergy sends the sample, and you send it to your team's laboratory for testing.
 
-The construction team mainly wants to know if the organism can produce heat as explained.
+Your team's lab tests the sample at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet.
 
-The construction team tests the sample in a laboratory at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet.
+Your team mainly wants to know if the organism can produce heat as explained.
 
 ### **High-goal-relevance condition (heat anomaly, cond 1, 3\)**
 
 As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment. <ins>This is expected.</ins>
 
-When it is extremely cold, the organism still produces more purple pigment<ins>, as expected</ins>. But it produces less heat than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins>
+When it is extremely cold, the organism produces even more purple pigment<ins>, as expected</ins>. But it produces less heat than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins>
 
 *Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
@@ -176,14 +186,14 @@ When it is extremely cold, the organism still produces more purple pigment<ins>,
 
 As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment. <ins>This is expected.</ins>
 
-When it is extremely cold, the organism still produces more heat<ins>, as expected</ins>. But it produces less purple pigment than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins>
+When it is extremely cold, the organism produces even more heat<ins>, as expected</ins>. But it produces less purple pigment than when it is moderately cold. <ins>This is unexpected, because more gas is available for the organism to use.</ins>
 
 *Figure: vignette1\_img4\_evidence\_color\_anomaly.png* or *vignette1\_img4\_evidence\_color\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
 ### **Stage 4 potential measurements (evidence-first)**
 
 * Whether participants find the evidence surprising.
-* Whether participants see the evidence as relevant to the construction team's goal.
+* Whether participants see the evidence as relevant to their team's goal.
 
 ### **Stage 4 questions (evidence-first)**
 
@@ -191,40 +201,61 @@ When it is extremely cold, the organism still produces more heat<ins>, as expect
 | :---- | :---- | :---- |
 | Main | Observed heat production | How much heat did the organism produce when it was extremely cold, compared with when it was moderately cold? (Less heat; About the same amount of heat; More heat; I don't remember) |
 | Main | Observed pigment production | How much purple pigment did the organism produce when it was extremely cold, compared with when it was moderately cold? (Less purple pigment; About the same amount of purple pigment; More purple pigment; I don't remember) |
-| Pilot | Difference from expectations / Surprise | How different are these results from what you expected based on the company's explanation? (1 \= Not at all different; 5 \= Extremely different) |
+| Pilot | Difference from expectations / Surprise | How different are these results from what you expected based on the company's message? (1 \= Not at all different; 5 \= Extremely different) |
+| Pilot | Inquiry | Would you ask Bioenergy about this result? (Yes; No) |
 | Pilot | Gas availability | How much gas was available when it was extremely cold, compared with when it was moderately cold? (Less gas; About the same amount of gas; More gas; I don't remember) |
-| Pilot | Anomaly relevance, heat anomaly version (cond 1, 3\) | The organism produces less heat when it is extremely cold. How much does this matter for the construction team's goal of keeping apartments warm? (1 \= Not at all; 5 \= Very much) |
-| Pilot | Anomaly relevance, color anomaly version (cond 2, 4\) | The organism produces less purple pigment when it is extremely cold. How much does this matter for the construction team's goal of keeping apartments warm? (1 \= Not at all; 5 \= Very much) |
+| Pilot | Anomaly relevance, heat anomaly version (cond 1, 3\) | The organism produces less heat when it is extremely cold. How much does this matter for your team's goal of keeping apartments warm? (1 \= Not at all; 5 \= Very much) |
+| Pilot | Anomaly relevance, color anomaly version (cond 2, 4\) | The organism produces less purple pigment when it is extremely cold. How much does this matter for your team's goal of keeping apartments warm? (1 \= Not at all; 5 \= Very much) |
 
 ## **Stage 5, evidence-first conditions (cond 1, 2, 3, 4): Elaboration (explanation 2)**
 
-The construction team asks the company about this unexpected result.
+Your team decides to ask Bioenergy about the test.
 
 ### **High-goal-relevance condition (heat anomaly, cond 1, 3\)**
 
-The company explains that even smaller living things called algae live inside the organism. **The organism can produce heat only with the help of the algae.**
+> **From your team to Bioenergy**
+>
+> We tested the sample. When it was extremely cold, the organism produced less heat than when it was moderately cold. <ins>This is not what we expected.</ins> Can you explain why?
 
-The algae need liquid water to stay active. When they are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
+*Page break*
 
-As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more heat.
+Bioenergy replies.
 
-But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less heat, even though more gas is available.
-
-The organism produces purple pigment on its own, without the algae. So it keeps producing more purple pigment as the weather gets colder.
+> **From Bioenergy to your team**
+>
+> Even smaller living things called algae live inside the organism. **The organism can produce heat only with the help of the algae.**
+>
+> The algae need liquid water to stay active. **When the algae are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.**
+>
+> As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more heat.
+>
+> But **when it is extremely cold, most of the water available to the algae freezes**. As a result, the algae become less active and produce less heat, even though more gas is available.
+>
+> **The organism produces purple pigment on its own, without the algae.** So it keeps producing more purple pigment as the weather gets colder.
 
 *Figure: vignette1\_img5\_explanation2\_heat\_anomaly.png*
 
 ### **Low-goal-relevance condition (color anomaly, cond 2, 4\)**
 
-The company explains that even smaller living things called algae live inside the organism. **The organism can produce purple pigment only with the help of the algae.**
+> **From your team to Bioenergy**
+>
+> We tested the sample. When it was extremely cold, the organism produced less purple pigment than when it was moderately cold. <ins>This is not what we expected.</ins> Can you explain why?
 
-The algae need liquid water to stay active. When they are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
+*Page break*
 
-As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more purple pigment.
+Bioenergy replies.
 
-But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less purple pigment, even though more gas is available.
-
-The organism produces heat on its own, without the algae. So it keeps producing more heat as the weather gets colder.
+> **From Bioenergy to your team**
+>
+> Even smaller living things called algae live inside the organism. **The organism can produce purple pigment only with the help of the algae.**
+>
+> The algae need liquid water to stay active. **When the algae are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.**
+>
+> As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more purple pigment.
+>
+> But **when it is extremely cold, most of the water available to the algae freezes**. As a result, the algae become less active and produce less purple pigment, even though more gas is available.
+>
+> **The organism produces heat on its own, without the algae.** So it keeps producing more heat as the weather gets colder.
 
 *Figure: vignette1\_img5\_explanation2\_color\_anomaly.png*
 
@@ -238,59 +269,66 @@ The organism produces heat on its own, without the algae. So it keeps producing 
 | Use | Measure | Question |
 | :---- | :---- | :---- |
 | Main | Causal knowledge: dependence on algae | Which of these can the organism produce only with the help of the algae? (Heat only; Purple pigment only; Both heat and purple pigment; Neither heat nor purple pigment; I don't remember) |
-| Main | Complexity (primary) | How simple or complex is the way this organism works? (1 \= Very simple; 5 \= Very complex) |
-| Main | Complexity (primary) | Besides what has been explained so far, how many other factors do you think affect how this organism works? (1 \= None; 5 \= Very many) |
-| Main | Complexity (primary) | Besides what has been explained so far, how likely is it that other factors affect how much heat this organism produces? (1 \= Very unlikely; 5 \= Very likely) |
-| Main | Source trust / Cooperativeness (primary) | How much do you trust the company to tell the construction team what it needs to know? (1 \= Not at all; 5 \= Completely) |
-| Main | Source trust / Cooperativeness (primary) | When explaining the technology, how much does the company care about what is best for the construction team? (1 \= Not at all; 5 \= Very much) |
-| Main | Source trust / Cooperativeness (primary) | When the company chose what to explain, how much was it trying to help the construction team make a good decision? (1 \= Not at all; 5 \= Very much) |
+| Main | Complexity (primary) | Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
+| Main | Complexity (primary) | Besides what the company has said, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |
+| Main | Complexity (primary) | Besides what the company has said, how likely is it that other factors affect how much heat this organism produces? (1 \= Very unlikely; 5 \= Very likely) |
+| Main | Source trust / Cooperativeness (primary) | How much do you trust the company to tell your team what it needs to know? (1 \= Not at all; 5 \= Completely) |
+| Main | Source trust / Cooperativeness (primary) | When explaining the technology, how much does the company care about what is best for your team? (1 \= Not at all; 5 \= Very much) |
+| Main | Source trust / Cooperativeness (primary) | When the company chose what to explain, how much was it trying to help your team make a good decision? (1 \= Not at all; 5 \= Very much) |
 | Main | Utility (secondary control) | How well would the technology keep apartments warm in the planet's coldest season? (1 \= Not well at all; 5 \= Very well) |
 | Main | Utility (secondary control) | How good is this technology for heating apartments? (1 \= Not at all good; 5 \= Very good) |
+| Main | Decision | How likely would you be to recommend that your team use this technology? (1 \= Very unlikely; 5 \= Very likely) |
 | Main | Further measure: explanation 2 evaluations | How well does the company's explanation about the algae explain the test results? (1 \= Not well at all; 5 \= Very well) |
 | Main | Further measure: explanation 2 evaluations | How likely is it that the algae processes are the real reason for the test results when it was extremely cold? (1 \= Very unlikely; 5 \= Very likely) |
-| Main | Further measure: explanation 2 evaluations | How much do you agree or disagree with this statement? The company's explanation about the algae is a reasonable addition to its first explanation. (1 \= Strongly disagree; 5 \= Strongly agree) |
+| Main | Further measure: explanation 2 evaluations | How much do you agree or disagree with this statement? The company's explanation about the algae is a reasonable addition to its first message. (1 \= Strongly disagree; 5 \= Strongly agree) |
 | Main | Further measure: explanation 2 evaluations | How much do you agree or disagree with this statement? The company seems to be making excuses for the test results. (1 \= Strongly disagree; 5 \= Strongly agree) |
-| Main | Further measure: explanation 1 counterfactual evaluations | Should the company have mentioned the algae in its first explanation? (1 \= Definitely not; 5 \= Definitely yes) |
-| Main | Further measure: explanation 1 counterfactual evaluations | How acceptable was it for the company to leave the algae out of its first explanation? (1 \= Not at all acceptable; 5 \= Completely acceptable) |
+| Main | Further measure: explanation 1 counterfactual evaluations | Should the company have mentioned the algae in its first message? (1 \= Definitely not; 5 \= Definitely yes) |
+| Main | Further measure: explanation 1 counterfactual evaluations | How acceptable was it for the company to leave the algae out of its first message? (1 \= Not at all acceptable; 5 \= Completely acceptable) |
 | Pilot | Causal knowledge: explain the decrease, heat anomaly version (cond 1, 3\) | Why does the organism produce less heat when it is extremely cold, even though more gas is available? (Open response) |
 | Pilot | Causal knowledge: explain the decrease, color anomaly version (cond 2, 4\) | Why does the organism produce less purple pigment when it is extremely cold, even though more gas is available? (Open response) |
 | Pilot | Causal knowledge: explain the continuing increase, heat anomaly version (cond 1, 3\) | Why does the organism keep producing more purple pigment when it is extremely cold? (Open response) |
 | Pilot | Causal knowledge: explain the continuing increase, color anomaly version (cond 2, 4\) | Why does the organism keep producing more heat when it is extremely cold? (Open response) |
-| Pilot | Knowledge check | How likely is it that the company already knew about the algae when it first explained the organism? (1 \= Very unlikely; 5 \= Very likely) |
+| Pilot | Knowledge check | How likely is it that the company already knew about the algae when it sent its first message? (1 \= Very unlikely; 5 \= Very likely) |
 | Alternative | Alternative measure of causal knowledge: liquid water | According to the company, what happens to the amount of liquid water available to the algae when it is extremely cold? (There is less liquid water; There is about the same amount of liquid water; There is more liquid water; I don't remember) |
 | Alternative | Alternative measure of causal knowledge: algae activity | According to the company, what happens to the algae when there is too little liquid water? (They become less active; They stay about as active; They become more active; I don't remember) |
 
 Presentation order:
 
-* The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table.
+* The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table, so the decision question comes after these three blocks.
 
 ## **Stage 4, elaboration-first conditions (cond 5, 6, 7, 8): Elaboration (explanation 2)**
 
+Bioenergy's message continues.
+
 ### **High-goal-relevance condition (heat anomaly, cond 5, 7\)**
 
-The company further explains that even smaller living things called algae live inside the organism. **The organism can produce heat only with the help of the algae.**
-
-The algae need liquid water to stay active. When they are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
-
-As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more heat.
-
-But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less heat, even though more gas is available.
-
-The organism produces purple pigment on its own, without the algae. So it keeps producing more purple pigment as the weather gets colder.
+> **From Bioenergy to your team (continued)**
+>
+> Even smaller living things called algae live inside the organism. **The organism can produce heat only with the help of the algae.**
+>
+> The algae need liquid water to stay active. **When the algae are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.**
+>
+> As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more heat.
+>
+> But **when it is extremely cold, most of the water available to the algae freezes**. As a result, the algae become less active and produce less heat, even though more gas is available.
+>
+> **The organism produces purple pigment on its own, without the algae.** So it keeps producing more purple pigment as the weather gets colder.
 
 *Figure: vignette1\_img5\_explanation2\_heat\_anomaly.png*
 
 ### **Low-goal-relevance condition (color anomaly, cond 6, 8\)**
 
-The company further explains that even smaller living things called algae live inside the organism. **The organism can produce purple pigment only with the help of the algae.**
-
-The algae need liquid water to stay active. When they are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
-
-As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more purple pigment.
-
-But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less purple pigment, even though more gas is available.
-
-The organism produces heat on its own, without the algae. So it keeps producing more heat as the weather gets colder.
+> **From Bioenergy to your team (continued)**
+>
+> Even smaller living things called algae live inside the organism. **The organism can produce purple pigment only with the help of the algae.**
+>
+> The algae need liquid water to stay active. **When the algae are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.**
+>
+> As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more purple pigment.
+>
+> But **when it is extremely cold, most of the water available to the algae freezes**. As a result, the algae become less active and produce less purple pigment, even though more gas is available.
+>
+> **The organism produces heat on its own, without the algae.** So it keeps producing more heat as the weather gets colder.
 
 *Figure: vignette1\_img5\_explanation2\_color\_anomaly.png*
 
@@ -303,8 +341,8 @@ The organism produces heat on its own, without the algae. So it keeps producing 
 
 | Use | Measure | Question |
 | :---- | :---- | :---- |
-| Main | Heat prediction | How much heat would you expect the organism to produce when it is extremely cold, compared with when it is moderately cold? (1 \= Much less heat; 3 \= About the same amount of heat; 5 \= Much more heat) |
-| Main | Pigment prediction | How much purple pigment would you expect the organism to produce when it is extremely cold, compared with when it is moderately cold? (1 \= Much less purple pigment; 3 \= About the same amount of purple pigment; 5 \= Much more purple pigment) |
+| Main | Heat prediction | Compared with when it is **moderately cold**, how much **heat** would you expect the organism to produce when it is **extremely cold**? (1 \= Much less heat; 3 \= About the same amount of heat; 5 \= Much more heat) |
+| Main | Pigment prediction | Compared with when it is **moderately cold**, how much **purple pigment** would you expect the organism to produce when it is **extremely cold**? (1 \= Much less purple pigment; 3 \= About the same amount of purple pigment; 5 \= Much more purple pigment) |
 | Main | Causal knowledge: dependence on algae | Which of these can the organism produce only with the help of the algae? (Heat only; Purple pigment only; Both heat and purple pigment; Neither heat nor purple pigment; I don't remember) |
 | Pilot | Causal knowledge: explain the decrease, heat anomaly version (cond 5, 7\) | Why does the organism produce less heat when it is extremely cold, even though more gas is available? (Open response) |
 | Pilot | Causal knowledge: explain the decrease, color anomaly version (cond 6, 8\) | Why does the organism produce less purple pigment when it is extremely cold, even though more gas is available? (Open response) |
@@ -315,17 +353,17 @@ The organism produces heat on its own, without the algae. So it keeps producing 
 
 ## **Stage 5, elaboration-first conditions (cond 5, 6, 7, 8): Evidence**
 
-Before deciding whether to use the technology, the construction team gets a sample of the organism from the company.
+Before deciding whether to use the technology, your team asks Bioenergy for a sample of the organism. Bioenergy sends the sample, and you send it to your team's laboratory for testing.
 
-The construction team mainly wants to know if the organism can produce heat as explained.
+Your team's lab tests the sample at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet.
 
-The construction team tests the sample in a laboratory at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet.
+Your team mainly wants to know if the organism can produce heat as explained.
 
 ### **High-goal-relevance condition (heat anomaly, cond 5, 7\)**
 
 As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment.
 
-When it is extremely cold, the organism still produces more purple pigment. But it produces less heat than when it is moderately cold.
+When it is extremely cold, the organism produces even more purple pigment. But it produces less heat than when it is moderately cold.
 
 *Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
@@ -333,27 +371,28 @@ When it is extremely cold, the organism still produces more purple pigment. But 
 
 As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment.
 
-When it is extremely cold, the organism still produces more heat. But it produces less purple pigment than when it is moderately cold.
+When it is extremely cold, the organism produces even more heat. But it produces less purple pigment than when it is moderately cold.
 
 *Figure: vignette1\_img4\_evidence\_color\_anomaly.png* or *vignette1\_img4\_evidence\_color\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
 
 ### **Stage 5 potential measurements (elaboration-first)**
 
 * Whether participants find the evidence surprising.
-* Whether participants see the evidence as relevant to the construction team's goal.
+* Whether participants see the evidence as relevant to their team's goal.
 
 ### **Stage 5 questions (elaboration-first)**
 
 | Use | Measure | Question |
 | :---- | :---- | :---- |
-| Main | Complexity (primary) | How simple or complex is the way this organism works? (1 \= Very simple; 5 \= Very complex) |
-| Main | Complexity (primary) | Besides what has been explained so far, how many other factors do you think affect how this organism works? (1 \= None; 5 \= Very many) |
-| Main | Complexity (primary) | Besides what has been explained so far, how likely is it that other factors affect how much heat this organism produces? (1 \= Very unlikely; 5 \= Very likely) |
-| Main | Source trust / Cooperativeness (primary) | How much do you trust the company to tell the construction team what it needs to know? (1 \= Not at all; 5 \= Completely) |
-| Main | Source trust / Cooperativeness (primary) | When explaining the technology, how much does the company care about what is best for the construction team? (1 \= Not at all; 5 \= Very much) |
-| Main | Source trust / Cooperativeness (primary) | When the company chose what to explain, how much was it trying to help the construction team make a good decision? (1 \= Not at all; 5 \= Very much) |
+| Main | Complexity (primary) | Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
+| Main | Complexity (primary) | Besides what the company has said, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |
+| Main | Complexity (primary) | Besides what the company has said, how likely is it that other factors affect how much heat this organism produces? (1 \= Very unlikely; 5 \= Very likely) |
+| Main | Source trust / Cooperativeness (primary) | How much do you trust the company to tell your team what it needs to know? (1 \= Not at all; 5 \= Completely) |
+| Main | Source trust / Cooperativeness (primary) | When explaining the technology, how much does the company care about what is best for your team? (1 \= Not at all; 5 \= Very much) |
+| Main | Source trust / Cooperativeness (primary) | When the company chose what to explain, how much was it trying to help your team make a good decision? (1 \= Not at all; 5 \= Very much) |
 | Main | Utility (secondary control) | How well would the technology keep apartments warm in the planet's coldest season? (1 \= Not well at all; 5 \= Very well) |
 | Main | Utility (secondary control) | How good is this technology for heating apartments? (1 \= Not at all good; 5 \= Very good) |
+| Main | Decision | How likely would you be to recommend that your team use this technology? (1 \= Very unlikely; 5 \= Very likely) |
 | Main | Further measure: explanation 2 evaluations | How well does the company's explanation about the algae explain the test results? (1 \= Not well at all; 5 \= Very well) |
 | Main | Further measure: explanation 2 evaluations | How likely is it that the algae processes are the real reason for the test results when it was extremely cold? (1 \= Very unlikely; 5 \= Very likely) |
 | Main | Further measure: explanation 2 evaluations | How likely is it that the company's explanation about the algae is true? (1 \= Very unlikely; 5 \= Very likely) |
@@ -361,15 +400,16 @@ When it is extremely cold, the organism still produces more heat. But it produce
 | Main | Further measure: explanation 1 counterfactual evaluations | Suppose the company had not mentioned the algae. How acceptable would that have been? (1 \= Not at all acceptable; 5 \= Completely acceptable) |
 | Main | Observed heat production | How much heat did the organism produce when it was extremely cold, compared with when it was moderately cold? (Less heat; About the same amount of heat; More heat; I don't remember) |
 | Main | Observed pigment production | How much purple pigment did the organism produce when it was extremely cold, compared with when it was moderately cold? (Less purple pigment; About the same amount of purple pigment; More purple pigment; I don't remember) |
-| Pilot | Difference from expectations / Surprise | How different are these results from what you expected based on the company's explanation? (1 \= Not at all different; 5 \= Extremely different) |
+| Pilot | Difference from expectations / Surprise | How different are these results from what you expected based on the company's message? (1 \= Not at all different; 5 \= Extremely different) |
+| Pilot | Inquiry | Would you ask Bioenergy about this result? (Yes; No) |
 | Pilot | Gas availability | How much gas was available when it was extremely cold, compared with when it was moderately cold? (Less gas; About the same amount of gas; More gas; I don't remember) |
-| Pilot | Anomaly relevance, heat anomaly version (cond 5, 7\) | The organism produces less heat when it is extremely cold. How much does this matter for the construction team's goal of keeping apartments warm? (1 \= Not at all; 5 \= Very much) |
-| Pilot | Anomaly relevance, color anomaly version (cond 6, 8\) | The organism produces less purple pigment when it is extremely cold. How much does this matter for the construction team's goal of keeping apartments warm? (1 \= Not at all; 5 \= Very much) |
+| Pilot | Anomaly relevance, heat anomaly version (cond 5, 7\) | The organism produces less heat when it is extremely cold. How much does this matter for your team's goal of keeping apartments warm? (1 \= Not at all; 5 \= Very much) |
+| Pilot | Anomaly relevance, color anomaly version (cond 6, 8\) | The organism produces less purple pigment when it is extremely cold. How much does this matter for your team's goal of keeping apartments warm? (1 \= Not at all; 5 \= Very much) |
 | Pilot | Company knowledge | How well does the company understand how the organism works? (1 \= Not well at all; 5 \= Very well) |
 
 Presentation order:
 
-* The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table.
+* The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table, so the decision question comes after these three blocks.
 
 ## **Final comments (all conditions)**
 

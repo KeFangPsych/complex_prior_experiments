@@ -49,7 +49,7 @@ export const fillStudyValues = (text) => text.replace(/\bXX\b/g, () => STUDY.min
 
 export const CONFIG = {
   experiment_name: "complex_prior_pilot1_vignette1",
-  experiment_version: "0.5.1",
+  experiment_version: "0.6.0",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.
@@ -82,7 +82,7 @@ export const CONFIG = {
 export const WELCOME = {
   title: "Decision-Making Study",
   paragraphs: [
-    "In this study you will read about a hypothetical scenario. It is presented in five parts, each with a short text and a picture. After each part you will answer questions about it.",
+    "In this study you will read about a hypothetical scenario. The scenario is presented in five parts, each with a short text and a picture. After each part you will answer questions about it.",
     "We are interested in the decisions you would make in real-life situations, so please respond as you would if you were actually facing the scenario.",
     "The study takes about XX minutes. Please complete it in one sitting, in full-screen mode, without switching to other windows.",
   ],
@@ -121,8 +121,8 @@ export const CONSENT = {
     { label: "Risks and Benefits", text: "There are no risks beyond those of everyday life that we are aware of from taking part in this study. While you may not receive direct benefits, you will contribute to knowledge about actions and preferences." },
     { label: "Confidentiality", text: "Only the researchers involved in this study and those responsible for research oversight will have access to the information you provide. Study data will be stored securely, in compliance with Stanford University standards, minimizing the risk of confidentiality breach. Your responses will be de-identified. De-identified data may be shared with other researchers." },
     { label: "Voluntary participation", text: "Your participation is completely voluntary, and you may quit at any time. Refusal to participate or stopping your participation will involve no penalty or loss of benefits to which you are otherwise entitled." },
-    { label: "Questions", text: "If you have questions or concerns about this research, please contact: Ke Fang (fangke@stanford.edu, 516-288-2692) You may also contact the Protocol Director, Robert Hawkins (rdhawkins@stanford.edu)." },
-    { label: "Independent Contact", text: "If your questions, concerns, suggestions, or complaints that are not being addressed by the researcher, or research-related harm, please contact the Stanford Institutional Review Board (IRB) to speak to someone independent of the research team at 650-723-2480 or toll free at 1-866-680-2906, or email at irbnonmed@stanford.edu. You can also write to the Stanford IRB, Stanford University, 1705 El Camino Real, Palo Alto, CA 94306." },
+    { label: "Questions", text: "If you have questions or concerns about this research, please contact: Ke Fang (fangke@stanford.edu, 516-288-2692). You may also contact the Protocol Director, Robert Hawkins (rdhawkins@stanford.edu)." },
+    { label: "Independent Contact", text: "If your questions, concerns, suggestions, or complaints are not being addressed by the researcher, or research-related harm, please contact the Stanford Institutional Review Board (IRB) to speak to someone independent of the research team at 650-723-2480 or toll free at 1-866-680-2906, or email at irbnonmed@stanford.edu. You can also write to the Stanford IRB, Stanford University, 1705 El Camino Real, Palo Alto, CA 94306." },
   ],
   pdf_filename: "informed_consent.pdf",
 };

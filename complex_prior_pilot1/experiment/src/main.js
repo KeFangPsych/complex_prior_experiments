@@ -42,7 +42,7 @@ import "./styles.css";
 
 import PagePlugin from "./page-plugin.js";
 import { CONFIG, DATAPIPE, PROLIFIC, STUDY, WELCOME, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, CONSENT, fillStudyValues } from "./config.js";
-import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, scenario, questionPages, randomizePages } from "./content.js";
+import { CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentFromIndex, indexFromAssignment, scenario, pageParagraphs, questionPages, randomizePages } from "./content.js";
 import { imageUrl } from "./images.js";
 import { state, integrityProps, fullscreenRequired, DEBUG, DEV_FLAGS, NOFS, URL_PARAMS, prolificPID, studyID, sessionID, subjectId } from "./state.js";
 import { buildFrame, setPhase, setProgress, setTestBar, card, lockButton, rich, questionsHtml, bindQuestions, N_STAGES } from "./ui.js";
@@ -418,7 +418,7 @@ function showInstructions(el) {
 const FIGURE_FRAME = 18;   // padding and border of the picture's frame
 function figureLimits(layout, aspect, textWidth) {
   if (layout === "side") return { max: 560, min: 380 };
-  return aspect > 2.4 ? { max: textWidth - FIGURE_FRAME, min: 700 } : { max: 660, min: 540 };
+  return aspect > 2.4 ? { max: textWidth - FIGURE_FRAME, min: 660 } : { max: 660, min: 540 };
 }
 const pageOverflow = () => document.documentElement.scrollHeight - window.innerHeight;
 // Fits a scenario page to the window; returns a function that removes the listeners.
@@ -450,6 +450,15 @@ function fitScenarioPage(el, layout) {
   return () => window.removeEventListener("resize", fit);
 }
 
+// Narration is plain text; a message is a framed block with its sender label
+// (messages written by the participant's own team are marked as outgoing).
+function blockHtml(b) {
+  const paragraphs = b.paragraphs.map((p) => `<p>${rich(p)}</p>`).join("");
+  if (b.kind !== "message") return paragraphs;
+  return `<div class="message ${b.label.startsWith("From your team") ? "outgoing" : ""}">
+    <div class="message-label">${rich(b.label)}</div>${paragraphs}</div>`;
+}
+
 function showScenario(el, s) {
   const { page, stageIdx: i } = s;
   const label = s.lastPage && s.hasQuestions ? "Continue to the questions" : "Continue";
@@ -458,7 +467,7 @@ function showScenario(el, s) {
     : "";
   el.innerHTML = card(`${stageEyebrow(i)}
     <div class="scenario ${page.layout}">
-      <div class="scenario-text">${page.paragraphs.map((p) => `<p>${rich(p)}</p>`).join("")}</div>
+      <div class="scenario-text">${page.blocks.map(blockHtml).join("")}</div>
       ${figure}
     </div>
     <div class="scenario-foot">
@@ -480,7 +489,7 @@ function showScenario(el, s) {
       compact_text: el.querySelector(".scenario-card").classList.contains("compact"),
       needed_scrolling: document.documentElement.scrollHeight > window.innerHeight + 1,
       viewport_width: window.innerWidth, viewport_height: window.innerHeight,
-      n_words: page.paragraphs.join(" ").split(/\s+/).length,
+      n_words: pageParagraphs(page).join(" ").split(/\s+/).length,
       lock_seconds: lock(CONFIG.scenario_lock_seconds),
     });
   });

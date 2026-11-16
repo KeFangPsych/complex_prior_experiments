@@ -102,9 +102,10 @@ const STATEMENT_SPLIT = "this statement? ";
 function promptHtml(q) {
   // "How much do you agree ... with this statement? <statement>" -> statement on its own line
   const i = q.prompt.indexOf(STATEMENT_SPLIT);
-  if (i < 0) return `<p class="q-label">${esc(q.prompt)}</p>`;
+  // (**double asterisks** in a question mark emphasis, as in the script)
+  if (i < 0) return `<p class="q-label">${rich(q.prompt)}</p>`;
   const cut = i + STATEMENT_SPLIT.length;
-  return `<p class="q-label">${esc(q.prompt.slice(0, cut).trim())}</p><div class="statement">${esc(q.prompt.slice(cut))}</div>`;
+  return `<p class="q-label">${rich(q.prompt.slice(0, cut).trim())}</p><div class="statement">${rich(q.prompt.slice(cut))}</div>`;
 }
 
 function itemHtml(q) {

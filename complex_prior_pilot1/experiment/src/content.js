@@ -3,8 +3,8 @@
  *
  * Transcribed from ../complex_prior_pilot1_vignette1_script.md, which stays the
  * source of truth: `npm run check:script` renders every condition from this file
- * and fails if any paragraph, page break, figure name, question, scale, Main/Pilot
- * tag or presentation-order note differs from the script. Edit the script first, then mirror the change here.
+ * and fails if any paragraph, message, page break, figure name, question, scale,
+ * Main/Pilot tag or presentation-order note differs from the script. Edit the script first, then mirror the change here.
  *
  * This module has no browser dependencies so that Node can import it.
  */
@@ -60,33 +60,45 @@ const IMG = "vignette1_img";
 
 // ============================================================================
 // SCENARIO TEXT
+//   The participant is a member of the construction team. The scenario is told
+//   by a narrator; what Bioenergy and the team write to each other is shown as
+//   written messages with a sender label.
 //   scenario(stage, cond, { surpriseText, figureVersion }) -> { pages: [...] }
-//   Each page: { paragraphs, figure (file name or null), alt, layout }
-//   **double asterisks** in a paragraph mark bold, as in the script.
+//   Each page: { blocks, figure (file name or null), alt, layout }
+//     blocks  in reading order, each { kind: "narration", paragraphs } or
+//             { kind: "message", label, paragraphs }
 //     layout "side"     text on the left, picture on the right
 //            "stacked"  text above the picture
 //            "text"     text only
-//   surpriseText   true / false: the underlined sentences of the evidence stage
-//                  (evidence-first conditions only)
+//   **double asterisks** in a paragraph mark bold, as in the script.
+//   surpriseText   true / false: the underlined sentences (in the test results and
+//                  in the team's message to Bioenergy; evidence-first conditions only)
 //   figureVersion  "table" / "line": which version of the evidence figure
 // ============================================================================
+const narration = (...paragraphs) => ({ kind: "narration", paragraphs });
+const message = (label, ...paragraphs) => ({ kind: "message", label, paragraphs });
+const FROM_BIOENERGY = "From Bioenergy to your team";
+const FROM_TEAM = "From your team to Bioenergy";
+
 export function scenario(stage, cond, { surpriseText = true, figureVersion = "table" } = {}) {
   const c = CONDITIONS[cond];
   const { anom, other } = outputs(c.anomaly);
   const evidenceFirst = c.order === "evidence_first";
-  const page = (paragraphs, figure = null, alt = "", layout = "text") => ({ paragraphs, figure, alt, layout });
+  // the underlined sentences exist only in the evidence-first conditions
+  const s = evidenceFirst && surpriseText;
+  const page = (blocks, figure = null, alt = "", layout = "text") => ({ blocks, figure, alt, layout });
 
   if (stage === "planet") {
-    return { pages: [page([
-      "People are planning to create a place for humans to live on an alien planet. The planet has water, air, and various kinds of small living things called organisms.",
-      "In science, the planet and its living organisms have been studied extensively and are now very well understood.",
-    ], `${IMG}1_planet_scene.png`,
+    return { pages: [page([narration(
+      "You are a member of a construction team. Your team is planning to create a place for humans to live on an alien planet. The planet has water, air, and various kinds of small living things called organisms.",
+      "The planet and its organisms have been studied for years, and science now understands them very well.",
+    )], `${IMG}1_planet_scene.png`,
     "Two people in space suits look over a planet with water and red rocks. An inset shows small organisms.", "side")] };
   }
 
   if (stage === "complexity") {
     const low = c.complexity === "low";
-    return { pages: [page([
+    return { pages: [page([narration(
       `Scientific findings show that **biological processes (the ways living things work) on this planet are usually ${low ? "simple" : "complex"}**.`,
       low
         ? "These processes usually involve a few chemical reactions and only a few factors matter for what happens."
@@ -94,7 +106,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
       low
         ? "**In science, these processes have been studied for years and are now very well understood.**"
         : "**Although complicated, these processes have been studied for years and are now very well understood in science.**",
-    ], `${IMG}2_${low ? "low" : "high"}_complex.png`,
+    )], `${IMG}2_${low ? "low" : "high"}_complex.png`,
     low
       ? "Diagram of the planet's biology: a few elements, simple chemistry and simple organisms, with few links between them."
       : "Diagram of the planet's biology: diverse elements, complex chemistry and complex organisms, with many links between them.", "side")] };
@@ -102,49 +114,64 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
 
   if (stage === "explanation1") {
     return { pages: [
+      page([narration(
+        "Your team is building apartments on this planet. The planet has four seasons: warm, cool, moderately cold, and extremely cold.",
+        "Your team announces that it is looking for a way to **keep the apartments warm**. An energy company called Bioenergy has a technology that uses one kind of organism found on the planet.",
+        "Bioenergy understands very well how this kind of organism works because it has closely studied the organism. Scientific findings suggest that the organism is representative of other life forms on the planet in terms of its level of complexity.",
+      )]),
       page([
-        "A construction team is building apartments on this planet. The planet has four seasons: warm, cool, moderately cold, and extremely cold. The construction team needs technology that can produce heat to keep apartments warm.",
-        "An energy company called Bioenergy suggests one of its technologies that uses one kind of the organisms found on the planet.",
-        "The company understands very well how this kind of organism works because it has closely studied the organism. Scientific findings suggest that the organism is representative of other life forms on the planet in terms of its level of complexity.",
-      ]),
-      page([
-        "The company explains the technology relies on part of the organism's biological process.",
-        "In this process, **the organism uses a certain gas from the air to produce heat and a purple substance called a pigment**. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. When more of this gas is available, the organism produces more heat and more purple pigment.",
-        "The company also explains that **the planet's air holds more of this gas when the weather is colder**. So in colder weather, there is more gas around the organism.",
+        narration("Bioenergy writes to your team to recommend its technology."),
+        message(FROM_BIOENERGY,
+          "We saw that your team is looking for a way to keep apartments warm. We recommend our technology.",
+          "Our technology relies on one of the organism's biological processes. In this process, **the organism uses a certain gas from the air to produce heat and a purple substance called a pigment**. More pigment makes the organism look more purple. The pigment is harmless and has no known practical use. **When more of this gas is available, the organism produces more heat and more purple pigment.**",
+          "**The planet's air holds more of this gas when the weather is colder**. So in colder weather, there is more gas around the organism.",
+        ),
       ], `${IMG}3_explanation1.png`,
-      "The company explains: with more gas, the organism can produce more heat and more purple pigment. Colder weather means more gas in the air.", "stacked"),
+      "Bioenergy's explanation: with more gas, the organism can produce more heat and more purple pigment. Colder weather means more gas in the air.", "stacked"),
     ] };
   }
 
   if (stage === "evidence") {
-    // the underlined sentences exist only in the evidence-first conditions
-    const s = evidenceFirst && surpriseText;
-    return { pages: [page([
-      "Before deciding whether to use the technology, the construction team gets a sample of the organism from the company.",
-      "The construction team mainly wants to know if the organism can produce heat as explained.",
-      "The construction team tests the sample in a laboratory at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet.",
+    return { pages: [page([narration(
+      "Before deciding whether to use the technology, your team asks Bioenergy for a sample of the organism. Bioenergy sends the sample, and you send it to your team's laboratory for testing.",
+      "Your team's lab tests the sample at four different temperatures. During the tests, more of the gas is available when it is colder, just as on the planet.",
+      "Your team mainly wants to know if the organism can produce heat as explained.",
       "As it gets colder, from warm to cool to moderately cold, the organism produces more heat and more purple pigment." + (s ? " This is expected." : ""),
-      `When it is extremely cold, the organism still produces more ${other}` + (s ? ", as expected" : "") +
+      `When it is extremely cold, the organism produces even more ${other}` + (s ? ", as expected" : "") +
         `. But it produces less ${anom} than when it is moderately cold.` +
         (s ? " This is unexpected, because more gas is available for the organism to use." : ""),
-    ], `${IMG}4_evidence_${c.anomaly}_anomaly${figureVersion === "line" ? "_line" : ""}.png`,
+    )], `${IMG}4_evidence_${c.anomaly}_anomaly${figureVersion === "line" ? "_line" : ""}.png`,
     "Laboratory observations at four temperatures, from warm to extremely cold: gas available, organism color and heat output.", "stacked")] };
   }
 
   if (stage === "elaboration") {
-    return { pages: [page([
-      ...(evidenceFirst ? ["The construction team asks the company about this unexpected result."] : []),
-      `The company ${evidenceFirst ? "explains" : "further explains"} that even smaller living things called algae live inside the organism. **The organism can produce ${anom} only with the help of the algae.**`,
-      `The algae need liquid water to stay active. When they are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.`,
+    // Bioenergy's account of the algae: a reply to the team's question when the
+    // evidence came first, otherwise the continuation of its first message
+    const algae = message(evidenceFirst ? FROM_BIOENERGY : `${FROM_BIOENERGY} (continued)`,
+      `Even smaller living things called algae live inside the organism. **The organism can produce ${anom} only with the help of the algae.**`,
+      `The algae need liquid water to stay active. **When the algae are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.**`,
       `As the weather gets colder, more gas is available in the air. When it is moderately cold, the algae use the extra gas to produce more ${anom}.`,
-      `But when it is extremely cold, most of the water available to the algae freezes. As a result, the algae become less active and produce less ${anom}, even though more gas is available.`,
-      `The organism produces ${other} on its own, without the algae. So it keeps producing more ${other} as the weather gets colder.`,
-    ], `${IMG}5_explanation2_${c.anomaly}_anomaly.png`,
-    "The company explains what happens inside the organism when it is moderately cold and when it is extremely cold.", "stacked")] };
+      `But **when it is extremely cold, most of the water available to the algae freezes**. As a result, the algae become less active and produce less ${anom}, even though more gas is available.`,
+      `**The organism produces ${other} on its own, without the algae.** So it keeps producing more ${other} as the weather gets colder.`,
+    );
+    const figure = `${IMG}5_explanation2_${c.anomaly}_anomaly.png`;
+    const alt = "Bioenergy's explanation of what happens inside the organism when it is moderately cold and when it is extremely cold.";
+    if (!evidenceFirst) return { pages: [page([narration("Bioenergy's message continues."), algae], figure, alt, "stacked")] };
+    return { pages: [
+      page([
+        narration("Your team decides to ask Bioenergy about the test."),
+        message(FROM_TEAM, `We tested the sample. When it was extremely cold, the organism produced less ${anom} than when it was moderately cold.` +
+          (s ? " This is not what we expected." : "") + " Can you explain why?"),
+      ]),
+      page([narration("Bioenergy replies."), algae], figure, alt, "stacked"),
+    ] };
   }
 
   throw new Error(`Unknown stage: ${stage}`);
 }
+
+/** All paragraphs of a page, narration and messages, in reading order. */
+export const pageParagraphs = (page) => page.blocks.flatMap((b) => b.paragraphs);
 
 // ============================================================================
 // QUESTIONS
@@ -175,35 +202,40 @@ const AMOUNT = (noun) => [`Less ${noun}`, `About the same amount of ${noun}`, `M
 function predictionItems() {
   return [
     likert("pred_heat", "main", "Heat prediction", "prediction",
-      "How much heat would you expect the organism to produce when it is extremely cold, compared with when it is moderately cold?",
+      "Compared with when it is **moderately cold**, how much **heat** would you expect the organism to produce when it is **extremely cold**?",
       "Much less heat", "Much more heat", "About the same amount of heat"),
     likert("pred_pigment", "main", "Pigment prediction", "prediction",
-      "How much purple pigment would you expect the organism to produce when it is extremely cold, compared with when it is moderately cold?",
+      "Compared with when it is **moderately cold**, how much **purple pigment** would you expect the organism to produce when it is **extremely cold**?",
       "Much less purple pigment", "Much more purple pigment", "About the same amount of purple pigment"),
   ];
 }
 
 // Primary and secondary measures asked after the last stage, in both orders. The
-// complexity, trust and utility blocks (one screen each) come in random order.
+// complexity, trust and utility blocks (one screen each) come in random order;
+// the decision question follows them.
 function finalMeasures() {
   const blocks = ["complexity", "trust", "utility"];
   return [
+    // the first two have the wording of the two part 3 organism questions (pilot), of which each participant saw one
     likert("complexity_overall", "main", "Complexity (primary)", "complexity",
-      "How simple or complex is the way this organism works?", "Very simple", "Very complex"),
-    likert("complexity_other_factors", "main", "Complexity (primary)", "complexity",
-      "Besides what has been explained so far, how many other factors do you think affect how this organism works?", "None", "Very many"),
+      "Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be?", "Very simple", "Very complex"),
+    likert("complexity_more_to_know", "main", "Complexity (primary)", "complexity",
+      "Besides what the company has said, how much more do you think there is to know about how this organism works?", "Nothing more", "A great deal more"),
     likert("complexity_other_factors_heat", "main", "Complexity (primary)", "complexity",
-      "Besides what has been explained so far, how likely is it that other factors affect how much heat this organism produces?", "Very unlikely", "Very likely"),
+      "Besides what the company has said, how likely is it that other factors affect how much heat this organism produces?", "Very unlikely", "Very likely"),
     likert("trust_tell", "main", "Source trust / Cooperativeness (primary)", "trust",
-      "How much do you trust the company to tell the construction team what it needs to know?", "Not at all", "Completely"),
+      "How much do you trust the company to tell your team what it needs to know?", "Not at all", "Completely"),
     likert("trust_care", "main", "Source trust / Cooperativeness (primary)", "trust",
-      "When explaining the technology, how much does the company care about what is best for the construction team?", "Not at all", "Very much"),
+      "When explaining the technology, how much does the company care about what is best for your team?", "Not at all", "Very much"),
     likert("trust_help", "main", "Source trust / Cooperativeness (primary)", "trust",
-      "When the company chose what to explain, how much was it trying to help the construction team make a good decision?", "Not at all", "Very much"),
+      "When the company chose what to explain, how much was it trying to help your team make a good decision?", "Not at all", "Very much"),
     likert("utility_coldest", "main", "Utility (secondary control)", "utility",
       "How well would the technology keep apartments warm in the planet's coldest season?", "Not well at all", "Very well"),
     likert("utility_overall", "main", "Utility (secondary control)", "utility",
       "How good is this technology for heating apartments?", "Not at all good", "Very good"),
+    // asked after the three randomized blocks
+    likert("decision_recommend", "main", "Decision", "decision",
+      "How likely would you be to recommend that your team use this technology?", "Very unlikely", "Very likely"),
     likert("expl2_explains", "main", "Further measure: explanation 2 evaluations", "explanation2",
       "How well does the company's explanation about the algae explain the test results?", "Not well at all", "Very well"),
     likert("expl2_real_reason", "main", "Further measure: explanation 2 evaluations", "explanation2",
@@ -226,11 +258,13 @@ function evidencePilotItems(c) {
   const { anom } = outputs(c.anomaly);
   return [
     likert("surprise", "pilot", "Difference from expectations / Surprise", "evidence_check",
-      "How different are these results from what you expected based on the company's explanation?", "Not at all different", "Extremely different"),
+      "How different are these results from what you expected based on the company's message?", "Not at all different", "Extremely different"),
+    choice("inquiry", "pilot", "Inquiry", "evidence_check",
+      "Would you ask Bioenergy about this result?", ["Yes", "No"]),
     choice("gas_availability", "pilot", "Gas availability", "evidence_check",
       "How much gas was available when it was extremely cold, compared with when it was moderately cold?", AMOUNT("gas"), 2),
     likert("anomaly_relevance", "pilot", `Anomaly relevance, ${c.anomaly} anomaly version`, "evidence_check",
-      `The organism produces less ${anom} when it is extremely cold. How much does this matter for the construction team's goal of keeping apartments warm?`, "Not at all", "Very much"),
+      `The organism produces less ${anom} when it is extremely cold. How much does this matter for your team's goal of keeping apartments warm?`, "Not at all", "Very much"),
   ];
 }
 
@@ -275,11 +309,11 @@ export function questions(stage, cond) {
     // the two blocks (one screen each) are shown in random order
     return [
       likert("planet_complexity_overall", "main", cx, "planet_complexity",
-        "Overall, how simple or complex are the biological processes on this planet?", "Very simple", "Very complex"),
+        "Overall, how simple or complex do you think the biological processes on this planet are?", "Very simple", "Very complex"),
       likert("planet_complexity_factors", "pilot", cx, "planet_complexity",
-        "How many different factors usually affect a biological process on this planet?", "Very few", "Very many"),
+        "How many different factors do you think usually affect a biological process on this planet?", "Very few", "Very many"),
       likert("planet_complexity_interaction", "pilot", cx, "planet_complexity",
-        "How much does the effect of one factor change when other factors change?", "Not at all", "Very much"),
+        "How much do you expect the effect of one factor to change when other factors change?", "Not at all", "Very much"),
       likert("planet_understanding_overall", "main", un, "planet_understanding",
         "How well does science understand the biological processes on this planet?", "Not well at all", "Very well"),
       likert("planet_understanding_factors", "pilot", un, "planet_understanding",
@@ -293,21 +327,21 @@ export function questions(stage, cond) {
     return [
       // predictions follow explanation 1 only when the evidence comes next
       ...(evidenceFirst ? predictionItems() : []),
-      { ...choice("team_goal", "main", "Construction team's goal", "goal",
-        "What is the construction team's main reason for considering the technology?",
+      { ...choice("team_goal", "main", "Team's goal", "goal",
+        "What is your team's main reason for considering the technology?",
         ["To keep apartments warm in cold weather", "To produce purple pigment", "To study how the organism changes color", "To increase the amount of gas in the air", "I don't remember"], 0),
         shuffleOptions: true, pinLast: 1 },
       { ...likert("relevance_heat", "pilot", "Relevance of heat", "goal",
-        "How important is the amount of heat produced for the construction team's goal?", "Not at all important", "Extremely important"), itemShuffle: "relevance" },
+        "How important is the amount of **heat** produced for your team's goal?", "Not at all important", "Extremely important"), itemShuffle: "relevance" },
       { ...likert("relevance_pigment", "pilot", "Relevance of pigment", "goal",
-        "How important is the amount of purple pigment produced for the construction team's goal?", "Not at all important", "Extremely important"), itemShuffle: "relevance" },
+        "How important is the amount of **purple pigment** produced for your team's goal?", "Not at all important", "Extremely important"), itemShuffle: "relevance" },
       likert("company_knowledge", "pilot", "Company knowledge", "organism",
         "How well does the company understand how the organism works?", "Not well at all", "Very well"),
       // each participant gets one of these two, chosen at random
       { ...likert("organism_complexity", "pilot", "Complexity of the organism's processes", "organism",
-        "Thinking about this organism as a whole, not just the process explained, how simple or complex do you expect it to be?", "Very simple", "Very complex"), pickOne: "organism_question" },
+        "Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be?", "Very simple", "Very complex"), pickOne: "organism_question" },
       { ...likert("organism_more_to_know", "pilot", "Complexity of the organism's processes", "organism",
-        "Besides what the company has explained, how much more do you think there is to know about how this organism works?", "Nothing more", "A great deal more"), pickOne: "organism_question" },
+        "Besides what the company has said, how much more do you think there is to know about how this organism works?", "Nothing more", "A great deal more"), pickOne: "organism_question" },
       open("open_explanation1", "pilot", "Causal knowledge", "explanation1_open",
         "In your own words, explain how the weather, the gas, the heat, and the purple pigment are connected."),
       // alternatives to the open response; documented in the script, not asked
@@ -345,16 +379,16 @@ export function questions(stage, cond) {
       algaeDependenceItem(c),
       ...finalMeasures(),
       likert("expl2_reasonable_addition", "main", e2, "explanation2_agree",
-        "How much do you agree or disagree with this statement? The company's explanation about the algae is a reasonable addition to its first explanation.", "Strongly disagree", "Strongly agree"),
+        "How much do you agree or disagree with this statement? The company's explanation about the algae is a reasonable addition to its first message.", "Strongly disagree", "Strongly agree"),
       likert("expl2_excuses", "main", e2, "explanation2_agree",
         "How much do you agree or disagree with this statement? The company seems to be making excuses for the test results.", "Strongly disagree", "Strongly agree"),
       likert("should_have_mentioned", "main", cf, "counterfactual",
-        "Should the company have mentioned the algae in its first explanation?", "Definitely not", "Definitely yes"),
+        "Should the company have mentioned the algae in its first message?", "Definitely not", "Definitely yes"),
       likert("omission_acceptable", "main", cf, "counterfactual",
-        "How acceptable was it for the company to leave the algae out of its first explanation?", "Not at all acceptable", "Completely acceptable"),
+        "How acceptable was it for the company to leave the algae out of its first message?", "Not at all acceptable", "Completely acceptable"),
       ...algaeOpenItems(c),
       likert("company_knew_algae", "pilot", "Knowledge check", "company",
-        "How likely is it that the company already knew about the algae when it first explained the organism?", "Very unlikely", "Very likely"),
+        "How likely is it that the company already knew about the algae when it sent its first message?", "Very unlikely", "Very likely"),
       ...algaeAlternativeItems(),
     ];
   }
@@ -383,14 +417,14 @@ export function orderNotes(stage, cond) {
   // the end evaluations follow the last stage: elaboration when the evidence came first, evidence otherwise
   const lastStage = STAGE_SEQUENCE[CONDITIONS[cond].order][4];
   if (stage === lastStage) {
-    return ["The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table."];
+    return ["The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table, so the decision question comes after these three blocks."];
   }
   if (stage === "complexity") {
     return ["The two question blocks (perceived complexity, perceived scientific understanding) are shown in random order. The order of the questions within a block is fixed. In the main study each block has one question, so this randomizes the order of the two questions."];
   }
   if (stage === "explanation1") {
     return [
-      "The answer options of the construction team's goal question are shown in random order, except that \"I don't remember\" is always last.",
+      "The answer options of the team's goal question are shown in random order, except that \"I don't remember\" is always last.",
       "The two relevance questions (heat, pigment) are shown in random order.",
       "Each participant sees one of the two questions on the complexity of the organism's processes (how simple or complex the organism is as a whole; how much more there is to know about how it works), chosen at random.",
     ];
