@@ -1,5 +1,5 @@
 /**
- * main.js — complexity-priors pilot 1, vignette 1.
+ * main.js — explanation-revision pilot 1, vignette 1.
  *
  * Three-factor between-participants design (order x complexity x evidence; the 8
  * conditions of the script's design table). Two further things are randomized
@@ -57,9 +57,9 @@ import { saveConsentPdf } from "./consent-pdf.js";
 import { requestFullscreenSafe, isFullscreen, hideFullscreenOverlay, isMobileDevice, enableSafeguards, disableSafeguards, installIntegrityListeners } from "./integrity.js";
 
 document.title = STUDY.title;
-// read-lock of a page with `nWords` words of text and `extra` seconds of its own
-// (0 when a tester has the read-locks off)
-const lock = (nWords, extra = 0) => (state.locks ? readLockSeconds(nWords, extra) : 0);
+// read-lock of a scenario page: its fixed lock if it has one, otherwise by its
+// word count plus its extra seconds (0 when a tester has the read-locks off)
+const pageLock = (page) => (!state.locks ? 0 : page.lockSeconds ?? readLockSeconds(pageWordCount(page), page.lockExtra));
 const T0 = performance.now();   // page load, for total_time_ms
 const randomInt = (min, max) => Math.floor(Math.random() * (max - min + 1)) + min;
 const eyebrow = (text) => `<div class="eyebrow">${text}</div>`;
@@ -421,7 +421,7 @@ function showSetup(el) {
 
 function showWelcome(el) {
   el.innerHTML = card(`${eyebrow("Welcome")}<h1>${rich(WELCOME.title)}</h1>
-    ${WELCOME.paragraphs.map((p, k) => `<p${k === 0 ? ' class="lead"' : ""}>${rich(fillStudyValues(p))}</p>`).join("")}
+    ${WELCOME.paragraphs.map((p, k) => `<p>${rich(fillStudyValues(p))}</p>`).join("")}
     <div class="btn-row"><button class="btn btn-lg" id="card-btn">Continue</button></div>`, "card-narrow");
   el.querySelector("#card-btn").addEventListener("click", () => go(+1, { task: "welcome" }));
 }
@@ -594,7 +594,7 @@ function showScenario(el, s) {
   cleanup = fitScenarioPage(el, page.layout, s.stage);
   const btn = el.querySelector("#card-btn");
   const nWords = pageWordCount(page);          // the read-lock grows with the text; some pages add seconds of their own
-  lockButton(btn, lock(nWords, page.lockExtra), label);
+  lockButton(btn, pageLock(page), label);
   btn.addEventListener("click", () => {
     const img = el.querySelector(".scenario-figure img");
     go(+1, {
@@ -607,7 +607,7 @@ function showScenario(el, s) {
       needed_scrolling: document.documentElement.scrollHeight > window.innerHeight + 1,
       viewport_width: window.innerWidth, viewport_height: window.innerHeight,
       n_words: nWords,
-      lock_seconds: lock(nWords, page.lockExtra),
+      lock_seconds: pageLock(page),
     });
   });
 }

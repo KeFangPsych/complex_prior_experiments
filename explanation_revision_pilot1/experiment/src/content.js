@@ -1,7 +1,7 @@
 /**
  * content.js — vignette 1: scenario text, figures and questions.
  *
- * Transcribed from ../complex_prior_pilot1_vignette1_script.md, which stays the
+ * Transcribed from ../explanation_revision_pilot1_vignette1_script.md, which stays the
  * source of truth: `npm run check:script` renders every condition from this file
  * and fails if any paragraph, message, page break, figure name, question, scale,
  * Main/Pilot tag or presentation-order note differs from the script. Edit the script first, then mirror the change here.
@@ -88,6 +88,7 @@ const IMG = "vignette1_img";
 //   Each page: { blocks, figure (file name or null), alt, layout, figureInReport, lockExtra }
 //     figureInReport  the picture is shown inside the page's lab report box
 //     lockExtra       seconds added to the page's read-lock (LOCK_EXTRA below)
+//     lockSeconds     a fixed read-lock for the page, instead of the word-count rule (LOCK_FIXED below)
 //     blocks  in reading order, each { kind: "narration", paragraphs },
 //             { kind: "message", label, paragraphs } (a speech bubble) or
 //             { kind: "report", label, paragraphs } (the lab report box).
@@ -108,7 +109,9 @@ const LAB_REPORT = "Lab report from your team's lab";
 // in than their word count says (a dense paragraph, or a picture that has to be
 // read), so they stay locked for this many seconds longer. The numbers come from
 // reading times in testing and are stated in the script.
-export const LOCK_EXTRA = { explanation1_intro: 8, explanation1_message: 10, lab_report: 6, algae: 17 };
+export const LOCK_EXTRA = { explanation1_intro: 8, lab_report: 6, algae: 17 };
+// The page with Bioenergy's first message has a fixed read-lock, in seconds.
+export const LOCK_FIXED = { explanation1_message: 25 };
 const FROM_BIOENERGY = "From Bioenergy to your team";
 const FROM_TEAM = "From your team to Bioenergy";
 
@@ -118,7 +121,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
   const evidenceFirst = c.order === "evidence_first";
   // the underlined sentences exist only in the evidence-first conditions
   const s = evidenceFirst && surpriseText;
-  const page = (blocks, figure = null, alt = "", layout = "text", extra = {}) => ({ blocks, figure, alt, layout, figureInReport: false, lockExtra: 0, ...extra });
+  const page = (blocks, figure = null, alt = "", layout = "text", extra = {}) => ({ blocks, figure, alt, layout, figureInReport: false, lockExtra: 0, lockSeconds: null, ...extra });
 
   if (stage === "planet") {
     return { pages: [page([narration(
@@ -156,11 +159,11 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
         message(FROM_BIOENERGY,
           "We saw that your team is looking for a way to keep apartments warm. We recommend our technology.",
           "Our technology uses part of the biological process found in a specific type of organism.",
-          "In this process, **the organism uses a certain gas from the air to produce heat and a purple substance called a pigment that makes it look purple.** The pigment is harmless and has no other practical use.",
+          "In this process, **the organism uses a certain gas from the planet's air to produce heat. It also uses this gas to produce a purple substance called a pigment that makes it look purple** (the pigment is harmless and has no other practical use).",
           "**The planet's air holds more of this gas when the weather is colder. So in colder weather, there is more gas around the organism. When more of this gas is available, the organism produces more heat and looks more purple.**",
         ),
       ], `${IMG}3_explanation1.png`,
-      "Bioenergy's explanation: with more gas, the organism can produce more heat and more purple pigment, which makes it look more purple. Colder weather means more gas in the air.", "stacked", { lockExtra: LOCK_EXTRA.explanation1_message }),
+      "Bioenergy's explanation: with more gas, the organism can produce more heat and more purple pigment, which makes it look more purple. Colder weather means more gas in the air.", "stacked", { lockSeconds: LOCK_FIXED.explanation1_message }),
     ] };
   }
 

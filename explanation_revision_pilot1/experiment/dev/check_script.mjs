@@ -23,12 +23,12 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { LOCK_EXTRA, CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentCells, cellFromCounter, assignmentFromIndex, indexFromAssignment, scenario, pageParagraphs, questions, questionPages, randomizePages, orderNotes, scriptText, RANDOMIZATIONS } from "../src/content.js";
+import { LOCK_EXTRA, LOCK_FIXED, CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentCells, cellFromCounter, assignmentFromIndex, indexFromAssignment, scenario, pageParagraphs, questions, questionPages, randomizePages, orderNotes, scriptText, RANDOMIZATIONS } from "../src/content.js";
 import { CONFIG, WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, fillStudyValues } from "../src/config.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const SCRIPT = path.join(here, "../../complex_prior_pilot1_vignette1_script.md");
-const IMAGES = path.join(here, "../../complex_prior_pilot1_vignette1_images");
+const SCRIPT = path.join(here, "../../explanation_revision_pilot1_vignette1_script.md");
+const IMAGES = path.join(here, "../../explanation_revision_pilot1_vignette1_images");
 
 const unescape = (s) => s.replace(/\\([_=()*.\-#])/g, "$1");
 const md = fs.readFileSync(SCRIPT, "utf8").split("\n");
@@ -363,14 +363,14 @@ for (const [cond, stage] of [[1, "planet"], [1, "evidence"], [5, "planet"], [5, 
   const listed = RANDOMIZATIONS.flatMap((r) => r.columns);
   same(where, "columns of the random orders", [...drawn].sort().join(), listed.filter((c) => !ASSIGNED.includes(c)).sort().join());
   same(where, "columns of the assignment", listed.filter((c) => ASSIGNED.includes(c)).sort().join(), [...ASSIGNED].sort().join());
-  const lockLine = `Reading time: the Continue button stays locked for ${CONFIG.instruction_lock_seconds} seconds on the instruction page. On each scenario page it stays locked for 1 second per ${CONFIG.read_lock_words_per_second} words of text, and for at least ${CONFIG.read_lock_min_seconds} seconds. Four pages have more to take in and stay locked for longer: the first page of Stage 3 (${LOCK_EXTRA.explanation1_intro} seconds more), Bioenergy's first message (${LOCK_EXTRA.explanation1_message} seconds more), the lab report (${LOCK_EXTRA.lab_report} seconds more) and the algae explanation (${LOCK_EXTRA.algae} seconds more).`;
+  const lockLine = `Reading time: the Continue button stays locked for ${CONFIG.instruction_lock_seconds} seconds on the instruction page. On each scenario page it stays locked for 1 second per ${CONFIG.read_lock_words_per_second} words of text, and for at least ${CONFIG.read_lock_min_seconds} seconds. Three pages have more to take in and stay locked for longer: the first page of Stage 3 (${LOCK_EXTRA.explanation1_intro} seconds more), the lab report (${LOCK_EXTRA.lab_report} seconds more) and the algae explanation (${LOCK_EXTRA.algae} seconds more). The page with Bioenergy's first message is locked for ${LOCK_FIXED.explanation1_message} seconds.`;
   same(where, "read-lock sentence", intro.find((l) => l.startsWith("Reading time:")) || null, lockLine);
-  // exactly those four kinds of page carry extra seconds
+  // exactly those pages carry extra seconds or a fixed lock
   for (const cond of Object.keys(CONDITIONS).map(Number)) {
-    const extras = STAGE_SEQUENCE[CONDITIONS[cond].order].flatMap((s) => scenario(s, cond).pages.map((pg, n) => `${s} ${n + 1}: ${pg.lockExtra}`)).filter((x) => !x.endsWith(": 0"));
+    const special = STAGE_SEQUENCE[CONDITIONS[cond].order].flatMap((s) => scenario(s, cond).pages.map((pg, n) => `${s} ${n + 1}: +${pg.lockExtra}, fixed ${pg.lockSeconds}`)).filter((x) => !x.endsWith(": +0, fixed null"));
     const algaePage = CONDITIONS[cond].order === "evidence_first" ? 2 : 1;
-    same(`${where}, cond ${cond}`, "pages with extra lock seconds", [...extras].sort().join("; "),
-      [`explanation1 1: ${LOCK_EXTRA.explanation1_intro}`, `explanation1 2: ${LOCK_EXTRA.explanation1_message}`, `evidence 2: ${LOCK_EXTRA.lab_report}`, `elaboration ${algaePage}: ${LOCK_EXTRA.algae}`].sort().join("; "));
+    same(`${where}, cond ${cond}`, "pages with their own lock", [...special].sort().join("; "),
+      [`explanation1 1: +${LOCK_EXTRA.explanation1_intro}, fixed null`, `explanation1 2: +0, fixed ${LOCK_FIXED.explanation1_message}`, `evidence 2: +${LOCK_EXTRA.lab_report}, fixed null`, `elaboration ${algaePage}: +${LOCK_EXTRA.algae}, fixed null`].sort().join("; "));
   }
   const openLine = `Open responses: each open-response question needs at least ${CONFIG.open_min_chars} characters. The final comments are optional.`;
   same(where, "open-response sentence", intro.find((l) => l.startsWith("Open responses:")) || null, openLine);

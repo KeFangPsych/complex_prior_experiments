@@ -10,7 +10,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "complex_prior_pilot1/**"
+      - "explanation_revision_pilot1/**"
       - ".github/workflows/deploy-pages.yml"
   workflow_dispatch:
 
@@ -28,14 +28,14 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: complex_prior_pilot1/experiment
+        working-directory: explanation_revision_pilot1/experiment
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: complex_prior_pilot1/experiment/package-lock.json
+          cache-dependency-path: explanation_revision_pilot1/experiment/package-lock.json
       - run: npm ci
       # the experiment must match the vignette script before it is published
       - run: npm run check:script
@@ -44,7 +44,7 @@ jobs:
         working-directory: .
         run: |
           mkdir -p _site/pilot1_vignette1
-          cp -r complex_prior_pilot1/experiment/dist/. _site/pilot1_vignette1/
+          cp -r explanation_revision_pilot1/experiment/dist/. _site/pilot1_vignette1/
           touch _site/.nojekyll
       - uses: actions/upload-pages-artifact@v3
         with:

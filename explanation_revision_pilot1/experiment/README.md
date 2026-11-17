@@ -1,7 +1,7 @@
-# Complexity priors, pilot 1, vignette 1 — jsPsych experiment
+# Explanation revision, pilot 1, vignette 1 — jsPsych experiment
 
 A jsPsych 8 experiment built from
-[`../complex_prior_pilot1_vignette1_script.md`](../complex_prior_pilot1_vignette1_script.md).
+[`../explanation_revision_pilot1_vignette1_script.md`](../explanation_revision_pilot1_vignette1_script.md).
 Participants take the role of a member of a construction team on an alien
 planet. They read a five-part scenario about a technology offered by a company
 (text plus a picture per part) and answer questions after each part. What the
@@ -90,12 +90,16 @@ npm run preview
 
 ## Online version (GitHub Pages)
 
-Every push to `main` that touches `complex_prior_pilot1/` rebuilds the experiment
+Every push to `main` that touches `explanation_revision_pilot1/` rebuilds the experiment
 and publishes it (workflow `.github/workflows/deploy-pages.yml`; it runs
 `npm run check:script` first and does not publish if that fails):
 
 - participant version: <https://kefangpsych.github.io/complex_prior_experiments/pilot1_vignette1/>
 - testing mode: <https://kefangpsych.github.io/complex_prior_experiments/pilot1_vignette1/?debug=1>
+
+These addresses contain the repository's name. If the repository is renamed,
+they change with it (the old ones stop working), so update them here, in the
+workflow file's comment and in the Prolific study URL.
 
 One-time setup in the repository: Settings → Pages → Build and deployment →
 Source: **GitHub Actions**. The site saves to the DataPipe experiment named in
@@ -114,7 +118,7 @@ participants who are part-way through would get a mix of old and new files.
 | `src/ui.js` | stepper frame, cards, read-lock, and the question components (5-point rating scale, multiple choice, open response) |
 | `src/integrity.js` | fullscreen, viewport lock, mobile block, copy / print / screenshot protections, tab / blur logging |
 | `src/page-plugin.js` | a small jsPsych plugin for hand-built screens |
-| `src/images.js` | resolves picture names to URLs; the pictures stay in `../complex_prior_pilot1_vignette1_images/` |
+| `src/images.js` | resolves picture names to URLs; the pictures stay in `../explanation_revision_pilot1_vignette1_images/` |
 | `src/state.js`, `src/styles.css`, `src/autoplay.js` | run-time state, styles, the debug-only test bot |
 | `dev/check_script.mjs` | checks `content.js` against the script (`npm run check:script`) |
 | `dev/count_cells.mjs`, `dev/csv.mjs` | counts completed participants per cell and prints a top-up list (`npm run cells -- <folder>`) |
@@ -218,18 +222,21 @@ checks that each of these columns is filled and matches what was shown, and
 (300 words per minute, `CONFIG.read_lock_words_per_second`) and for at least 10
 seconds (`CONFIG.read_lock_min_seconds`). This applies to every scenario page;
 the words counted are the page's paragraphs and sender labels. The instruction
-page has a fixed lock of 10 seconds (`CONFIG.instruction_lock_seconds`). Four pages have more to take in than their word count says, a dense
-paragraph or a picture that has to be read, and stay locked for extra seconds
-(`LOCK_EXTRA` in `src/content.js`; the script states the numbers): the first
-page of part 3 (+8), the company's first message (+10), the lab report (+6)
-and the algae explanation (+17). These were set from reading times in testing.
+page has a fixed lock of 10 seconds (`CONFIG.instruction_lock_seconds`).
+
+Three pages have more to take in than their word count says, a dense paragraph
+or a picture that has to be read, and stay locked for extra seconds
+(`LOCK_EXTRA` in `src/content.js`): the first page of part 3 (+8), the lab
+report (+6) and the algae explanation (+17). The page with the company's first
+message has a fixed lock of 25 seconds (`LOCK_FIXED`). These were set from
+reading times in testing, and the script states the numbers.
 The resulting locks:
 
 | page | lock |
 |---|---|
 | instructions | 10 s |
 | part 1; part 2 | 11 s; 10 s (simple) or 14 s (complex) |
-| part 3, page 1; page 2 (company's first message) | 25 s; 35 s |
+| part 3, page 1; page 2 (company's first message) | 25 s; 25 s |
 | evidence part, page 1; lab report | 10 s; 23 s with the surprise text, 20 s without |
 | the team's question (evidence first) | 10 s |
 | algae explanation | 48 to 51 s, depending on the version |
@@ -266,7 +273,7 @@ never asked.
 - Questions are grouped onto screens of one to four related items (the `page` key
   of each item in `content.js`).
 - Every question must be answered. Open responses need at least
-  `CONFIG.open_min_chars` (100) characters; a counter under the box shows how
+  `CONFIG.open_min_chars` (50) characters; a counter under the box shows how
   many are written. The script states the number.
 - No feedback is given on the memory questions and nobody is screened out;
   correctness is recorded only.
@@ -465,8 +472,8 @@ participant sent to `https://app.prolific.com/submissions/complete?cc=<code>`.
 
 ### 1. Test with the test experiment
 
-`DATAPIPE.experiment_id` is currently the test experiment
-(`complex_prior_pilot1_test`). On its DataPipe dashboard:
+`DATAPIPE.experiment_id` is currently the test experiment (ID `D4qnt4FqnpkJ`).
+On its DataPipe dashboard:
 
 | setting | set to |
 |---|---|

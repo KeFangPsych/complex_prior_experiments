@@ -1,9 +1,9 @@
 {
-  "name": "complex-prior-pilot1-vignette1",
+  "name": "explanation-revision-pilot1-vignette1",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "jsPsych experiment for complexity-priors pilot 1, vignette 1",
+  "description": "jsPsych experiment for explanation-revision pilot 1, vignette 1",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

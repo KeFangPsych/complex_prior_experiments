@@ -1,4 +1,4 @@
-# **Complexity priors vignette script (message version)**
+# **Explanation revision vignette script (message version)**
 
 ## **Design**
 
@@ -45,9 +45,9 @@ Everything that is randomized, and the data column that records what was drawn:
 
 The condition, the evidence figure and the surprise text are crossed into 32 assignment cells that are filled in turn, so they stay balanced. Everything else is drawn separately for each participant, with every version equally likely. Nothing else is randomized: all other pages, questions and answer options keep the order of this document.
 
-Reading time: the Continue button stays locked for 10 seconds on the instruction page. On each scenario page it stays locked for 1 second per 5 words of text, and for at least 10 seconds. Four pages have more to take in and stay locked for longer: the first page of Stage 3 (8 seconds more), Bioenergy's first message (10 seconds more), the lab report (6 seconds more) and the algae explanation (17 seconds more).
+Reading time: the Continue button stays locked for 10 seconds on the instruction page. On each scenario page it stays locked for 1 second per 5 words of text, and for at least 10 seconds. Three pages have more to take in and stay locked for longer: the first page of Stage 3 (8 seconds more), the lab report (6 seconds more) and the algae explanation (17 seconds more). The page with Bioenergy's first message is locked for 25 seconds.
 
-Open responses: each open-response question needs at least 100 characters. The final comments are optional.
+Open responses: each open-response question needs at least 50 characters. The final comments are optional.
 
 Recorded timing: the time spent on every screen, and for every question the time of the first and of the last answer.
 
@@ -158,7 +158,7 @@ Bioenergy writes to your team to recommend its technology.
 >
 > Our technology uses part of the biological process found in a specific type of organism.
 >
-> In this process, **the organism uses a certain gas from the air to produce heat and a purple substance called a pigment that makes it look purple.** The pigment is harmless and has no other practical use.
+> In this process, **the organism uses a certain gas from the planet's air to produce heat. It also uses this gas to produce a purple substance called a pigment that makes it look purple** (the pigment is harmless and has no other practical use).
 >
 > **The planet's air holds more of this gas when the weather is colder. So in colder weather, there is more gas around the organism. When more of this gas is available, the organism produces more heat and looks more purple.**
 

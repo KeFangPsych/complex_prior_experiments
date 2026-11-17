@@ -25,7 +25,7 @@
 // See "DataPipe and Prolific" in the README for the full checklist.
 // ============================================================================
 export const DATAPIPE = {
-  // The TEST experiment "complex_prior_pilot1_test". REPLACE with the ID of the
+  // The TEST experiment on DataPipe. REPLACE with the ID of the
   // real experiment before recruiting, and set CONFIG.allow_dev_flags to false in
   // the same change, so that no test run can reach the real data or its counter.
   experiment_id: "D4qnt4FqnpkJ",
@@ -76,8 +76,8 @@ export const STUDY = {
 export const fillStudyValues = (text) => text.replace(/\bXX\b/g, () => STUDY.minutes).replace(/\$X\b/g, () => STUDY.payment);
 
 export const CONFIG = {
-  experiment_name: "complex_prior_pilot1_vignette1",
-  experiment_version: "0.13.0",
+  experiment_name: "explanation_revision_pilot1_vignette1",
+  experiment_version: "0.14.0",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.
@@ -94,14 +94,14 @@ export const CONFIG = {
   // Read-locks on the scenario pages: Continue unlocks
   // after a reading time that grows with the page's text, 1 second per
   // `read_lock_words_per_second` words, and is never below `read_lock_min_seconds`
-  // (see readLockSeconds below). Four scenario pages get extra seconds on top
-  // (LOCK_EXTRA in content.js). Off in testing mode unless switched on on the
+  // (see readLockSeconds below). Three scenario pages get extra seconds on top
+  // and one has a fixed lock (LOCK_EXTRA and LOCK_FIXED in content.js). Off in testing mode unless switched on on the
   // test-setup screen. The script (.md) states all of these numbers.
   read_lock_words_per_second: 5,  // 300 words per minute
   read_lock_min_seconds: 10,
 
   // Open-response questions need at least this many characters (the script states the number).
-  open_min_chars: 100,
+  open_min_chars: 50,
 
   // Integrity (see README). ?nofs=1 turns off fullscreen and the viewport lock.
   require_fullscreen: true,

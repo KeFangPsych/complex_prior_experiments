@@ -1,9 +1,9 @@
 /**
  * images.js — URLs of the vignette pictures. The files stay in
- * ../complex_prior_pilot1_vignette1_images (next to the script); Vite serves
+ * ../explanation_revision_pilot1_vignette1_images (next to the script); Vite serves
  * them from there in development and copies them into dist/ on build.
  */
-const files = import.meta.glob("../../complex_prior_pilot1_vignette1_images/*.png", { eager: true, query: "?url", import: "default" });
+const files = import.meta.glob("../../explanation_revision_pilot1_vignette1_images/*.png", { eager: true, query: "?url", import: "default" });
 
 const byName = {};
 Object.entries(files).forEach(([path, url]) => { byName[path.split("/").pop()] = url; });
