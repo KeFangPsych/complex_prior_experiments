@@ -94,11 +94,12 @@ Every push to `main` that touches `explanation_revision_pilot1/` rebuilds the ex
 and publishes it (workflow `.github/workflows/deploy-pages.yml`; it runs
 `npm run check:script` first and does not publish if that fails):
 
-- participant version: <https://kefangpsych.github.io/complex_prior_experiments/pilot1_vignette1/>
-- testing mode: <https://kefangpsych.github.io/complex_prior_experiments/pilot1_vignette1/?debug=1>
+- participant version: <https://kefangpsych.github.io/explanation_revision_experiments/pilot1_vignette1/>
+- testing mode: <https://kefangpsych.github.io/explanation_revision_experiments/pilot1_vignette1/?debug=1>
 
-These addresses contain the repository's name. If the repository is renamed,
-they change with it (the old ones stop working), so update them here, in the
+These addresses contain the repository's name
+(`explanation_revision_experiments`). If the repository is renamed again, they
+change with it and the old ones stop working, so update them here, in the
 workflow file's comment and in the Prolific study URL.
 
 One-time setup in the repository: Settings → Pages → Build and deployment →
@@ -344,7 +345,7 @@ Other participant-level columns: `subject_id`, `prolific_pid`, `study_id`,
 `order`, `complexity`, `anomaly`, `goal_relevance`, `evidence_figure`,
 `surprise_text` (`shown` / `hidden` / `not_applicable`), `stage_order`,
 `general_feedback`, `completion_status`, `start_time`, `completion_time`,
-`total_time_ms`, `debug_mode`, `nofs_mode`, `safeguards`, the screen times
+`total_time_ms`, `debug_mode`, `nofs_mode`, `datapipe` (`main`, `test` or `off`), `safeguards`, the screen times
 `rt_<screen>` (see *Timing* below) and the
 integrity counters above. The random orders that were drawn are recorded in
 `order_planet_blocks` (for example `planet_understanding,planet_complexity`),
@@ -470,10 +471,20 @@ condition number. When the participant leaves the debrief screen, the extension
 uploads the whole CSV, and only after DataPipe has answered is a Prolific
 participant sent to `https://app.prolific.com/submissions/complete?cc=<code>`.
 
-### 1. Test with the test experiment
+### 1. Two DataPipe experiments, and how to test
 
-`DATAPIPE.experiment_id` is currently the test experiment (ID `D4qnt4FqnpkJ`).
-On its DataPipe dashboard:
+`src/config.js` names two DataPipe experiments:
+
+| | DataPipe experiment | used by |
+|---|---|---|
+| `DATAPIPE.experiment_id` | `explanation_revision_pilot1` (ID `F7nDc8pPAps9`) | participants: every visit without `debug=1` |
+| `DATAPIPE.test_experiment_id` | the test experiment (ID `D4qnt4FqnpkJ`) | every run in testing mode (`debug=1`) |
+
+So a testing-mode run never writes into the participants' folder and never
+uses up one of their counter values. The column `datapipe` in the data says
+which one a run used (`main`, `test` or `off`).
+
+Both experiments need the same settings on their DataPipe dashboards:
 
 | setting | set to |
 |---|---|
@@ -488,20 +499,20 @@ Then:
 
 1. Open the site with `?debug=1`, leave Condition on Random, and run through
    (`__autoplay()` in the browser console does it in a few seconds). The bar
-   under the progress bar shows `DataPipe on`.
-2. A file `test_….csv` should appear in the Google Drive folder, and the
-   dashboard's count of completed sessions should go up. In the file's last
-   row, `condition_source` is `datapipe`, and `assignment_counter` goes 0, 1,
-   2, … from run to run.
-3. Run once as a participant with made-up Prolific IDs:
-   `…/pilot1_vignette1/?PROLIFIC_PID=test123&STUDY_ID=test&SESSION_ID=test`.
-   The file should contain them, and the study should end on Prolific's site
-   (which will not accept the code until the real one is filled in).
-4. Switch *Accept new data* off and finish a run: you should get the "Your
-   responses could not be saved" page with its download button.
+   under the progress bar shows `DataPipe test experiment`.
+2. A file `test_….csv` should appear in the **test** experiment's Google Drive
+   folder, and that dashboard's count of completed sessions should go up. In
+   the file's last row, `condition_source` is `datapipe`, and
+   `assignment_counter` goes up by one from run to run.
+3. On the test experiment, switch *Accept new data* off and finish a run: you
+   should get the "Your responses could not be saved" page with its download
+   button.
 
-Testing-mode runs upload too, into the same folder. Add `&nopipe=1` to a
-testing address when you do not want that.
+Add `&nopipe=1` to a testing address when a run should upload nothing at all.
+
+A visit **without** `debug=1` is a participant: it takes the next number from
+the real experiment's counter and, if finished, writes a file into the real
+folder. Do that only for the one preview run in step 3 below.
 
 ### 2. Set up the Prolific study
 
@@ -511,7 +522,7 @@ testing address when you do not want that.
   name may not contain the word "Prolific".
 - **Data collection, study URL.** Choose the external study link, select
   *I'll use URL parameters*, and use
-  `https://kefangpsych.github.io/complex_prior_experiments/pilot1_vignette1/?PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}`.
+  `https://kefangpsych.github.io/explanation_revision_experiments/pilot1_vignette1/?PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}`.
   Prolific adds these parameters itself when the option is selected; keep the
   three default names, which are the ones the experiment reads.
 - **Completion paths.** Choose *I'll redirect them using a URL*, and copy the
@@ -528,19 +539,19 @@ testing address when you do not want that.
 
 ### 3. Go live
 
-1. Create a **new** DataPipe experiment for the real data. A counter cannot be
-   reset, so the test experiment's counter is no longer at 0. Set it up as in
-   step 1, and switch on *Stop after a set number of sessions* with a limit
-   comfortably above the target (for example 130 for 96 places). Prolific
-   decides how many people take part; a participant who finishes after
-   DataPipe's limit is refused and gets the download page.
-2. In `src/config.js`: put the new ID in `DATAPIPE.experiment_id` and the code
-   in `PROLIFIC.completion_code`, set `CONFIG.mode`, and set
+1. On the real experiment (`explanation_revision_pilot1`), switch on *Stop
+   after a set number of sessions* with a limit comfortably above the target
+   (for example 130 for 96 places). Prolific decides how many people take
+   part; a participant who finishes after DataPipe's limit is refused and gets
+   the download page. Its counter cannot be reset, so every participant-view
+   visit that passes the consent page uses up one number for good.
+2. In `src/config.js`: put the Prolific completion code in
+   `PROLIFIC.completion_code`, set `CONFIG.mode`, and set
    `CONFIG.allow_dev_flags` to `false`. Testing mode then no longer exists on
-   the site, so no test run can reach the real data or use up a counter value.
+   the site, so a participant cannot use it to skip the read-locks.
 3. Push, wait for the site to republish, and preview once from Prolific. That
-   run uses up counter value 0 and writes one file. Delete the file and note
-   that cell 0 is one short, or let the count in step 4 pick it up.
+   run uses up one counter value and writes one file. Delete the file, and let
+   the count in step 4 pick up the cell that is one short.
 4. Publish. Do not push to `main` until collection is over.
 
 ### 4. Keep the conditions balanced

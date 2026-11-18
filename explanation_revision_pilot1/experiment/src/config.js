@@ -25,10 +25,12 @@
 // See "DataPipe and Prolific" in the README for the full checklist.
 // ============================================================================
 export const DATAPIPE = {
-  // The TEST experiment on DataPipe. REPLACE with the ID of the
-  // real experiment before recruiting, and set CONFIG.allow_dev_flags to false in
-  // the same change, so that no test run can reach the real data or its counter.
-  experiment_id: "D4qnt4FqnpkJ",
+  // The experiment "explanation_revision_pilot1": participants' data and counter.
+  experiment_id: "F7nDc8pPAps9",
+  // The test experiment: used instead by every run in testing mode (?debug=1), so
+  // that test runs never write into the participants' data or use up one of
+  // their counter values. Leave empty ("") to make testing-mode runs upload nothing.
+  test_experiment_id: "D4qnt4FqnpkJ",
   enabled: true,
   // false: the data are sent once, when the participant finishes.
   // true:  every screen is also sent as it happens, so a participant who quits
@@ -38,6 +40,8 @@ export const DATAPIPE = {
   condition_timeout_ms: 8000,
   save_attempts: 3,               // tries of the final upload when DataPipe cannot be reached
 };
+/** The DataPipe experiment a run uses: the test experiment in testing mode, the real one otherwise. */
+export const pipeExperimentId = (testingMode) => (testingMode ? DATAPIPE.test_experiment_id : DATAPIPE.experiment_id);
 
 // ============================================================================
 // ASSIGNMENT — which of the 32 assignment cells DataPipe's counter runs through.
@@ -77,7 +81,7 @@ export const fillStudyValues = (text) => text.replace(/\bXX\b/g, () => STUDY.min
 
 export const CONFIG = {
   experiment_name: "explanation_revision_pilot1_vignette1",
-  experiment_version: "0.14.0",
+  experiment_version: "0.15.0",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.

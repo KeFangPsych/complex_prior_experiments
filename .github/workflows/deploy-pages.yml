@@ -1,5 +1,5 @@
 # Builds the pilot 1 / vignette 1 experiment and publishes it with GitHub Pages at
-#   https://kefangpsych.github.io/complex_prior_experiments/pilot1_vignette1/
+#   https://kefangpsych.github.io/explanation_revision_experiments/pilot1_vignette1/
 #
 # One-time setup: repository Settings -> Pages -> Build and deployment -> Source:
 # "GitHub Actions". Runs on every push to main that touches the experiment, the

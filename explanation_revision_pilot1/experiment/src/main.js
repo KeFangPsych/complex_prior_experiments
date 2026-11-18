@@ -48,7 +48,7 @@ import "@fontsource/ibm-plex-sans/latin-700.css";
 import "./styles.css";
 
 import PagePlugin from "./page-plugin.js";
-import { CONFIG, DATAPIPE, ASSIGNMENT, PROLIFIC, STUDY, WELCOME, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, CONSENT, fillStudyValues, readLockSeconds } from "./config.js";
+import { CONFIG, DATAPIPE, pipeExperimentId, ASSIGNMENT, PROLIFIC, STUDY, WELCOME, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, CONSENT, fillStudyValues, readLockSeconds } from "./config.js";
 import { CONDITIONS, STAGE_SEQUENCE, assignmentCells, cellFromCounter, assignmentFromIndex, indexFromAssignment, scenario, countWords, pageWordCount, questionPages, randomizePages } from "./content.js";
 import { imageUrl } from "./images.js";
 import { state, integrityProps, fullscreenRequired, DEBUG, DEV_FLAGS, NOFS, NOPIPE, URL_PARAMS, prolificPID, studyID, sessionID, subjectId } from "./state.js";
@@ -75,7 +75,9 @@ document.body.appendChild(target);
 buildFrame();
 
 // Whether this run talks to DataPipe (condition counter and data upload).
-const PIPE_ON = DATAPIPE.enabled && !NOPIPE && /^[A-Za-z0-9]{12}$/.test(DATAPIPE.experiment_id);
+// Testing-mode runs go to the test experiment, never to the participants' one.
+const PIPE_ID = pipeExperimentId(DEBUG);
+const PIPE_ON = DATAPIPE.enabled && !NOPIPE && /^[A-Za-z0-9]{12}$/.test(PIPE_ID);
 const DATA_FILE = `${subjectId}.csv`;
 const COMPLETION_URL = `https://app.prolific.com/submissions/complete?cc=${PROLIFIC.completion_code}`;
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -88,7 +90,7 @@ const jsPsych = initJsPsych({
   extensions: [{
     type: PipeExtension,
     params: {
-      experiment_id: DATAPIPE.experiment_id,
+      experiment_id: PIPE_ID,
       filename: DATA_FILE,
       enabled: PIPE_ON,
       stream: DATAPIPE.stream,
@@ -110,7 +112,7 @@ async function endOfStudy() {
     if (state.saveResult && state.saveResult.status >= 400 && state.saveResult.status < 500) break;
     await wait(DEBUG ? 100 : 1500);
     jsPsych.data.addProperties({ save_attempts: n });
-    const r = await pipeSaveData({ experimentID: DATAPIPE.experiment_id, filename: DATA_FILE, data: jsPsych.data.get().csv() });
+    const r = await pipeSaveData({ experimentID: PIPE_ID, filename: DATA_FILE, data: jsPsych.data.get().csv() });
     state.saveResult = r;
     // "FILE_EXISTS": the earlier attempt did arrive, only its answer was lost
     stored = r.ok || !!(r.body && r.body.error === "FILE_EXISTS");
@@ -143,6 +145,7 @@ jsPsych.data.addProperties({
   start_time: new Date().toISOString(),
   debug_mode: DEBUG,
   nofs_mode: NOFS,
+  datapipe: PIPE_ON ? (DEBUG ? "test" : "main") : "off",   // which DataPipe experiment the run uses
   user_agent: navigator.userAgent,
   screen_width: window.screen.width,
   screen_height: window.screen.height,
@@ -250,7 +253,7 @@ const assignCondition = {
     };
     setTimeout(() => settle(null), DATAPIPE.condition_timeout_ms);
     // getCondition rejects when DataPipe cannot be reached or condition assignment is switched off
-    PipeExtension.getCondition(DATAPIPE.experiment_id).then((c) => settle(c), (e) => { console.warn("No condition from DataPipe; drawing a cell at random.", e); settle(null); });
+    PipeExtension.getCondition(PIPE_ID).then((c) => settle(c), (e) => { console.warn("No condition from DataPipe; drawing a cell at random.", e); settle(null); });
   },
 };
 
@@ -328,7 +331,7 @@ function showTestBar(current) {
       ["Questions", state.mode],
       ["Read-locks", state.locks ? "on" : "off"],
       ["Safeguards", state.safeguards ? "on" : "off"],
-      ["DataPipe", PIPE_ON ? "on" : "off"],
+      ["DataPipe", PIPE_ON ? "test experiment" : "off"],
     ],
     canGoBack: state.position !== "end" && !(state.position === "pre" && state.preCursor === 0),
     canChange: state.position !== "end",

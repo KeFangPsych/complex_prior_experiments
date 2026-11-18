@@ -28,7 +28,8 @@ const EMPTY = ["", "null"];   // how a missing value is written in the CSV
 
 (async () => {
   const { parseCsv, isRectangular } = await import("./csv.mjs");
-  const { DATAPIPE, PROLIFIC } = await import("../src/config.js");
+  const { DATAPIPE, PROLIFIC, pipeExperimentId } = await import("../src/config.js");
+  const TEST_ID = pipeExperimentId(true);     // the bot runs in testing mode, which uses the test experiment
   const content = await import("../src/content.js");
   const browser = await chromium.launch(process.env.CHROME_PATH ? { executablePath: process.env.CHROME_PATH } : {});
   const results = [];
@@ -85,8 +86,9 @@ const EMPTY = ["", "null"];   // how a missing value is written in the CSV
     const { page, seen, end, last } = await run({});
     const up = seen.data[0] || {};
     const row = seen.data.length ? last(0) : {};
-    check("A: the condition counter is asked once, with the experiment ID", seen.condition.length === 1 && seen.condition[0].experimentID === DATAPIPE.experiment_id);
-    check("A: the data are uploaded once", seen.data.length === 1 && up.experimentID === DATAPIPE.experiment_id);
+    check("A: the condition counter is asked once, with the experiment ID", seen.condition.length === 1 && seen.condition[0].experimentID === TEST_ID);
+    check("A: the data are uploaded once", seen.data.length === 1 && up.experimentID === TEST_ID);
+    check("A: a testing-mode run uses the test experiment, not the participants' one", TEST_ID !== DATAPIPE.experiment_id && row.datapipe === "test" && row.debug_mode === "true", `${up.experimentID}`);
     check("A: the file name is a random ID without the Prolific ID", /^test_[a-z0-9]{10}_\d+\.csv$/.test(up.filename || "") && !(up.filename || "").includes(PID), up.filename);
     check("A: the CSV passes DataPipe's default validation (same width in every row, a trial_type column)", isRectangular(up.data || "x,y\n1") && "trial_type" in row);
     check("A: counter 37 is cell 5", row.condition_index === "5" && row.assignment_counter === "37" && row.condition_source === "datapipe" && String(content.assignmentFromIndex(5).cond) === row.cond, `${row.condition_index}, ${row.assignment_counter}, ${row.condition_source}`);
@@ -143,6 +145,24 @@ const EMPTY = ["", "null"];   // how a missing value is written in the CSV
   {
     const { page, seen, end } = await run({ query: "&nopipe=1" });
     check("H: nopipe=1 sends nothing to DataPipe", seen.condition.length + seen.data.length + seen.other.length === 0 && end === "prolific");
+    await page.close();
+  }
+  // ---- I. a participant (no testing mode) is assigned by the real experiment ----
+  {
+    const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+    const asked = [];
+    await page.route("https://pipe.jspsych.org/**", async (route) => {
+      const req = route.request();
+      if (req.method() === "OPTIONS") return route.fulfill({ status: 204, headers: { "access-control-allow-origin": "*", "access-control-allow-headers": "*", "access-control-allow-methods": "POST" } });
+      asked.push({ path: new URL(req.url()).pathname, id: JSON.parse(req.postData() || "{}").experimentID });
+      return route.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify({ message: "Success", condition: 3 }) });
+    });
+    await page.goto(`${BASE}/?nofs=1&PROLIFIC_PID=${PID}`);
+    await page.click("#card-btn");                       // welcome
+    await page.waitForSelector("#consent-pdf");
+    await page.click("#card-btn");                       // consent -> assignment
+    await page.waitForSelector(".eyebrow:text('Instructions')");
+    check("I: a participant's condition comes from the real experiment", asked.length === 1 && asked[0].path === "/api/condition/" && asked[0].id === DATAPIPE.experiment_id && asked[0].id !== TEST_ID, JSON.stringify(asked));
     await page.close();
   }
   await browser.close();
