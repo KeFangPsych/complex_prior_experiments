@@ -301,10 +301,10 @@ for (const mode of ["pilot", "main"]) {
     for (const id of ORG) same("randomization, organism question", `fixed to ${id}`, shownOrg(randomizePages(canon3, Math.random, { organism_question: id })).join(), id);
   }
 }
-// end evaluations: the complexity, trust and utility blocks swap places; nothing else moves
+// end evaluations: the trust block is first, the complexity and utility blocks swap places; nothing else moves
 for (const [cond, stage] of [[1, "elaboration"], [5, "evidence"]]) for (const mode of ["pilot", "main"]) {
   const canon = questionPages(stage, cond, mode);
-  const blocks = ["complexity", "trust", "utility"];
+  const blocks = ["complexity", "utility"];
   const where = `randomization, end evaluations (cond ${cond}, ${mode})`;
   roughlyEven(where, tally(() => {
     const r = randomizePages(canon);
@@ -316,11 +316,12 @@ for (const [cond, stage] of [[1, "elaboration"], [5, "evidence"]]) for (const mo
       const ids = (pg) => (pg.key === "explanation2_agree" ? pg.items.map((q) => q.id).sort() : pg.items.map((q) => q.id)).join();
       if (ids(p) !== ids(ref)) fail(where, `order inside ${p.key} changed`);
     });
-    // the three blocks stay in the same three places, and every other screen keeps its place
+    if (!(keys.indexOf("trust") >= 0 && keys.indexOf("trust") < keys.indexOf("complexity") && keys.indexOf("trust") < keys.indexOf("utility"))) fail(where, "the trust block is not first of the three");
+    // the two blocks stay in the same two places, and every other screen keeps its place
     canon.forEach((p, k) => { if (blocks.includes(p.key) ? !blocks.includes(keys[k]) : keys[k] !== p.key) fail(where, `screen ${k + 1} (${p.key}) moved`); });
     if (r.orders.order_final_blocks !== keys.filter((k) => blocks.includes(k)).join(",")) fail(where, "recorded order differs from the order used");
     return r.orders.order_final_blocks;
-  }), 6);
+  }), 2);
 }
 // the two agree / disagree statements swap (evidence-first conditions); nothing else on that screen
 for (const mode of ["pilot", "main"]) {

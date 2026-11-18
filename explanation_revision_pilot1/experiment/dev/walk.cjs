@@ -101,7 +101,7 @@ const shotDir = path.join(__dirname, "shots");
     const gotPages = data.filter((r) => r.task === "questions").map((r) => ({ stage: r.stage, key: r.page, ids: JSON.parse(r.item_ids) }));
     // put the randomized parts back into script order before comparing: the two
     // planet blocks, the three end-evaluation blocks, and the relevance questions
-    const GROUPS = [["planet_complexity", "planet_understanding"], ["complexity", "trust", "utility"]];
+    const GROUPS = [["planet_complexity", "planet_understanding"], ["complexity", "utility"]];
     const unshuffle = (pages) => {
       const out = pages.map((p) => ({ ...p, ids: p.key === "goal" ? ["team_goal", ...p.ids.filter((x) => x !== "team_goal").sort()] : p.key === "explanation2_agree" ? [...p.ids].sort() : p.ids }));
       GROUPS.forEach((group) => {
@@ -117,6 +117,9 @@ const shotDir = path.join(__dirname, "shots");
     orders.planet.add(last.order_planet_blocks);
     expect("order_final_blocks", last.order_final_blocks, gotPages.filter((p) => GROUPS[1].includes(p.key)).map((p) => p.key).join(","));
     orders.final.add(last.order_final_blocks);
+    // the source-trust block always comes before the complexity and utility blocks
+    const keysShown = gotPages.map((p) => p.key);
+    if (!(keysShown.indexOf("trust") >= 0 && keysShown.indexOf("trust") < Math.min(keysShown.indexOf("complexity"), keysShown.indexOf("utility")))) bad("the trust block is not first of the end-evaluation blocks");
     const goalRow = data.filter((r) => r.task === "questions").flatMap((r) => JSON.parse(r.responses)).find((a) => a.id === "team_goal");
     const goalItem = content.questions("explanation1", cond).find((q) => q.id === "team_goal");
     expect("team_goal_option_order", last.team_goal_option_order, goalRow.option_order.map((k) => goalItem.options[k]).join(" | "));

@@ -10,7 +10,9 @@ sender label (the company's on the left in green with its logo, the team's on
 the right in blue with a hard hat), and the test results as a lab report box
 that also holds the laboratory-observations picture and colors the four
 temperature words (warm, cool, cold, freezing); everything else is the
-narrator's text.
+narrator's text. On the two explanation pages, a narrator's sentence between
+the message and the picture says how to read the picture, and is shown as a
+caption above it.
 
 It is a Node project: jsPsych and its plugins come from npm and
 [Vite](https://vite.dev) bundles everything into a static site. The UI and the
@@ -209,7 +211,7 @@ answer options keep the script's order.
 | Order of the two relevance questions | 2 orders | pilot mode | per participant | `order_relevance` |
 | Which organism question is shown in part 3 | 2 questions | pilot mode | per participant | `organism_question` |
 | Order of the two agree / disagree statements about the algae explanation (end evaluations) | 2 orders | evidence-first conditions | per participant | `order_agree_statements` |
-| Order of the complexity, source-trust and utility blocks of the end evaluations | 6 orders | everyone | per participant | `order_final_blocks` |
+| Order of the complexity and utility blocks of the end evaluations (the source-trust block always comes first) | 2 orders | everyone | per participant | `order_final_blocks` |
 
 "Assignment cell" means the three settings are crossed into the 32 cells
 described above, so they are balanced when DataPipe's counter is used.
@@ -252,8 +254,8 @@ pictures, the laboratory results with line graphs and the algae explanation, are
 shown as wide as the text. A picture is shown at its maximum when the page fits
 the window; otherwise the page first switches to a compact text style, and only
 then shrinks the picture towards its minimum. The algae explanation is hard to
-read when small, so its minimum is 840px and its page scrolls a little on a
-1366 × 768 screen. Every other scenario page fits without scrolling in a window
+read when small, so its minimum is 840px and its page scrolls a little (about
+55 to 105px) on a 1366 × 768 screen. Every other scenario page fits without scrolling in a window
 of 1366 × 768 or larger; in the smallest allowed window (1024 × 600) the longer
 pages scroll.
 
@@ -446,7 +448,7 @@ Other participant-level columns: `subject_id`, `prolific_pid`, `study_id`,
 `rt_<screen>` (see *Timing* below), the integrity counters above and the
 columns of *AI safeguards*. The random orders that were drawn are recorded in
 `order_planet_blocks` (for example `planet_understanding,planet_complexity`),
-`order_final_blocks` (for example `trust,complexity,utility`),
+`order_final_blocks` (`complexity,utility` or `utility,complexity`; the source-trust block always comes before both),
 `order_agree_statements` (evidence-first conditions),
 `order_relevance` (pilot mode), `organism_question` (pilot mode; the id of
 the part 3 organism question that was shown) and `team_goal_option_order` (the options as

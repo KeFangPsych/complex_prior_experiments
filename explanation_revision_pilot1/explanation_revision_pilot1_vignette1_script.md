@@ -17,7 +17,7 @@ Three-factor between-participants design.
 
 In the question tables below, Pilot marks pilot-only questions and Main marks questions included in the main study. Alternative marks questions that are kept in this document as alternatives; they are not asked. All rating scales have 5 points.
 
-The participant takes the role of a member of the construction team. Text in block quotes is a written message, shown as a speech bubble with its sender label (Bioenergy's on the left in green with the company logo, the team's on the right in blue with a hard hat). A block quote labelled "Lab report" is shown as a report box instead. All other text is the narrator's. Figures are the narrator's illustrations and are not part of the messages, except the laboratory observations picture, which is shown inside the lab report. In the lab report, the four temperature words are colored: warm in orange, cool in light blue, cold in blue and freezing in dark blue.
+The participant takes the role of a member of the construction team. Text in block quotes is a written message, shown as a speech bubble with its sender label (Bioenergy's on the left in green with the company logo, the team's on the right in blue with a hard hat). A block quote labelled "Lab report" is shown as a report box instead. All other text is the narrator's. Figures are the narrator's illustrations and are not part of the messages, except the laboratory observations picture, which is shown inside the lab report. On the two explanation pages, a narrator's sentence between the message and the picture says how to read the picture; it is shown as a caption above the picture. In the lab report, the four temperature words are colored: warm in orange, cool in light blue, cold in blue and freezing in dark blue.
 
 Underlined parts are manipulated independently (50% per version).
 
@@ -41,7 +41,7 @@ Everything that is randomized, and the data column that records what was drawn:
 | Order of the two relevance questions | 2 orders | Pilot | `order_relevance` |
 | Which question on the complexity of the organism's processes is shown after Stage 3 | 2 questions | Pilot | `organism_question` |
 | Order of the two agree / disagree statements about the algae explanation | 2 orders | Evidence-first conditions | `order_agree_statements` |
-| Order of the three end-evaluation blocks (complexity, source trust, utility) | 6 orders | All participants | `order_final_blocks` |
+| Order of the complexity and utility blocks of the end evaluations (the source trust block always comes first) | 2 orders | All participants | `order_final_blocks` |
 
 The condition, the evidence figure and the surprise text are crossed into 32 assignment cells that are filled in turn, so they stay balanced. Everything else is drawn separately for each participant, with every version equally likely. Nothing else is randomized: all other pages, questions and answer options keep the order of this document.
 
@@ -167,6 +167,8 @@ Bioenergy writes to your team to recommend its technology.
 >
 > **The planet's air holds more of this gas when the weather is colder. So in colder weather, there is more gas around the organism. When more of this gas is available, the organism produces more heat and looks more purple.**
 
+In the picture below, the yellow balls are the gas. The right side shows how the weather changes the amount of gas in the air.
+
 *Figure: vignette1\_img3\_explanation1.png*
 
 ### **Stage 3 potential measurements**
@@ -282,6 +284,8 @@ Bioenergy replies.
 >
 > **The organism produces purple pigment on its own, without the algae.** So it keeps looking more purple as the weather gets colder.
 
+In the picture below, the oval shapes inside the organism are the algae: green when active, grey when less active.
+
 *Figure: vignette1\_img5\_explanation2\_heat\_anomaly.png*
 
 ### **Low-goal-relevance condition (color anomaly, cond 2, 4\)**
@@ -308,6 +312,8 @@ Bioenergy replies.
 >
 > **The organism produces heat on its own, without the algae.** So it keeps producing more heat as the weather gets colder.
 
+In the picture below, the oval shapes inside the organism are the algae: green when active, grey when less active.
+
 *Figure: vignette1\_img5\_explanation2\_color\_anomaly.png*
 
 ### **Stage 5 potential measurements (evidence-first)**
@@ -320,12 +326,12 @@ Bioenergy replies.
 | Use | Measure | Question |
 | :---- | :---- | :---- |
 | Main | Causal knowledge: dependence on algae | Which of these can the organism produce only with the help of the algae? (Heat only; Purple pigment only; Both heat and purple pigment; Neither heat nor purple pigment; I don't remember) |
-| Main | Complexity (primary) | Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
-| Main | Complexity (primary) | Besides what the company has said, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |
-| Main | Complexity (primary) | Besides what the company has said, how likely is it that other factors affect how much heat this organism produces? (1 \= Very unlikely; 5 \= Very likely) |
 | Main | Source trust / Cooperativeness (primary) | How much do you trust the company to tell your team what it needs to know? (1 \= Not at all; 5 \= Completely) |
 | Main | Source trust / Cooperativeness (primary) | When explaining the technology, how much does the company care about what is best for your team? (1 \= Not at all; 5 \= Very much) |
 | Main | Source trust / Cooperativeness (primary) | When the company chose what to explain, how much was it trying to help your team make a good decision? (1 \= Not at all; 5 \= Very much) |
+| Main | Complexity (primary) | Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
+| Main | Complexity (primary) | Besides what the company has said, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |
+| Main | Complexity (primary) | Besides what the company has said, how likely is it that other factors affect how much heat this organism produces? (1 \= Very unlikely; 5 \= Very likely) |
 | Main | Utility (secondary control) | How well would the technology keep apartments warm in the planet's coldest season? (1 \= Not well at all; 5 \= Very well) |
 | Main | Utility (secondary control) | How good is this technology for heating apartments? (1 \= Not at all good; 5 \= Very good) |
 | Main | Decision | How likely would you be to recommend that your team use this technology? (1 \= Very unlikely; 5 \= Very likely) |
@@ -345,7 +351,7 @@ Bioenergy replies.
 
 Presentation order:
 
-* The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table, except as noted below, so the decision question comes after these three blocks.
+* The Source trust / Cooperativeness (primary) block is always shown first. The Complexity (primary) and Utility (secondary control) blocks follow it in random order. The order of the questions within a block is fixed. All other questions follow the order of the table, except as noted below, so the decision question comes after these three blocks.
 * The two statements that participants rate their agreement with ("a reasonable addition to its first message"; "making excuses for the test results") are shown in random order.
 
 ## **Stage 4, elaboration-first conditions (cond 5, 6, 7, 8): Elaboration (explanation 2)**
@@ -366,6 +372,8 @@ Bioenergy's message continues.
 >
 > **The organism produces purple pigment on its own, without the algae.** So it keeps looking more purple as the weather gets colder.
 
+In the picture below, the oval shapes inside the organism are the algae: green when active, grey when less active.
+
 *Figure: vignette1\_img5\_explanation2\_heat\_anomaly.png*
 
 ### **Low-goal-relevance condition (color anomaly, cond 6, 8\)**
@@ -381,6 +389,8 @@ Bioenergy's message continues.
 > **But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less purple pigment**, even though more gas is available.
 >
 > **The organism produces heat on its own, without the algae.** So it keeps producing more heat as the weather gets colder.
+
+In the picture below, the oval shapes inside the organism are the algae: green when active, grey when less active.
 
 *Figure: vignette1\_img5\_explanation2\_color\_anomaly.png*
 
@@ -450,12 +460,12 @@ Your team's lab tests the sample at four different temperatures. **During the te
 
 | Use | Measure | Question |
 | :---- | :---- | :---- |
-| Main | Complexity (primary) | Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
-| Main | Complexity (primary) | Besides what the company has said, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |
-| Main | Complexity (primary) | Besides what the company has said, how likely is it that other factors affect how much heat this organism produces? (1 \= Very unlikely; 5 \= Very likely) |
 | Main | Source trust / Cooperativeness (primary) | How much do you trust the company to tell your team what it needs to know? (1 \= Not at all; 5 \= Completely) |
 | Main | Source trust / Cooperativeness (primary) | When explaining the technology, how much does the company care about what is best for your team? (1 \= Not at all; 5 \= Very much) |
 | Main | Source trust / Cooperativeness (primary) | When the company chose what to explain, how much was it trying to help your team make a good decision? (1 \= Not at all; 5 \= Very much) |
+| Main | Complexity (primary) | Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
+| Main | Complexity (primary) | Besides what the company has said, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |
+| Main | Complexity (primary) | Besides what the company has said, how likely is it that other factors affect how much heat this organism produces? (1 \= Very unlikely; 5 \= Very likely) |
 | Main | Utility (secondary control) | How well would the technology keep apartments warm in the planet's coldest season? (1 \= Not well at all; 5 \= Very well) |
 | Main | Utility (secondary control) | How good is this technology for heating apartments? (1 \= Not at all good; 5 \= Very good) |
 | Main | Decision | How likely would you be to recommend that your team use this technology? (1 \= Very unlikely; 5 \= Very likely) |
@@ -475,7 +485,7 @@ Your team's lab tests the sample at four different temperatures. **During the te
 
 Presentation order:
 
-* The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table, so the decision question comes after these three blocks.
+* The Source trust / Cooperativeness (primary) block is always shown first. The Complexity (primary) and Utility (secondary control) blocks follow it in random order. The order of the questions within a block is fixed. All other questions follow the order of the table, so the decision question comes after these three blocks.
 
 ## **Final comments (all conditions)**
 

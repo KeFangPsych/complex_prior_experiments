@@ -105,6 +105,12 @@ const narration = (...paragraphs) => ({ kind: "narration", paragraphs });
 const message = (label, ...paragraphs) => ({ kind: "message", label, paragraphs });
 const report = (label, ...paragraphs) => ({ kind: "report", label, paragraphs });
 const LAB_REPORT = "Lab report from your team's lab";
+// A narrator's sentence between a message and its picture that says how to read
+// the picture (shown as a caption above the picture).
+const PICTURE_GUIDE = {
+  explanation1: "In the picture below, the yellow balls are the gas. The right side shows how the weather changes the amount of gas in the air.",
+  algae: "In the picture below, the oval shapes inside the organism are the algae: green when active, grey when less active.",
+};
 // Read-locks follow the word count (config.js), with these exceptions, which come
 // from reading times in testing and are stated in the script:
 // the lab report stays locked for some seconds longer than its word count gives,
@@ -162,6 +168,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
           "In this process, **the organism uses a certain gas from the planet's air to produce heat. It also uses this gas to produce a purple substance called a pigment that makes it look purple** (the pigment is harmless and has no other practical use).",
           "**The planet's air holds more of this gas when the weather is colder. So in colder weather, there is more gas around the organism. When more of this gas is available, the organism produces more heat and looks more purple.**",
         ),
+        narration(PICTURE_GUIDE.explanation1),
       ], `${IMG}3_explanation1.png`,
       "Bioenergy's explanation: with more gas, the organism can produce more heat and more purple pigment, which makes it look more purple. Colder weather means more gas in the air.", "stacked", { lockSeconds: LOCK_FIXED.explanation1_message }),
     ] };
@@ -201,7 +208,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
     const figure = `${IMG}5_explanation2_${c.anomaly}_anomaly.png`;
     const alt = "Bioenergy's explanation of what happens inside the organism when it is cold and when it is freezing.";
     if (!evidenceFirst) {
-      return { pages: [page([narration("Bioenergy's message continues."), message(`${FROM_BIOENERGY} (continued)`, ...algaeParagraphs)], figure, alt, "stacked", { lockSeconds: LOCK_FIXED.algae })] };
+      return { pages: [page([narration("Bioenergy's message continues."), message(`${FROM_BIOENERGY} (continued)`, ...algaeParagraphs), narration(PICTURE_GUIDE.algae)], figure, alt, "stacked", { lockSeconds: LOCK_FIXED.algae })] };
     }
     return { pages: [
       page([
@@ -209,7 +216,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
         message(FROM_TEAM, `We tested the sample. When it was freezing, the organism ${A.lessPast} than when it was cold.` +
           (s ? " This is not what we expected." : "") + " Can you explain why?"),
       ]),
-      page([narration("Bioenergy replies."), message(FROM_BIOENERGY, "Thank you for reaching out about your test. This is because:", ...algaeParagraphs)], figure, alt, "stacked", { lockSeconds: LOCK_FIXED.algae }),
+      page([narration("Bioenergy replies."), message(FROM_BIOENERGY, "Thank you for reaching out about your test. This is because:", ...algaeParagraphs), narration(PICTURE_GUIDE.algae)], figure, alt, "stacked", { lockSeconds: LOCK_FIXED.algae }),
     ] };
   }
 
@@ -262,11 +269,18 @@ function predictionItems() {
 }
 
 // Primary and secondary measures asked after the last stage, in both orders. The
-// complexity, trust and utility blocks (one screen each) come in random order;
-// the decision question follows them.
+// source-trust block (one screen) always comes first; the complexity and utility
+// blocks (one screen each) follow it in random order; the decision question
+// follows them.
 function finalMeasures() {
-  const blocks = ["complexity", "trust", "utility"];
+  const blocks = ["complexity", "utility"];     // these two come in random order; the trust block is always first
   return [
+    likert("trust_tell", "main", "Source trust / Cooperativeness (primary)", "trust",
+      "How much do you trust the company to tell your team what it needs to know?", "Not at all", "Completely"),
+    likert("trust_care", "main", "Source trust / Cooperativeness (primary)", "trust",
+      "When explaining the technology, how much does the company care about what is best for your team?", "Not at all", "Very much"),
+    likert("trust_help", "main", "Source trust / Cooperativeness (primary)", "trust",
+      "When the company chose what to explain, how much was it trying to help your team make a good decision?", "Not at all", "Very much"),
     // the first two have the wording of the two part 3 organism questions (pilot), of which each participant saw one
     likert("complexity_overall", "main", "Complexity (primary)", "complexity",
       "Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be?", "Very simple", "Very complex"),
@@ -274,12 +288,6 @@ function finalMeasures() {
       "Besides what the company has said, how much more do you think there is to know about how this organism works?", "Nothing more", "A great deal more"),
     likert("complexity_other_factors_heat", "main", "Complexity (primary)", "complexity",
       "Besides what the company has said, how likely is it that other factors affect how much heat this organism produces?", "Very unlikely", "Very likely"),
-    likert("trust_tell", "main", "Source trust / Cooperativeness (primary)", "trust",
-      "How much do you trust the company to tell your team what it needs to know?", "Not at all", "Completely"),
-    likert("trust_care", "main", "Source trust / Cooperativeness (primary)", "trust",
-      "When explaining the technology, how much does the company care about what is best for your team?", "Not at all", "Very much"),
-    likert("trust_help", "main", "Source trust / Cooperativeness (primary)", "trust",
-      "When the company chose what to explain, how much was it trying to help your team make a good decision?", "Not at all", "Very much"),
     likert("utility_coldest", "main", "Utility (secondary control)", "utility",
       "How well would the technology keep apartments warm in the planet's coldest season?", "Not well at all", "Very well"),
     likert("utility_overall", "main", "Utility (secondary control)", "utility",
@@ -469,7 +477,7 @@ export function orderNotes(stage, cond) {
   // the end evaluations follow the last stage: elaboration when the evidence came first, evidence otherwise
   const lastStage = STAGE_SEQUENCE[CONDITIONS[cond].order][4];
   if (stage === lastStage) {
-    const blocks = "The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table";
+    const blocks = "The Source trust / Cooperativeness (primary) block is always shown first. The Complexity (primary) and Utility (secondary control) blocks follow it in random order. The order of the questions within a block is fixed. All other questions follow the order of the table";
     // the agree / disagree statements are asked only when the evidence came first
     if (stage === "evidence") return [`${blocks}, so the decision question comes after these three blocks.`];
     return [
@@ -505,7 +513,7 @@ export const RANDOMIZATIONS = [
   { what: "Order of the two relevance questions", versions: "2 orders", appliesTo: "Pilot", columns: ["order_relevance"] },
   { what: "Which question on the complexity of the organism's processes is shown after Stage 3", versions: "2 questions", appliesTo: "Pilot", columns: ["organism_question"] },
   { what: "Order of the two agree / disagree statements about the algae explanation", versions: "2 orders", appliesTo: "Evidence-first conditions", columns: ["order_agree_statements"] },
-  { what: "Order of the three end-evaluation blocks (complexity, source trust, utility)", versions: "6 orders", appliesTo: "All participants", columns: ["order_final_blocks"] },
+  { what: "Order of the complexity and utility blocks of the end evaluations (the source trust block always comes first)", versions: "2 orders", appliesTo: "All participants", columns: ["order_final_blocks"] },
 ];
 
 function shuffled(list, rand) {
