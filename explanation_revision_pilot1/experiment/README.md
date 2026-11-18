@@ -478,7 +478,7 @@ participant sent to `https://app.prolific.com/submissions/complete?cc=<code>`.
 | | DataPipe experiment | used by |
 |---|---|---|
 | `DATAPIPE.experiment_id` | `explanation_revision_pilot1` (ID `F7nDc8pPAps9`) | participants: every visit without `debug=1` |
-| `DATAPIPE.test_experiment_id` | the test experiment (ID `D4qnt4FqnpkJ`) | every run in testing mode (`debug=1`) |
+| `DATAPIPE.test_experiment_id` | `explanation_revision_pilot1_test` (ID `cWTS1xxWbYg7`) | every run in testing mode (`debug=1`) |
 
 So a testing-mode run never writes into the participants' folder and never
 uses up one of their counter values. The column `datapipe` in the data says

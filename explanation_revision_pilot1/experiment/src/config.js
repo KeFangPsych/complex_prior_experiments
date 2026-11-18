@@ -27,10 +27,10 @@
 export const DATAPIPE = {
   // The experiment "explanation_revision_pilot1": participants' data and counter.
   experiment_id: "F7nDc8pPAps9",
-  // The test experiment: used instead by every run in testing mode (?debug=1), so
+  // The test experiment "explanation_revision_pilot1_test": used instead by every run in testing mode (?debug=1), so
   // that test runs never write into the participants' data or use up one of
   // their counter values. Leave empty ("") to make testing-mode runs upload nothing.
-  test_experiment_id: "D4qnt4FqnpkJ",
+  test_experiment_id: "cWTS1xxWbYg7",
   enabled: true,
   // false: the data are sent once, when the participant finishes.
   // true:  every screen is also sent as it happens, so a participant who quits
@@ -81,7 +81,7 @@ export const fillStudyValues = (text) => text.replace(/\bXX\b/g, () => STUDY.min
 
 export const CONFIG = {
   experiment_name: "explanation_revision_pilot1_vignette1",
-  experiment_version: "0.15.0",
+  experiment_version: "0.15.1",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.
