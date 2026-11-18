@@ -148,10 +148,9 @@ p.muted, .muted { color: var(--ink-2); font-size: 15px; }
    blue with a hard hat. The bubble's tail points at the sender's icon. */
 .message { --msg: #2E9C5A; --msg-bg: #F0F9F2; --msg-ink: #1F7A43; display: flex; align-items: flex-start; gap: 16px; margin: 6px 0 12px; }
 .message.outgoing { --msg: #2F6FB5; --msg-bg: #EEF4FC; --msg-ink: #245A96; flex-direction: row-reverse; }
-/* the caption directly above a picture: it says how to read the picture */
-.scenario-text .picture-note { margin: 14px 0 0; text-align: center; font-size: 15.5px; line-height: 1.45; color: var(--ink-2); font-style: italic; }
-.scenario-card.compact .scenario-text .picture-note { margin-top: 8px; font-size: 15px; line-height: 1.35; }
-.report .picture-note + .scenario-figure, .scenario-card.compact .report .picture-note + .scenario-figure { margin-top: 8px; }
+/* the caption directly below a picture: it says how to read the picture */
+.scenario .picture-note { margin: 10px 0 0; text-align: center; font-size: 15.5px; line-height: 1.45; color: var(--ink-2); font-style: italic; }
+.scenario-card.compact .scenario .picture-note { margin-top: 6px; font-size: 15px; line-height: 1.35; }
 /* clear space between a narrator's sentence and the bubble or report it introduces */
 .scenario-text p + .message, .scenario-text p + .report { margin-top: 18px; }
 .message:last-child { margin-bottom: 0; }

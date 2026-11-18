@@ -83,7 +83,7 @@ export const fillStudyValues = (text) => text.replace(/\bXX\b/g, () => STUDY.min
 
 export const CONFIG = {
   experiment_name: "explanation_revision_pilot1_vignette1",
-  experiment_version: "0.18.1",
+  experiment_version: "0.18.2",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.

@@ -57,8 +57,8 @@ const condsIn = (title) => {
 // `complexity` ("low" | "high") picks the word of a "[simple / complex]" alternative.
 function parseBlock(lines, surpriseText, complexity) {
   const newPage = () => ({ blocks: [], figures: [], figureInReport: false, pictureNote: null });
-  // "*Picture note (shown above the picture): ...*": the caption above the page's picture
-  const pictureNote = (text) => { const m = text.match(/^\*Picture note \(shown above the picture\): (.+)\*$/); return m ? m[1] : null; };
+  // "*Picture note (shown below the picture): ...*": the caption below the page's picture
+  const pictureNote = (text) => { const m = text.match(/^\*Picture note \(shown below the picture\): (.+)\*$/); return m ? m[1] : null; };
   const pages = [newPage()];
   let quote = null;                                   // the message being read
   const clean = (line) => {

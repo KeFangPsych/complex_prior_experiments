@@ -620,13 +620,13 @@ function showScenario(el, s) {
     ? `<div class="scenario-figure"><img src="${imageUrl(page.figure)}" alt="${rich(page.alt)}" draggable="${state.safeguards ? "false" : "true"}"></div>`
     : "";
   const inReport = page.figureInReport;      // the picture sits inside the lab report box
-  // a caption directly above the picture that says how to read it (inside the lab
+  // a caption directly below the picture that says how to read it (inside the lab
   // report it has the report's temperature colors)
   const note = page.pictureNote ? `<p class="picture-note">${inReport ? colorTemperatures(rich(page.pictureNote)) : rich(page.pictureNote)}</p>` : "";
   el.innerHTML = card(`${stageEyebrow(i)}
     <div class="scenario ${page.layout}">
-      <div class="scenario-text">${page.blocks.map((b) => blockHtml(b, inReport && b.kind === "report" ? note + figure : "")).join("")}${inReport ? "" : note}</div>
-      ${inReport ? "" : figure}
+      <div class="scenario-text">${page.blocks.map((b) => blockHtml(b, inReport && b.kind === "report" ? figure + note : "")).join("")}</div>
+      ${inReport ? "" : figure + note}
     </div>
     <div class="scenario-foot">
       <span></span>

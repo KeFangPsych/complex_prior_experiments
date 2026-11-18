@@ -87,7 +87,7 @@ const IMG = "vignette1_img";
 //   scenario(stage, cond, { surpriseText, figureVersion }) -> { pages: [...] }
 //   Each page: { blocks, figure (file name or null), alt, layout, figureInReport, lockExtra }
 //     figureInReport  the picture is shown inside the page's lab report box
-//     pictureNote     a caption shown directly above the picture, or null
+//     pictureNote     a caption shown directly below the picture, or null
 //     lockExtra       seconds added to the page's read-lock (LOCK_EXTRA below)
 //     lockSeconds     a fixed read-lock for the page, instead of the word-count rule (LOCK_FIXED below)
 //     blocks  in reading order, each { kind: "narration", paragraphs },
@@ -106,13 +106,13 @@ const narration = (...paragraphs) => ({ kind: "narration", paragraphs });
 const message = (label, ...paragraphs) => ({ kind: "message", label, paragraphs });
 const report = (label, ...paragraphs) => ({ kind: "report", label, paragraphs });
 const LAB_REPORT = "Lab report from your team's lab";
-// A sentence shown as a caption directly above a picture that says how to read it
+// A sentence shown as a caption directly below a picture that says how to read it
 // (the script marks these lines "Picture note"). It is not part of the page's
 // blocks, so it does not count toward the page's words or its read-lock.
 const PICTURE_NOTE = {
-  explanation1: "In the picture below, the yellow balls are the gas. The right side shows how the weather changes the amount of gas in the air.",
-  algae: "In the picture below, the oval shapes inside the organism are the algae: green when active, grey when less active.",
-  lab: "In the picture below, the results go from warm on the left to freezing on the right. More yellow balls mean more gas, a darker organism means more purple, and more red waves mean more heat.",
+  explanation1: "In the picture above, the yellow balls are the gas. The right side shows how the weather changes the amount of gas in the air.",
+  algae: "In the picture above, the oval shapes inside the organism are the algae: green when active, grey when less active.",
+  lab: "In the picture above, the results go from warm on the left to freezing on the right. More yellow balls mean more gas, a darker organism means more purple, and more red waves mean more heat.",
 };
 // Read-locks follow the word count (config.js), with these exceptions, which come
 // from reading times in testing and are stated in the script:

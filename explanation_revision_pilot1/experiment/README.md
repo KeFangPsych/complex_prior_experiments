@@ -10,9 +10,9 @@ sender label (the company's on the left in green with its logo, the team's on
 the right in blue with a hard hat), and the test results as a lab report box
 that also holds the laboratory-observations picture and colors the four
 temperature words (warm, cool, cold, freezing); everything else is the
-narrator's text. Three pictures have a caption directly above them that says
-how to read them: the two explanation pictures (below the message) and the
-laboratory-observations picture (inside the lab report). The script marks these
+narrator's text. Three pictures have a caption directly below them that says
+how to read them: the two explanation pictures and the laboratory-observations
+picture (inside the lab report). The script marks these
 lines "Picture note". They are not counted in a page's words (`n_words`) and do
 not lengthen its read-lock.
 

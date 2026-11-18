@@ -17,7 +17,7 @@ Three-factor between-participants design.
 
 In the question tables below, Pilot marks pilot-only questions and Main marks questions included in the main study. Alternative marks questions that are kept in this document as alternatives; they are not asked. All rating scales have 5 points.
 
-The participant takes the role of a member of the construction team. Text in block quotes is a written message, shown as a speech bubble with its sender label (Bioenergy's on the left in green with the company logo, the team's on the right in blue with a hard hat). A block quote labelled "Lab report" is shown as a report box instead. All other text is the narrator's. Figures are the narrator's illustrations and are not part of the messages, except the laboratory observations picture, which is shown inside the lab report. Lines marked *Picture note* are shown as a caption directly above the picture and say how to read it: on the two explanation pages below the message, and in the lab report above its picture. They do not count toward the page's reading time. In the lab report, the four temperature words are colored: warm in orange, cool in light blue, cold in blue and freezing in dark blue.
+The participant takes the role of a member of the construction team. Text in block quotes is a written message, shown as a speech bubble with its sender label (Bioenergy's on the left in green with the company logo, the team's on the right in blue with a hard hat). A block quote labelled "Lab report" is shown as a report box instead. All other text is the narrator's. Figures are the narrator's illustrations and are not part of the messages, except the laboratory observations picture, which is shown inside the lab report. Lines marked *Picture note* are shown as a caption directly below the picture and say how to read it: on the two explanation pages, and in the lab report below its picture. They do not count toward the page's reading time. In the lab report, the four temperature words are colored: warm in orange, cool in light blue, cold in blue and freezing in dark blue.
 
 Underlined parts are manipulated independently (50% per version).
 
@@ -167,9 +167,9 @@ Bioenergy writes to your team to recommend its technology.
 >
 > **The planet's air holds more of this gas when the weather is colder. So in colder weather, there is more gas around the organism. When more of this gas is available, the organism produces more heat and looks more purple.**
 
-*Picture note (shown above the picture): In the picture below, the yellow balls are the gas. The right side shows how the weather changes the amount of gas in the air.*
-
 *Figure: vignette1\_img3\_explanation1.png*
+
+*Picture note (shown below the picture): In the picture above, the yellow balls are the gas. The right side shows how the weather changes the amount of gas in the air.*
 
 ### **Stage 3 potential measurements**
 
@@ -224,9 +224,9 @@ Your team's lab tests the sample at four different temperatures. **During the te
 > * looks even more purple<ins>, as expected</ins>.
 > * produces LESS heat than when it is cold. <ins>This is unexpected, because more gas is there for the organism to use.</ins>
 >
-> *Picture note (shown above the picture): In the picture below, the results go from warm on the left to freezing on the right. More yellow balls mean more gas, a darker organism means more purple, and more red waves mean more heat.*
->
 > *Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
+>
+> *Picture note (shown below the picture): In the picture above, the results go from warm on the left to freezing on the right. More yellow balls mean more gas, a darker organism means more purple, and more red waves mean more heat.*
 
 ### **Low-goal-relevance condition (color anomaly, cond 2, 4\)**
 
@@ -239,9 +239,9 @@ Your team's lab tests the sample at four different temperatures. **During the te
 > * produces even more heat<ins>, as expected</ins>.
 > * looks LESS purple than when it is cold. <ins>This is unexpected, because more gas is there for the organism to use.</ins>
 >
-> *Picture note (shown above the picture): In the picture below, the results go from warm on the left to freezing on the right. More yellow balls mean more gas, a darker organism means more purple, and more red waves mean more heat.*
->
 > *Figure: vignette1\_img4\_evidence\_color\_anomaly.png* or *vignette1\_img4\_evidence\_color\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
+>
+> *Picture note (shown below the picture): In the picture above, the results go from warm on the left to freezing on the right. More yellow balls mean more gas, a darker organism means more purple, and more red waves mean more heat.*
 
 ### **Stage 4 potential measurements (evidence-first)**
 
@@ -288,9 +288,9 @@ Bioenergy replies.
 >
 > **The organism produces purple pigment on its own, without the algae.** So it keeps looking more purple as the weather gets colder.
 
-*Picture note (shown above the picture): In the picture below, the oval shapes inside the organism are the algae: green when active, grey when less active.*
-
 *Figure: vignette1\_img5\_explanation2\_heat\_anomaly.png*
+
+*Picture note (shown below the picture): In the picture above, the oval shapes inside the organism are the algae: green when active, grey when less active.*
 
 ### **Low-goal-relevance condition (color anomaly, cond 2, 4\)**
 
@@ -316,9 +316,9 @@ Bioenergy replies.
 >
 > **The organism produces heat on its own, without the algae.** So it keeps producing more heat as the weather gets colder.
 
-*Picture note (shown above the picture): In the picture below, the oval shapes inside the organism are the algae: green when active, grey when less active.*
-
 *Figure: vignette1\_img5\_explanation2\_color\_anomaly.png*
+
+*Picture note (shown below the picture): In the picture above, the oval shapes inside the organism are the algae: green when active, grey when less active.*
 
 ### **Stage 5 potential measurements (evidence-first)**
 
@@ -376,9 +376,9 @@ Bioenergy's message continues.
 >
 > **The organism produces purple pigment on its own, without the algae.** So it keeps looking more purple as the weather gets colder.
 
-*Picture note (shown above the picture): In the picture below, the oval shapes inside the organism are the algae: green when active, grey when less active.*
-
 *Figure: vignette1\_img5\_explanation2\_heat\_anomaly.png*
+
+*Picture note (shown below the picture): In the picture above, the oval shapes inside the organism are the algae: green when active, grey when less active.*
 
 ### **Low-goal-relevance condition (color anomaly, cond 6, 8\)**
 
@@ -394,9 +394,9 @@ Bioenergy's message continues.
 >
 > **The organism produces heat on its own, without the algae.** So it keeps producing more heat as the weather gets colder.
 
-*Picture note (shown above the picture): In the picture below, the oval shapes inside the organism are the algae: green when active, grey when less active.*
-
 *Figure: vignette1\_img5\_explanation2\_color\_anomaly.png*
+
+*Picture note (shown below the picture): In the picture above, the oval shapes inside the organism are the algae: green when active, grey when less active.*
 
 ### **Stage 4 potential measurements (elaboration-first)**
 
@@ -440,9 +440,9 @@ Your team's lab tests the sample at four different temperatures. **During the te
 > * looks even more purple.
 > * produces LESS heat than when it is cold.
 >
-> *Picture note (shown above the picture): In the picture below, the results go from warm on the left to freezing on the right. More yellow balls mean more gas, a darker organism means more purple, and more red waves mean more heat.*
->
 > *Figure: vignette1\_img4\_evidence\_heat\_anomaly.png* or *vignette1\_img4\_evidence\_heat\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
+>
+> *Picture note (shown below the picture): In the picture above, the results go from warm on the left to freezing on the right. More yellow balls mean more gas, a darker organism means more purple, and more red waves mean more heat.*
 
 ### **Low-goal-relevance condition (color anomaly, cond 6, 8\)**
 
@@ -455,9 +455,9 @@ Your team's lab tests the sample at four different temperatures. **During the te
 > * produces even more heat.
 > * looks LESS purple than when it is cold.
 >
-> *Picture note (shown above the picture): In the picture below, the results go from warm on the left to freezing on the right. More yellow balls mean more gas, a darker organism means more purple, and more red waves mean more heat.*
->
 > *Figure: vignette1\_img4\_evidence\_color\_anomaly.png* or *vignette1\_img4\_evidence\_color\_anomaly\_line.png <ins>(randomize the two versions)</ins>.*
+>
+> *Picture note (shown below the picture): In the picture above, the results go from warm on the left to freezing on the right. More yellow balls mean more gas, a darker organism means more purple, and more red waves mean more heat.*
 
 ### **Stage 5 potential measurements (elaboration-first)**
 
