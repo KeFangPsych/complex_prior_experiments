@@ -325,7 +325,7 @@ Bioenergy replies.
 | :---- | :---- | :---- |
 | Main | Causal knowledge: dependence on algae | Which of these can the organism produce only with the help of the algae? (Heat only; Purple pigment only; Both heat and purple pigment; Neither heat nor purple pigment; I don't remember) |
 | Main | Source trust / Cooperativeness (primary) | How much do you trust the company to tell your team what it needs to know? (1 \= Not at all; 5 \= Completely) |
-| Main | Source trust / Cooperativeness (primary), reverse-coded | When explaining the technology, how much does the company ignore what is best for your team? (1 \= Not at all; 5 \= Very much) |
+| Main | Source trust / Cooperativeness (primary), reverse-coded | When explaining the technology, how much did the company fail to explain what is best for your team? (1 \= Not at all; 5 \= Very much) |
 | Main | Source trust / Cooperativeness (primary) | When the company chose what to explain, how much was it trying to help your team make a good decision? (1 \= Not at all; 5 \= Very much) |
 | Main | Complexity (primary) | Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
 | Main | Complexity (primary) | Besides what the company has said, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |
@@ -459,7 +459,7 @@ Your team's lab tests the sample at four different temperatures. **During the te
 | Use | Measure | Question |
 | :---- | :---- | :---- |
 | Main | Source trust / Cooperativeness (primary) | How much do you trust the company to tell your team what it needs to know? (1 \= Not at all; 5 \= Completely) |
-| Main | Source trust / Cooperativeness (primary), reverse-coded | When explaining the technology, how much does the company ignore what is best for your team? (1 \= Not at all; 5 \= Very much) |
+| Main | Source trust / Cooperativeness (primary), reverse-coded | When explaining the technology, how much did the company fail to explain what is best for your team? (1 \= Not at all; 5 \= Very much) |
 | Main | Source trust / Cooperativeness (primary) | When the company chose what to explain, how much was it trying to help your team make a good decision? (1 \= Not at all; 5 \= Very much) |
 | Main | Complexity (primary) | Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
 | Main | Complexity (primary) | Besides what the company has said, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |

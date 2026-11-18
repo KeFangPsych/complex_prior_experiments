@@ -280,8 +280,8 @@ function finalMeasures() {
     likert("trust_tell", "main", "Source trust / Cooperativeness (primary)", "trust",
       "How much do you trust the company to tell your team what it needs to know?", "Not at all", "Completely"),
     // reverse-coded: a higher answer means less trust (recode as SCALE_POINTS + 1 - answer)
-    { ...likert("trust_ignore", "main", "Source trust / Cooperativeness (primary), reverse-coded", "trust",
-      "When explaining the technology, how much does the company ignore what is best for your team?", "Not at all", "Very much"), reverse: true },
+    { ...likert("trust_fail_explain", "main", "Source trust / Cooperativeness (primary), reverse-coded", "trust",
+      "When explaining the technology, how much did the company fail to explain what is best for your team?", "Not at all", "Very much"), reverse: true },
     likert("trust_help", "main", "Source trust / Cooperativeness (primary)", "trust",
       "When the company chose what to explain, how much was it trying to help your team make a good decision?", "Not at all", "Very much"),
     // the first two have the wording of the two part 3 organism questions (pilot), of which each participant saw one
