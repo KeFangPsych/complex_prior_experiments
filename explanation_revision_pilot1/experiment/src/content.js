@@ -106,12 +106,11 @@ const narration = (...paragraphs) => ({ kind: "narration", paragraphs });
 const message = (label, ...paragraphs) => ({ kind: "message", label, paragraphs });
 const report = (label, ...paragraphs) => ({ kind: "report", label, paragraphs });
 const LAB_REPORT = "Lab report from your team's lab";
-// A sentence shown as a caption directly below a picture that says how to read it
-// (the script marks these lines "Picture note"). It is not part of the page's
-// blocks, so it does not count toward the page's words or its read-lock.
+// The caption directly below the lab report's picture, which says how to read it
+// (the script marks the line "Picture note"). It is not one of the page's blocks,
+// so it does not count toward the page's words or its read-lock. The two
+// explanation pictures have no caption: Bioenergy's messages refer to them in the text.
 const PICTURE_NOTE = {
-  explanation1: "In the picture above, the yellow balls are the gas. The right side shows how the weather changes the amount of gas in the air.",
-  algae: "In the picture above, the oval shapes inside the organism are the algae: green when active, grey when less active.",
   lab: "In the picture above, the results go from warm on the left to freezing on the right. More yellow balls mean more gas, a darker organism means more purple, and more red waves mean more heat.",
 };
 // Read-locks follow the word count (config.js), with these exceptions, which come
@@ -146,10 +145,10 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
       `Scientific findings show that **biological processes (the ways living things work) on this planet are usually ${low ? "simple" : "complex"}**.`,
       low
         ? "These processes usually involve a few chemical reactions and only a few factors matter for what happens."
-        : "These processes usually involve many chemical reactions and several different factors influence what happens. The factors also affect each other in complicated ways. The effect of one factor often changes when other factors change.",
+        : "These processes usually involve many chemical reactions and several different factors influence what happens. The factors also affect each other in complicated ways. For example, the effect of one factor often changes when other factors change.",
       low
-        ? "**In science, these processes have been studied for years and are now very well understood.**"
-        : "**Although complicated, these processes have been studied for years and are now very well understood in science.**",
+        ? "**In science, these processes have been studied for years and are very well understood.**"
+        : "**Although complicated, these processes have been studied for years and are very well understood in science.**",
     )], `${IMG}2_${low ? "low" : "high"}_complex.png`,
     low
       ? "Diagram of the planet's biology: a few elements, simple chemistry and simple organisms, with few links between them."
@@ -168,11 +167,11 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
         message(FROM_BIOENERGY,
           "We saw that your team is looking for a way to keep apartments warm. We recommend our technology.",
           "Our technology uses part of the biological process found in a specific type of organism.",
-          "In this process, **the organism uses a certain gas from the planet's air to produce heat. It also uses this gas to produce a purple substance called a pigment that makes it look purple** (the pigment is harmless and has no other practical use).",
-          "**The planet's air holds more of this gas when the weather is colder. So in colder weather, there is more gas around the organism. When more of this gas is available, the organism produces more heat and looks more purple.**",
+          "In this process, **the organism uses a certain gas from the planet's air to produce heat. It also uses this gas to produce a purple substance called a pigment that makes it look purple** (the pigment is harmless and has no other practical use). See the left side of the picture below, where the yellow balls are the gas.",
+          "**The planet's air holds more of this gas when the weather is colder** (see the right side of the picture). **So in colder weather, there is more gas around the organism. When more of this gas is available, the organism produces more heat and looks more purple.**",
         ),
       ], `${IMG}3_explanation1.png`,
-      "Bioenergy's explanation: with more gas, the organism can produce more heat and more purple pigment, which makes it look more purple. Colder weather means more gas in the air.", "stacked", { lockSeconds: LOCK_FIXED.explanation1_message, pictureNote: PICTURE_NOTE.explanation1 }),
+      "Bioenergy's explanation: with more gas, the organism can produce more heat and more purple pigment, which makes it look more purple. Colder weather means more gas in the air.", "stacked", { lockSeconds: LOCK_FIXED.explanation1_message }),
     ] };
   }
 
@@ -201,16 +200,16 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
     // Bioenergy's account of the algae: a reply to the team's question when the
     // evidence came first, otherwise the continuation of its first message
     const algaeParagraphs = [
-      `There are even smaller living things called algae that live inside the organism. And **the organism can produce ${anom} only with the help of the algae.**`,
+      `There are even smaller living things called algae that live inside the organism (the green ovals in the picture below). And **the organism can produce ${anom} only with the help of the algae.**`,
       `**The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.`,
-      `As the weather gets colder, more gas is available in the air, and the algae use the extra gas to produce more ${anom}.`,
-      `**But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less ${anom}**, even though more gas is available.`,
+      `As the weather gets colder, more gas is available in the air, and the algae use the extra gas to produce more ${anom} (see the left side of the picture).`,
+      `**But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less ${anom}**, even though more gas is available (see the right side of the picture, where the algae are grey).`,
       `**The organism produces ${other} on its own, without the algae.** So it ${O.keeps} as the weather gets colder.`,
     ];
     const figure = `${IMG}5_explanation2_${c.anomaly}_anomaly.png`;
     const alt = "Bioenergy's explanation of what happens inside the organism when it is cold and when it is freezing.";
     if (!evidenceFirst) {
-      return { pages: [page([narration("Bioenergy's message continues."), message(`${FROM_BIOENERGY} (continued)`, ...algaeParagraphs)], figure, alt, "stacked", { lockSeconds: LOCK_FIXED.algae, pictureNote: PICTURE_NOTE.algae })] };
+      return { pages: [page([narration("Bioenergy's message continues."), message(`${FROM_BIOENERGY} (continued)`, ...algaeParagraphs)], figure, alt, "stacked", { lockSeconds: LOCK_FIXED.algae })] };
     }
     return { pages: [
       page([
@@ -218,7 +217,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
         message(FROM_TEAM, `We tested the sample. When it was freezing, the organism ${A.lessPast} than when it was cold.` +
           (s ? " This is not what we expected." : "") + " Can you explain why?"),
       ]),
-      page([narration("Bioenergy replies."), message(FROM_BIOENERGY, "Thank you for reaching out about your test. This is because:", ...algaeParagraphs)], figure, alt, "stacked", { lockSeconds: LOCK_FIXED.algae, pictureNote: PICTURE_NOTE.algae }),
+      page([narration("Bioenergy replies."), message(FROM_BIOENERGY, "Thank you for reaching out about your test. This is because:", ...algaeParagraphs)], figure, alt, "stacked", { lockSeconds: LOCK_FIXED.algae }),
     ] };
   }
 
@@ -236,6 +235,7 @@ export const pageWordCount = (page) => page.blocks.reduce((n, b) => n + (b.label
 // ============================================================================
 // QUESTIONS
 //   Each item: { id, use ("main" | "pilot" | "alternative"), measure, page, type, prompt, ... }
+//     reverse: true   the item is reverse-coded (the answer is stored as given)
 //     use "alternative": kept in the script as an alternative measure, never asked
 //     likert  low, high, mid (label of the midpoint, optional); answered 1-5
 //     choice  options, correct (index of the right answer, optional)
@@ -279,8 +279,9 @@ function finalMeasures() {
   return [
     likert("trust_tell", "main", "Source trust / Cooperativeness (primary)", "trust",
       "How much do you trust the company to tell your team what it needs to know?", "Not at all", "Completely"),
-    likert("trust_care", "main", "Source trust / Cooperativeness (primary)", "trust",
-      "When explaining the technology, how much does the company care about what is best for your team?", "Not at all", "Very much"),
+    // reverse-coded: a higher answer means less trust (recode as SCALE_POINTS + 1 - answer)
+    { ...likert("trust_own_interest", "main", "Source trust / Cooperativeness (primary), reverse-coded", "trust",
+      "When explaining the technology, how much does the company put its own interests ahead of what is best for your team?", "Not at all", "Very much"), reverse: true },
     likert("trust_help", "main", "Source trust / Cooperativeness (primary)", "trust",
       "When the company chose what to explain, how much was it trying to help your team make a good decision?", "Not at all", "Very much"),
     // the first two have the wording of the two part 3 organism questions (pilot), of which each participant saw one

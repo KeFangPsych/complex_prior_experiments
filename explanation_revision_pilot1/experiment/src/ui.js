@@ -238,7 +238,7 @@ export function bindQuestions(root, items, onChange, initial = {}) {
     results: () => items.map((q, position) => {
       const a = answers[q.id];
       return {
-        id: q.id, use: q.use, type: q.type, measure: q.measure,
+        id: q.id, use: q.use, type: q.type, measure: q.measure, reverse: !!q.reverse,
         response: q.type === "open" && a.value !== null ? a.value.trim() : a.value,
         response_index: a.index,
         correct: q.type === "choice" && q.correct !== null ? a.index === q.correct : null,

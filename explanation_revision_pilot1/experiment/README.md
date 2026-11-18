@@ -10,11 +10,12 @@ sender label (the company's on the left in green with its logo, the team's on
 the right in blue with a hard hat), and the test results as a lab report box
 that also holds the laboratory-observations picture and colors the four
 temperature words (warm, cool, cold, freezing); everything else is the
-narrator's text. Three pictures have a caption directly below them that says
-how to read them: the two explanation pictures and the laboratory-observations
-picture (inside the lab report). The script marks these
-lines "Picture note". They are not counted in a page's words (`n_words`) and do
-not lengthen its read-lock.
+narrator's text. On the two explanation pages, the company's message refers to
+its picture in the text ("see the left side of the picture"). The
+laboratory-observations picture has a caption directly below it, inside the lab
+report, that says how to read it. The script marks that line "Picture note"; it
+is not counted in the page's words (`n_words`) and does not lengthen its
+read-lock.
 
 It is a Node project: jsPsych and its plugins come from npm and
 [Vite](https://vite.dev) bundles everything into a static site. The UI and the
@@ -438,6 +439,13 @@ record**. Scales are stored as 1–5, multiple choice as the option text, open
 responses as text. Multiple-choice questions with a right answer also get
 `<id>_correct`. A question that was not asked in the participant's condition or
 mode has no value.
+
+One item is **reverse-coded**: `trust_own_interest` ("…how much does the
+company put its own interests ahead of what is best for your team?"), where a
+higher answer means less trust. The answer is stored as given; recode it as
+6 − answer before averaging it with `trust_tell` and `trust_help`. Its entry in
+`responses` has `reverse: true`, and its measure label in the script says
+"reverse-coded".
 
 Other participant-level columns: `subject_id`, `prolific_pid`, `study_id`,
 `session_id`, `mode`, `condition_index`, `condition_source`,
