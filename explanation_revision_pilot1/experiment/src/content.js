@@ -158,16 +158,16 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
   if (stage === "explanation1") {
     return { pages: [
       page([narration(
-        "Your team is building apartments on this planet. The planet has four seasons: warm, cool, cold, and freezing.",
-        "Your team announces that it needs technology that can **produce heat to keep apartments warm**. An energy company called Bioenergy has a technology that uses one kind of organism found on the planet.",
-        `**Bioenergy understands very well how this kind of organism works** because it has closely studied the organism. Scientific findings suggest that the organism is as ${c.complexity === "low" ? "simple" : "complex"} as other life forms on the planet.`,
+        "Your team is building apartments on this planet. The planet has four seasons: warm, cool, cold, and freezing. Your team announces that it needs technology that can **produce heat to keep apartments warm**.",
+        "An energy company called Bioenergy recommends its heating technology that uses one kind of organism found on the planet. **Bioenergy understands very well how this kind of organism works** because it has closely studied the organism.",
+        `Scientific findings suggest that the organism is as ${c.complexity === "low" ? "simple" : "complex"} as other life forms on the planet.`,
       )], null, "", "text", { lockSeconds: LOCK_FIXED.explanation1_intro }),
       page([
         narration("Bioenergy writes to your team to recommend its technology."),
         message(FROM_BIOENERGY,
           "We saw that your team is looking for a way to keep apartments warm. We recommend our technology.",
           "Our technology uses part of the biological process found in a specific type of organism.",
-          "In this process (see the left side of the picture), **the organism uses a certain gas from the planet's air to produce heat. It also uses this gas to produce a purple substance called a pigment that makes it look purple** (the pigment is harmless and has no other practical use).",
+          "In this process, **the organism uses a certain gas from the planet's air to produce heat. It also uses this gas to produce a purple substance called a pigment that makes it look purple** (see the left side of the picture). The pigment is harmless and has no other practical use.",
           "**The planet's air holds more of this gas when the weather is colder** (see the right side of the picture). **So in colder weather, there is more gas around the organism. When more of this gas is available, the organism produces more heat and looks more purple.**",
         ),
       ], `${IMG}3_explanation1.png`,
@@ -200,7 +200,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
     // Bioenergy's account of the algae: a reply to the team's question when the
     // evidence came first, otherwise the continuation of its first message
     const algaeParagraphs = [
-      `There are even smaller living things called algae that live inside the organism. And **the organism can produce ${anom} only with the help of the algae.**`,
+      `**The organism can produce ${anom} only with the help of the algae.** Algae are even smaller living things that live inside the organism.`,
       `**The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.`,
       `As the weather gets colder, more gas is available in the air, and the algae use the extra gas to produce more ${anom} (see the left side of the picture).`,
       `**But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less ${anom}**, even though more gas is available (see the right side of the picture).`,
@@ -278,12 +278,12 @@ function finalMeasures() {
   const blocks = ["complexity", "utility"];     // these two come in random order; the trust block is always first
   return [
     likert("trust_tell", "main", "Source trust / Cooperativeness (primary)", "trust",
-      "How much do you trust the company to tell your team what it needs to know?", "Not at all", "Completely"),
+      "How much do you **trust** the company to tell your team what it needs to know?", "Not at all", "Completely"),
     // reverse-coded: a higher answer means less trust (recode as SCALE_POINTS + 1 - answer)
     { ...likert("trust_fail_explain", "main", "Source trust / Cooperativeness (primary), reverse-coded", "trust",
-      "When explaining the technology, how much did the company fail to explain what is best for your team?", "Not at all", "Very much"), reverse: true },
+      "When explaining the technology, how much did the company **fail to explain** what is best for your team?", "Not at all", "Very much"), reverse: true },
     likert("trust_help", "main", "Source trust / Cooperativeness (primary)", "trust",
-      "When the company chose what to explain, how much was it trying to help your team make a good decision?", "Not at all", "Very much"),
+      "When the company chose what to explain, how much was it **trying to help** your team make a good decision?", "Not at all", "Very much"),
     // the first two have the wording of the two part 3 organism questions (pilot), of which each participant saw one
     likert("complexity_overall", "main", "Complexity (primary)", "complexity",
       "Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be?", "Very simple", "Very complex"),

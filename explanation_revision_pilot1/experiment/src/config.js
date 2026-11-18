@@ -63,7 +63,7 @@ export const ASSIGNMENT = {
 // it is unique to each Prolific study, so set it again for every new study.
 // ============================================================================
 export const PROLIFIC = {
-  completion_code: "REPLACE_WITH_YOUR_PROLIFIC_COMPLETION_CODE",
+  completion_code: "C1AM5OYD",
 };
 
 // ============================================================================
@@ -83,7 +83,7 @@ export const fillStudyValues = (text) => text.replace(/\bXX\b/g, () => STUDY.min
 
 export const CONFIG = {
   experiment_name: "explanation_revision_pilot1_vignette1",
-  experiment_version: "0.19.2",
+  experiment_version: "1.0.0",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.
@@ -182,7 +182,7 @@ export const CONSENT = {
   title: "Informed Consent",
   sections: [
     { label: "Purpose of the research", text: "To understand more about how individuals evaluate explanations from other people and make decisions. This study will specifically ask participants to read, understand and evaluate explanations in a hypothetical setting." },
-    { label: "Procedures", text: "Participation in this study will involve reading explanations and answering a series of questions in a hypothetical scenario. This study is being conducted online using a web browser and internet." },
+    { label: "Procedures", text: "Participation in this study will involve reading explanations and answering a series of questions in a hypothetical scenario. This study is being conducted online using a web browser and internet. Please complete the study on your own, without using AI tools (such as chatbots or AI assistants) or other outside help." },
     { label: "Time required", text: "This survey will take about XX mins. The task will last the amount of time advertised on Prolific. You are free to withdraw from the study at any time." },
     { label: "Compensation", text: "You will receive a payment of $X for about XX minutes to complete the study. If you do not complete or fail most of the attention checks, compensation may not be granted." },
     { label: "Risks and Benefits", text: "There are no risks beyond those of everyday life that we are aware of from taking part in this study. While you may not receive direct benefits, you will contribute to knowledge about actions and preferences." },

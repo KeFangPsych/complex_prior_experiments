@@ -74,7 +74,7 @@ The study takes about 15 minutes. Please complete it in one sitting, in full-scr
 
 **Purpose of the research:** To understand more about how individuals evaluate explanations from other people and make decisions. This study will specifically ask participants to read, understand and evaluate explanations in a hypothetical setting.
 
-**Procedures:** Participation in this study will involve reading explanations and answering a series of questions in a hypothetical scenario. This study is being conducted online using a web browser and internet.
+**Procedures:** Participation in this study will involve reading explanations and answering a series of questions in a hypothetical scenario. This study is being conducted online using a web browser and internet. Please complete the study on your own, without using AI tools (such as chatbots or AI assistants) or other outside help.
 
 **Time required:** This survey will take about 15 mins. The task will last the amount of time advertised on Prolific. You are free to withdraw from the study at any time.
 
@@ -145,11 +145,11 @@ Presentation order:
 
 ## **Stage 3: Explanation 1 (all conditions)**
 
-Your team is building apartments on this planet. The planet has four seasons: warm, cool, cold, and freezing.
+Your team is building apartments on this planet. The planet has four seasons: warm, cool, cold, and freezing. Your team announces that it needs technology that can **produce heat to keep apartments warm**.
 
-Your team announces that it needs technology that can **produce heat to keep apartments warm**. An energy company called Bioenergy has a technology that uses one kind of organism found on the planet.
+An energy company called Bioenergy recommends its heating technology that uses one kind of organism found on the planet. **Bioenergy understands very well how this kind of organism works** because it has closely studied the organism.
 
-**Bioenergy understands very well how this kind of organism works** because it has closely studied the organism. Scientific findings suggest that the organism is as [simple / complex] as other life forms on the planet.
+Scientific findings suggest that the organism is as [simple / complex] as other life forms on the planet.
 
 *[simple / complex]: "simple" in the low-complexity conditions (cond 1, 2, 5, 6\), "complex" in the high-complexity conditions (cond 3, 4, 7, 8\).*
 
@@ -163,7 +163,7 @@ Bioenergy writes to your team to recommend its technology.
 >
 > Our technology uses part of the biological process found in a specific type of organism.
 >
-> In this process (see the left side of the picture), **the organism uses a certain gas from the planet's air to produce heat. It also uses this gas to produce a purple substance called a pigment that makes it look purple** (the pigment is harmless and has no other practical use).
+> In this process, **the organism uses a certain gas from the planet's air to produce heat. It also uses this gas to produce a purple substance called a pigment that makes it look purple** (see the left side of the picture). The pigment is harmless and has no other practical use.
 >
 > **The planet's air holds more of this gas when the weather is colder** (see the right side of the picture). **So in colder weather, there is more gas around the organism. When more of this gas is available, the organism produces more heat and looks more purple.**
 
@@ -276,7 +276,7 @@ Bioenergy replies.
 >
 > Thank you for reaching out about your test. This is because:
 >
-> There are even smaller living things called algae that live inside the organism. And **the organism can produce heat only with the help of the algae.**
+> **The organism can produce heat only with the help of the algae.** Algae are even smaller living things that live inside the organism.
 >
 > **The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
 >
@@ -302,7 +302,7 @@ Bioenergy replies.
 >
 > Thank you for reaching out about your test. This is because:
 >
-> There are even smaller living things called algae that live inside the organism. And **the organism can produce purple pigment only with the help of the algae.**
+> **The organism can produce purple pigment only with the help of the algae.** Algae are even smaller living things that live inside the organism.
 >
 > **The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
 >
@@ -324,9 +324,9 @@ Bioenergy replies.
 | Use | Measure | Question |
 | :---- | :---- | :---- |
 | Main | Causal knowledge: dependence on algae | Which of these can the organism produce only with the help of the algae? (Heat only; Purple pigment only; Both heat and purple pigment; Neither heat nor purple pigment; I don't remember) |
-| Main | Source trust / Cooperativeness (primary) | How much do you trust the company to tell your team what it needs to know? (1 \= Not at all; 5 \= Completely) |
-| Main | Source trust / Cooperativeness (primary), reverse-coded | When explaining the technology, how much did the company fail to explain what is best for your team? (1 \= Not at all; 5 \= Very much) |
-| Main | Source trust / Cooperativeness (primary) | When the company chose what to explain, how much was it trying to help your team make a good decision? (1 \= Not at all; 5 \= Very much) |
+| Main | Source trust / Cooperativeness (primary) | How much do you **trust** the company to tell your team what it needs to know? (1 \= Not at all; 5 \= Completely) |
+| Main | Source trust / Cooperativeness (primary), reverse-coded | When explaining the technology, how much did the company **fail to explain** what is best for your team? (1 \= Not at all; 5 \= Very much) |
+| Main | Source trust / Cooperativeness (primary) | When the company chose what to explain, how much was it **trying to help** your team make a good decision? (1 \= Not at all; 5 \= Very much) |
 | Main | Complexity (primary) | Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
 | Main | Complexity (primary) | Besides what the company has said, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |
 | Main | Complexity (primary) | Besides what the company has said, how likely is it that other factors affect how much heat this organism produces? (1 \= Very unlikely; 5 \= Very likely) |
@@ -360,7 +360,7 @@ Bioenergy's message continues.
 
 > **From Bioenergy to your team (continued)**
 >
-> There are even smaller living things called algae that live inside the organism. And **the organism can produce heat only with the help of the algae.**
+> **The organism can produce heat only with the help of the algae.** Algae are even smaller living things that live inside the organism.
 >
 > **The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
 >
@@ -376,7 +376,7 @@ Bioenergy's message continues.
 
 > **From Bioenergy to your team (continued)**
 >
-> There are even smaller living things called algae that live inside the organism. And **the organism can produce purple pigment only with the help of the algae.**
+> **The organism can produce purple pigment only with the help of the algae.** Algae are even smaller living things that live inside the organism.
 >
 > **The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
 >
@@ -458,9 +458,9 @@ Your team's lab tests the sample at four different temperatures. **During the te
 
 | Use | Measure | Question |
 | :---- | :---- | :---- |
-| Main | Source trust / Cooperativeness (primary) | How much do you trust the company to tell your team what it needs to know? (1 \= Not at all; 5 \= Completely) |
-| Main | Source trust / Cooperativeness (primary), reverse-coded | When explaining the technology, how much did the company fail to explain what is best for your team? (1 \= Not at all; 5 \= Very much) |
-| Main | Source trust / Cooperativeness (primary) | When the company chose what to explain, how much was it trying to help your team make a good decision? (1 \= Not at all; 5 \= Very much) |
+| Main | Source trust / Cooperativeness (primary) | How much do you **trust** the company to tell your team what it needs to know? (1 \= Not at all; 5 \= Completely) |
+| Main | Source trust / Cooperativeness (primary), reverse-coded | When explaining the technology, how much did the company **fail to explain** what is best for your team? (1 \= Not at all; 5 \= Very much) |
+| Main | Source trust / Cooperativeness (primary) | When the company chose what to explain, how much was it **trying to help** your team make a good decision? (1 \= Not at all; 5 \= Very much) |
 | Main | Complexity (primary) | Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
 | Main | Complexity (primary) | Besides what the company has said, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |
 | Main | Complexity (primary) | Besides what the company has said, how likely is it that other factors affect how much heat this organism produces? (1 \= Very unlikely; 5 \= Very likely) |
