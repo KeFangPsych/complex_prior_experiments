@@ -168,6 +168,9 @@ const shotDir = path.join(__dirname, "shots");
       if (!["screen_pointer_moves", "screen_clicks", "screen_keys"].every((k) => Number.isInteger(r[k]))) bad(`${r.screen}: no record of how it was operated`);
     });
     if (!(Number.isInteger(last.total_time_ms) && last.total_time_ms > 0)) bad(`total_time_ms is ${JSON.stringify(last.total_time_ms)}`);
+    // the question on AI tools on the last screen is answered, and a "Yes" is flagged
+    if (!["Yes", "No"].includes(last.ai_tool_use)) bad(`ai_tool_use is ${JSON.stringify(last.ai_tool_use)}`);
+    if (String(last.ai_flags).split(",").includes("self_reported") !== (last.ai_tool_use === "Yes")) bad(`ai_tool_use is ${last.ai_tool_use} but ai_flags is ${last.ai_flags}`);
     // each item has the time of its first and last answer
     answered.forEach((a) => { if (!(Number.isInteger(a.first_ms) && Number.isInteger(a.last_ms) && a.last_ms >= a.first_ms)) bad(`${a.id}: answer times ${a.first_ms}, ${a.last_ms}`); });
     // scenario rows carry the page's word count (the bot runs with the read-locks off)

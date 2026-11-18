@@ -100,6 +100,7 @@ export const integrity = {
   open_typing: [],               // per open response: { id, keys, median_key_interval_ms }
   canary_items: [],              // open responses that contain the hidden note's word
   honeypot_value: "",            // text entered into the hidden field
+  self_reported_ai_use: false,   // answered "Yes" to the question on AI tools
   _hiddenSince: null,
 };
 /**
@@ -108,6 +109,7 @@ export const integrity = {
  */
 export function aiFlags() {
   const f = [...integrity.automation_signals];
+  if (integrity.self_reported_ai_use) f.push("self_reported");
   if (integrity.untrusted_event_count > 0) f.push("scripted_events");
   if (integrity.canary_items.length > 0) f.push("hidden_note_word");
   if (integrity.honeypot_value) f.push("hidden_field_filled");

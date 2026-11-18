@@ -105,13 +105,13 @@ const narration = (...paragraphs) => ({ kind: "narration", paragraphs });
 const message = (label, ...paragraphs) => ({ kind: "message", label, paragraphs });
 const report = (label, ...paragraphs) => ({ kind: "report", label, paragraphs });
 const LAB_REPORT = "Lab report from your team's lab";
-// Read-locks follow the word count (config.js). These four pages have more to take
-// in than their word count says (a dense paragraph, or a picture that has to be
-// read), so they stay locked for this many seconds longer. The numbers come from
-// reading times in testing and are stated in the script.
-export const LOCK_EXTRA = { explanation1_intro: 8, lab_report: 6, algae: 17 };
-// The page with Bioenergy's first message has a fixed read-lock, in seconds.
-export const LOCK_FIXED = { explanation1_message: 25 };
+// Read-locks follow the word count (config.js), with these exceptions, which come
+// from reading times in testing and are stated in the script:
+// the lab report stays locked for some seconds longer than its word count gives,
+export const LOCK_EXTRA = { lab_report: 6 };
+// and four pages have a set time, in seconds: the first page of part 3, Bioenergy's
+// first message, the page where the team asks for the sample, and the algae explanation.
+export const LOCK_FIXED = { explanation1_intro: 12, explanation1_message: 25, evidence_request: 5, algae: 40 };
 const FROM_BIOENERGY = "From Bioenergy to your team";
 const FROM_TEAM = "From your team to Bioenergy";
 
@@ -153,7 +153,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
         "Your team is building apartments on this planet. The planet has four seasons: warm, cool, cold, and freezing.",
         "Your team announces that it needs technology that can **produce heat to keep apartments warm**. An energy company called Bioenergy has a technology that uses one kind of organism found on the planet.",
         `**Bioenergy understands very well how this kind of organism works** because it has closely studied the organism. Scientific findings suggest that the organism is as ${c.complexity === "low" ? "simple" : "complex"} as other life forms on the planet.`,
-      )], null, "", "text", { lockExtra: LOCK_EXTRA.explanation1_intro }),
+      )], null, "", "text", { lockSeconds: LOCK_FIXED.explanation1_intro }),
       page([
         narration("Bioenergy writes to your team to recommend its technology."),
         message(FROM_BIOENERGY,
@@ -174,7 +174,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
         "Before deciding whether to use the technology, your team wants to make sure that the organism can produce heat as explained.",
         "So you ask Bioenergy for a sample of the organism.",
         "Bioenergy sends the sample, and **you send the sample to your team's internal laboratory for testing**.",
-      )]),
+      )], null, "", "text", { lockSeconds: LOCK_FIXED.evidence_request }),
       page([
         narration("Your team's lab tests the sample at four different temperatures. **During the tests, more of the gas is available when it is colder, just as on the planet.**"),
         report(LAB_REPORT,
@@ -201,7 +201,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
     const figure = `${IMG}5_explanation2_${c.anomaly}_anomaly.png`;
     const alt = "Bioenergy's explanation of what happens inside the organism when it is cold and when it is freezing.";
     if (!evidenceFirst) {
-      return { pages: [page([narration("Bioenergy's message continues."), message(`${FROM_BIOENERGY} (continued)`, ...algaeParagraphs)], figure, alt, "stacked", { lockExtra: LOCK_EXTRA.algae })] };
+      return { pages: [page([narration("Bioenergy's message continues."), message(`${FROM_BIOENERGY} (continued)`, ...algaeParagraphs)], figure, alt, "stacked", { lockSeconds: LOCK_FIXED.algae })] };
     }
     return { pages: [
       page([
@@ -209,7 +209,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
         message(FROM_TEAM, `We tested the sample. When it was freezing, the organism ${A.lessPast} than when it was cold.` +
           (s ? " This is not what we expected." : "") + " Can you explain why?"),
       ]),
-      page([narration("Bioenergy replies."), message(FROM_BIOENERGY, "Thank you for reaching out about your test. This is because:", ...algaeParagraphs)], figure, alt, "stacked", { lockExtra: LOCK_EXTRA.algae }),
+      page([narration("Bioenergy replies."), message(FROM_BIOENERGY, "Thank you for reaching out about your test. This is because:", ...algaeParagraphs)], figure, alt, "stacked", { lockSeconds: LOCK_FIXED.algae }),
     ] };
   }
 

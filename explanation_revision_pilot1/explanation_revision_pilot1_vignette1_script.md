@@ -45,7 +45,7 @@ Everything that is randomized, and the data column that records what was drawn:
 
 The condition, the evidence figure and the surprise text are crossed into 32 assignment cells that are filled in turn, so they stay balanced. Everything else is drawn separately for each participant, with every version equally likely. Nothing else is randomized: all other pages, questions and answer options keep the order of this document.
 
-Reading time: the Continue button stays locked for 10 seconds on the instruction page. On each scenario page it stays locked for 1 second per 5 words of text, and for at least 10 seconds. Three pages have more to take in and stay locked for longer: the first page of Stage 3 (8 seconds more), the lab report (6 seconds more) and the algae explanation (17 seconds more). The page with Bioenergy's first message is locked for 25 seconds.
+Reading time: the Continue button stays locked for 10 seconds on the instruction page. On each scenario page it stays locked for 1 second per 5 words of text, and for at least 10 seconds, with these exceptions. The lab report stays locked for 6 seconds more. Four pages have a set time: the first page of Stage 3 (12 seconds), Bioenergy's first message (25 seconds), the page where the team asks for the sample (5 seconds) and the algae explanation (40 seconds).
 
 Open responses: each open-response question needs at least 50 characters. The final comments are optional.
 
@@ -97,7 +97,6 @@ The study takes about 15 minutes. Please complete it in one sitting, in full-scr
 * Each part has a short text and a picture. Please read the text and look at the picture carefully.
 * After each part you will answer questions about the text you read and the picture you saw. **The text and the picture are not shown while you answer, and you cannot go back to earlier parts.**
 * Please answer the questions to the best of your ability.
-* Please answer on your own. **Do not use AI tools (such as chatbots or AI assistants) or any other outside help.**
 
 ## **Stage 1: Common planet introduction (all conditions)**
 
@@ -479,6 +478,10 @@ Presentation order:
 * The three question blocks Complexity (primary), Source trust / Cooperativeness (primary) and Utility (secondary control) are shown in random order. The order of the questions within a block is fixed. All other questions follow the order of the table, so the decision question comes after these three blocks.
 
 ## **Final comments (all conditions)**
+
+*Both are on the last screen before the debrief: the question on AI tools first (required), then the comments (optional).*
+
+Did you use any AI tool (such as a chatbot or an AI assistant) to help you during this study? Your answer will not affect your payment. (Yes; No)
 
 Was anything in the scenario or the questions confusing or unclear? Do you have any other comments about the study? (Open response, optional)
 

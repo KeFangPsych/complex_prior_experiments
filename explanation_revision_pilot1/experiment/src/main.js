@@ -47,7 +47,7 @@ import "@fontsource/ibm-plex-sans/latin-700.css";
 import "./styles.css";
 
 import PagePlugin from "./page-plugin.js";
-import { CONFIG, DATAPIPE, pipeExperimentId, ASSIGNMENT, PROLIFIC, STUDY, WELCOME, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, CONSENT, fillStudyValues, readLockSeconds } from "./config.js";
+import { CONFIG, DATAPIPE, pipeExperimentId, ASSIGNMENT, PROLIFIC, STUDY, WELCOME, INSTRUCTIONS, AI_USE_QUESTION, FEEDBACK_PROMPT, DEBRIEF, CONSENT, fillStudyValues, readLockSeconds } from "./config.js";
 import { CONDITIONS, STAGE_SEQUENCE, assignmentCells, cellFromCounter, assignmentFromIndex, indexFromAssignment, scenario, countWords, pageWordCount, questionPages, randomizePages } from "./content.js";
 import { imageUrl } from "./images.js";
 import { state, integrity, integrityProps, aiFlags, fullscreenRequired, DEBUG, DEV_FLAGS, NOFS, NOPIPE, ALLOW_AUTO, URL_PARAMS, prolificPID, studyID, sessionID, subjectId } from "./state.js";
@@ -699,17 +699,33 @@ function showQuestions(el, s) {
   });
 }
 
+// The last screen before the debrief: the question on AI tools (must be answered),
+// then the comments (optional).
 function showComments(el) {
+  const items = [AI_USE_QUESTION];
+  state.currentItems = items;
   el.innerHTML = card(`${eyebrow("Almost done")}
-    <p class="q-label">${rich(FEEDBACK_PROMPT)}</p>
-    <textarea class="open-textarea" id="text-answer" rows="5" placeholder="Type your answer here (optional)"></textarea>
-    ${honeypotHtml()}
-    <div class="btn-row"><button class="btn btn-lg" id="text-submit">Continue</button></div>`, "card-narrow");
+    ${questionsHtml(items)}
+    <div class="q-item">
+      <p class="q-label">${rich(FEEDBACK_PROMPT)}</p>
+      <textarea class="open-textarea" id="text-answer" rows="5" placeholder="Type your answer here (optional)"></textarea>
+    </div>
+    <div class="btn-row"><button class="btn btn-lg" id="text-submit" disabled>Continue</button></div>`, "card-narrow question-card");
   const ta = el.querySelector("#text-answer");
-  el.querySelector("#text-submit").addEventListener("click", () => {
+  const btn = el.querySelector("#text-submit");
+  const q = bindQuestions(el, items, () => { btn.disabled = !q.isComplete(); }, state.answers);
+  btn.disabled = !q.isComplete();
+  ta.value = state.answers.general_feedback ? state.answers.general_feedback.value : "";   // (a tester who comes back)
+  btn.addEventListener("click", () => {
+    if (!q.isComplete()) return;
+    const [ai] = q.results();
+    state.answers[ai.id] = { value: ai.response, index: ai.response_index };
+    state.answers.general_feedback = { value: ta.value, index: null };
+    integrity.self_reported_ai_use = ai.response === "Yes";
     noteHiddenChecks(el, [{ id: "general_feedback", response: ta.value, typing: null }]);
-    jsPsych.data.addProperties({ general_feedback: ta.value.trim() });
-    go(+1, { task: "general_feedback", response: ta.value.trim() });
+    jsPsych.data.addProperties({ [ai.id]: ai.response, general_feedback: ta.value.trim() });
+    state.currentItems = [];
+    go(+1, { task: "general_feedback", response: ta.value.trim(), responses: JSON.stringify([ai]) });
   });
 }
 

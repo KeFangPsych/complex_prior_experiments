@@ -61,7 +61,11 @@ window.__autoplay = function (opts = {}) {
         if (!b.disabled) b.click();
         return;
       }
-      if ((b = $("#text-submit"))) return b.click();
+      if ((b = $("#text-submit"))) {                               // last screen: the AI-tool question, then comments
+        state.currentItems.forEach(answer);
+        if (!b.disabled) b.click();
+        return;
+      }
       if ((b = $("#card-btn")) && !b.disabled) return b.click();
     }, o.tick);
   });

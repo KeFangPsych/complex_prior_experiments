@@ -182,7 +182,7 @@ a top-up batch (`ASSIGNMENT.top_up_cells`, see *DataPipe and Prolific*) the
 counter runs through the listed cells instead, and `top_up` is `true`.
 
 **Timeline.** welcome → consent (enters fullscreen) → assignment → picture
-preload → one instruction page → five parts → optional comments → debrief →
+preload → one instruction page → five parts → the AI-tool question and optional comments → debrief →
 the data are saved → back to Prolific. Each part is one or two **scenario screens**: part 3 and the evidence
 part have two (in the evidence part, asking for the sample, then the lab report
 with the picture), and so does part 5 of the evidence-first conditions (the
@@ -226,22 +226,20 @@ seconds (`CONFIG.read_lock_min_seconds`). This applies to every scenario page;
 the words counted are the page's paragraphs and sender labels. The instruction
 page has a fixed lock of 10 seconds (`CONFIG.instruction_lock_seconds`).
 
-Three pages have more to take in than their word count says, a dense paragraph
-or a picture that has to be read, and stay locked for extra seconds
-(`LOCK_EXTRA` in `src/content.js`): the first page of part 3 (+8), the lab
-report (+6) and the algae explanation (+17). The page with the company's first
-message has a fixed lock of 25 seconds (`LOCK_FIXED`). These were set from
-reading times in testing, and the script states the numbers.
-The resulting locks:
+The exceptions, set from reading times in testing and stated in the script:
+the lab report stays locked for 6 seconds more than its word count gives
+(`LOCK_EXTRA` in `src/content.js`), and four pages have a set time
+(`LOCK_FIXED`). The resulting locks:
 
 | page | lock |
 |---|---|
 | instructions | 10 s |
 | part 1; part 2 | 11 s; 10 s (simple) or 14 s (complex) |
-| part 3, page 1; page 2 (company's first message) | 25 s; 25 s |
-| evidence part, page 1; lab report | 10 s; 23 s with the surprise text, 20 s without |
+| part 3, page 1; page 2 (company's first message) | 12 s (set); 25 s (set) |
+| evidence part, page 1 (asking for the sample) | 5 s (set) |
+| lab report | 23 s with the surprise text, 20 s without |
 | the team's question (evidence first) | 10 s |
-| algae explanation | 48 to 51 s, depending on the version |
+| algae explanation | 40 s (set), in both orders |
 
 The welcome and consent pages have no lock. The lock used is recorded in each
 row (`lock_seconds`, `n_words`).
@@ -343,8 +341,11 @@ is on):
 - **Testing mode.** With `CONFIG.allow_dev_flags` set to `false`, the test
   setup screen, the test bot and every URL flag are gone from the site.
 
-**Asked of participants.** The instruction page says to answer alone and not to
-use AI tools. Say the same in the Prolific study description.
+**Asked of participants.** The last screen, above the comments, asks: "Did you
+use any AI tool (such as a chatbot or an AI assistant) to help you during this
+study? Your answer will not affect your payment." (Yes / No, required; column
+`ai_tool_use`.) The study itself does not tell participants beforehand that AI
+tools are not allowed, so say it in the Prolific study description.
 
 **Hidden checks for AI systems** (`AI_GUARD` in `src/config.js`; quoted in the
 script). Both are part of the page's text but placed off-screen, so a person
@@ -385,6 +386,7 @@ The names that can appear in `ai_flags`:
 | flag | rule |
 |---|---|
 | `webdriver`, `headless_browser`, `automation_tool`, `automation_marks` | the browser's own signs of automation |
+| `self_reported` | answered "Yes" to the question on AI tools |
 | `scripted_events` | `untrusted_event_count` above 0 |
 | `hidden_note_word` | an open response contains the hidden note's word |
 | `hidden_field_filled` | the hidden field has text |
@@ -437,7 +439,7 @@ Other participant-level columns: `subject_id`, `prolific_pid`, `study_id`,
 `assignment_counter`, `top_up`, `cond` (1–8),
 `order`, `complexity`, `anomaly`, `goal_relevance`, `evidence_figure`,
 `surprise_text` (`shown` / `hidden` / `not_applicable`), `stage_order`,
-`general_feedback`, `completion_status`, `start_time`, `completion_time`,
+`ai_tool_use` (`Yes` / `No`), `general_feedback`, `completion_status`, `start_time`, `completion_time`,
 `total_time_ms`, `debug_mode`, `nofs_mode`, `automation_allowed`, `datapipe`
 (`main`, `test` or `off`), `datapipe_stream`, `safeguards`, the screen times
 `rt_<screen>` (see *Timing* below), the integrity counters above and the
@@ -454,7 +456,7 @@ Row-level detail, by `task`:
 
 | `task` | columns |
 |---|---|
-| `welcome`, `general_feedback` | `rt`; `general_feedback` also has `response` |
+| `welcome`, `general_feedback` | `rt`; `general_feedback` (the last screen) also has `response` (the comments) and `responses` (the AI-tool question, in the same form as on a question screen) |
 | `instructions` | `n_words`, `lock_seconds`, `rt` |
 | `scenario` | one row per scenario page: `stage_index`, `stage`, `scenario_page`, `n_scenario_pages`, `layout`, `figure`, `figure_width_px` (displayed width), `compact_text`, `needed_scrolling`, `viewport_width`, `viewport_height`, `n_words`, `lock_seconds`, `rt` (reading time, ms) |
 | `questions` | `stage_index`, `stage`, `page`, `page_index`, `item_ids`, `rt`, and `responses`: JSON with one entry per item (`id`, `use`, `type`, `measure`, `response`, `response_index`, `correct`, `position`, `option_order`, `first_ms`, `last_ms`, `n_changes`, and for open responses `typing`) |

@@ -24,7 +24,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { LOCK_EXTRA, LOCK_FIXED, CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentCells, cellFromCounter, assignmentFromIndex, indexFromAssignment, scenario, pageParagraphs, questions, questionPages, randomizePages, orderNotes, scriptText, RANDOMIZATIONS } from "../src/content.js";
-import { CONFIG, AI_GUARD, WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, fillStudyValues } from "../src/config.js";
+import { CONFIG, AI_GUARD, AI_USE_QUESTION, WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, fillStudyValues } from "../src/config.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.join(here, "../../explanation_revision_pilot1_vignette1_script.md");
@@ -145,12 +145,12 @@ sameList("welcome screen", "lines", [`**${WELCOME.title}**`, ...WELCOME.paragrap
 sameList("informed consent", "lines", [`**${CONSENT.title}**`, ...CONSENT.sections.map((s) => `**${s.label}:** ${fillStudyValues(s.text)}`)], plainLines(/^Informed consent/));
 if (/\bXX\b|\$X\b/.test(JSON.stringify([WELCOME, CONSENT].map((x) => JSON.parse(fillStudyValues(JSON.stringify(x))))))) fail("study values", "a duration or payment placeholder is not filled in");
 sameList("instructions", "lines", [`**${INSTRUCTIONS.title}**`, ...INSTRUCTIONS.bullets.map((b) => `* ${b}`)], plainLines(/^Instructions/));
-sameList("final comments", "lines", [`${FEEDBACK_PROMPT} (Open response, optional)`], plainLines(/^Final comments/));
+sameList("final comments", "lines", [scriptText(AI_USE_QUESTION), `${FEEDBACK_PROMPT} (Open response, optional)`], plainLines(/^Final comments/));
 sameList("debrief", "lines", [`**${DEBRIEF.title}**`, ...DEBRIEF.paragraphs], plainLines(/^Debrief/));
 // the scales in the script are 5-point: no anchor above 5
 if (md.some((l) => /^\| (Main|Pilot|Alternative) \|/.test(l) && /; [6-9] \\= /.test(l))) fail("scales", "the script has a scale anchor above 5");
 // the word "story" is not shown to participants
-const shown = JSON.stringify([WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF]);
+const shown = JSON.stringify([WELCOME, CONSENT, INSTRUCTIONS, AI_USE_QUESTION, FEEDBACK_PROMPT, DEBRIEF]);
 if (/\bstor(y|ies)\b/i.test(shown)) fail("text around the scenario", 'contains the word "story"');
 
 // ============================================================================
@@ -363,14 +363,14 @@ for (const [cond, stage] of [[1, "planet"], [1, "evidence"], [5, "planet"], [5, 
   const listed = RANDOMIZATIONS.flatMap((r) => r.columns);
   same(where, "columns of the random orders", [...drawn].sort().join(), listed.filter((c) => !ASSIGNED.includes(c)).sort().join());
   same(where, "columns of the assignment", listed.filter((c) => ASSIGNED.includes(c)).sort().join(), [...ASSIGNED].sort().join());
-  const lockLine = `Reading time: the Continue button stays locked for ${CONFIG.instruction_lock_seconds} seconds on the instruction page. On each scenario page it stays locked for 1 second per ${CONFIG.read_lock_words_per_second} words of text, and for at least ${CONFIG.read_lock_min_seconds} seconds. Three pages have more to take in and stay locked for longer: the first page of Stage 3 (${LOCK_EXTRA.explanation1_intro} seconds more), the lab report (${LOCK_EXTRA.lab_report} seconds more) and the algae explanation (${LOCK_EXTRA.algae} seconds more). The page with Bioenergy's first message is locked for ${LOCK_FIXED.explanation1_message} seconds.`;
+  const lockLine = `Reading time: the Continue button stays locked for ${CONFIG.instruction_lock_seconds} seconds on the instruction page. On each scenario page it stays locked for 1 second per ${CONFIG.read_lock_words_per_second} words of text, and for at least ${CONFIG.read_lock_min_seconds} seconds, with these exceptions. The lab report stays locked for ${LOCK_EXTRA.lab_report} seconds more. Four pages have a set time: the first page of Stage 3 (${LOCK_FIXED.explanation1_intro} seconds), Bioenergy's first message (${LOCK_FIXED.explanation1_message} seconds), the page where the team asks for the sample (${LOCK_FIXED.evidence_request} seconds) and the algae explanation (${LOCK_FIXED.algae} seconds).`;
   same(where, "read-lock sentence", intro.find((l) => l.startsWith("Reading time:")) || null, lockLine);
-  // exactly those pages carry extra seconds or a fixed lock
+  // exactly those pages carry extra seconds or a set time
   for (const cond of Object.keys(CONDITIONS).map(Number)) {
-    const special = STAGE_SEQUENCE[CONDITIONS[cond].order].flatMap((s) => scenario(s, cond).pages.map((pg, n) => `${s} ${n + 1}: +${pg.lockExtra}, fixed ${pg.lockSeconds}`)).filter((x) => !x.endsWith(": +0, fixed null"));
+    const special = STAGE_SEQUENCE[CONDITIONS[cond].order].flatMap((s) => scenario(s, cond).pages.map((pg, n) => `${s} ${n + 1}: +${pg.lockExtra}, set ${pg.lockSeconds}`)).filter((x) => !x.endsWith(": +0, set null"));
     const algaePage = CONDITIONS[cond].order === "evidence_first" ? 2 : 1;
     same(`${where}, cond ${cond}`, "pages with their own lock", [...special].sort().join("; "),
-      [`explanation1 1: +${LOCK_EXTRA.explanation1_intro}, fixed null`, `explanation1 2: +0, fixed ${LOCK_FIXED.explanation1_message}`, `evidence 2: +${LOCK_EXTRA.lab_report}, fixed null`, `elaboration ${algaePage}: +${LOCK_EXTRA.algae}, fixed null`].sort().join("; "));
+      [`explanation1 1: +0, set ${LOCK_FIXED.explanation1_intro}`, `explanation1 2: +0, set ${LOCK_FIXED.explanation1_message}`, `evidence 1: +0, set ${LOCK_FIXED.evidence_request}`, `evidence 2: +${LOCK_EXTRA.lab_report}, set null`, `elaboration ${algaePage}: +0, set ${LOCK_FIXED.algae}`].sort().join("; "));
   }
   // the two hidden texts for AI systems are quoted in the script
   same(where, "hidden note for AI systems", intro.find((l) => l.startsWith("* Hidden note")) || null, `* Hidden note on every open-response question: ${AI_GUARD.canary_note}`);
