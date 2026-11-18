@@ -76,14 +76,14 @@ export const PROLIFIC = {
 export const STUDY = {
   title: "Decision-Making Study",     // shown to participants (browser tab, end screens)
   minutes: "15",
-  payment: "$6.50",
+  payment: "$6.30",
 };
 /** Fills the duration and payment placeholders of a text. */
 export const fillStudyValues = (text) => text.replace(/\bXX\b/g, () => STUDY.minutes).replace(/\$X\b/g, () => STUDY.payment);
 
 export const CONFIG = {
   experiment_name: "explanation_revision_pilot1_vignette1",
-  experiment_version: "0.17.0",
+  experiment_version: "0.17.1",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.
@@ -139,7 +139,7 @@ export const INSTRUCTIONS = {
   bullets: [
     "Each part has a short text and a picture. Please read the text and look at the picture carefully.",
     "After each part you will answer questions about the text you read and the picture you saw. **The text and the picture are not shown while you answer, and you cannot go back to earlier parts.**",
-    "Please answer the questions to the best of your ability.",
+    "Please answer the questions to the best of your ability on your own. Do not use AI tools (such as chatbots or AI assistants) or any other outside help.",
   ],
 };
 
@@ -182,9 +182,9 @@ export const CONSENT = {
   title: "Informed Consent",
   sections: [
     { label: "Purpose of the research", text: "To understand more about how individuals evaluate explanations from other people and make decisions. This study will specifically ask participants to read, understand and evaluate explanations in a hypothetical setting." },
-    { label: "Procedures", text: "Participation in this study will involve answering a series of questions in an online survey. This study is being conducted online using a web browser and internet." },
+    { label: "Procedures", text: "Participation in this study will involve reading explanations and answering a series of questions in a hypothetical scenario. This study is being conducted online using a web browser and internet." },
     { label: "Time required", text: "This survey will take about XX mins. The task will last the amount of time advertised on Prolific. You are free to withdraw from the study at any time." },
-    { label: "Compensation", text: "You will receive a payment of $X for completing this study. If you do not complete this study or fail to answer most of the attention checks, compensation may not be granted." },
+    { label: "Compensation", text: "You will receive a payment of $X for about XX minutes to complete the study. If you do not complete or fail most of the attention checks, compensation may not be granted." },
     { label: "Risks and Benefits", text: "There are no risks beyond those of everyday life that we are aware of from taking part in this study. While you may not receive direct benefits, you will contribute to knowledge about actions and preferences." },
     { label: "Confidentiality", text: "Only the researchers involved in this study and those responsible for research oversight will have access to the information you provide. Study data will be stored securely, in compliance with Stanford University standards, minimizing the risk of confidentiality breach. Your responses will be de-identified. De-identified data may be shared with other researchers." },
     { label: "Voluntary participation", text: "Your participation is completely voluntary, and you may quit at any time. Refusal to participate or stopping your participation will involve no penalty or loss of benefits to which you are otherwise entitled." },

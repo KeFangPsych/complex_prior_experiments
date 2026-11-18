@@ -341,11 +341,12 @@ is on):
 - **Testing mode.** With `CONFIG.allow_dev_flags` set to `false`, the test
   setup screen, the test bot and every URL flag are gone from the site.
 
-**Asked of participants.** The last screen, above the comments, asks: "Did you
-use any AI tool (such as a chatbot or an AI assistant) to help you during this
-study? Your answer will not affect your payment." (Yes / No, required; column
-`ai_tool_use`.) The study itself does not tell participants beforehand that AI
-tools are not allowed, so say it in the Prolific study description.
+**Asked of participants.** The instruction page says to answer alone and not to
+use AI tools or other outside help. The last screen, above the comments, asks:
+"Did you use any AI tool (such as a chatbot or an AI assistant) to help you
+during this study? Your answer will not affect your payment." (Yes / No,
+required; column `ai_tool_use`.) Say in the Prolific study description too that
+AI tools are not allowed.
 
 **Hidden checks for AI systems** (`AI_GUARD` in `src/config.js`; quoted in the
 script). Both are part of the page's text but placed off-screen, so a person
@@ -748,7 +749,7 @@ Things to know about the partial files:
 
 ## Before collecting data
 
-- `STUDY.minutes` (15) and `STUDY.payment` ($6.50) in `src/config.js` fill the
+- `STUDY.minutes` (15) and `STUDY.payment` ($6.30) in `src/config.js` fill the
   duration and payment into the welcome text, the consent form and the consent
   PDF. If they change, change the script too; `check:script` compares the
   filled-in text. Check the consent form against the approved protocol; it

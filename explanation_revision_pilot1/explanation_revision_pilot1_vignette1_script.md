@@ -74,11 +74,11 @@ The study takes about 15 minutes. Please complete it in one sitting, in full-scr
 
 **Purpose of the research:** To understand more about how individuals evaluate explanations from other people and make decisions. This study will specifically ask participants to read, understand and evaluate explanations in a hypothetical setting.
 
-**Procedures:** Participation in this study will involve answering a series of questions in an online survey. This study is being conducted online using a web browser and internet.
+**Procedures:** Participation in this study will involve reading explanations and answering a series of questions in a hypothetical scenario. This study is being conducted online using a web browser and internet.
 
 **Time required:** This survey will take about 15 mins. The task will last the amount of time advertised on Prolific. You are free to withdraw from the study at any time.
 
-**Compensation:** You will receive a payment of $6.50 for completing this study. If you do not complete this study or fail to answer most of the attention checks, compensation may not be granted.
+**Compensation:** You will receive a payment of $6.30 for about 15 minutes to complete the study. If you do not complete or fail most of the attention checks, compensation may not be granted.
 
 **Risks and Benefits:** There are no risks beyond those of everyday life that we are aware of from taking part in this study. While you may not receive direct benefits, you will contribute to knowledge about actions and preferences.
 
@@ -96,7 +96,7 @@ The study takes about 15 minutes. Please complete it in one sitting, in full-scr
 
 * Each part has a short text and a picture. Please read the text and look at the picture carefully.
 * After each part you will answer questions about the text you read and the picture you saw. **The text and the picture are not shown while you answer, and you cannot go back to earlier parts.**
-* Please answer the questions to the best of your ability.
+* Please answer the questions to the best of your ability on your own. Do not use AI tools (such as chatbots or AI assistants) or any other outside help.
 
 ## **Stage 1: Common planet introduction (all conditions)**
 
