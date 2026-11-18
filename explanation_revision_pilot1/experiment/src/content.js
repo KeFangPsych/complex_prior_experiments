@@ -167,7 +167,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
         message(FROM_BIOENERGY,
           "We saw that your team is looking for a way to keep apartments warm. We recommend our technology.",
           "Our technology uses part of the biological process found in a specific type of organism.",
-          "In this process, **the organism uses a certain gas from the planet's air to produce heat. It also uses this gas to produce a purple substance called a pigment that makes it look purple** (the pigment is harmless and has no other practical use). See the left side of the picture below, where the yellow balls are the gas.",
+          "In this process (see the left side of the picture), **the organism uses a certain gas from the planet's air to produce heat. It also uses this gas to produce a purple substance called a pigment that makes it look purple** (the pigment is harmless and has no other practical use).",
           "**The planet's air holds more of this gas when the weather is colder** (see the right side of the picture). **So in colder weather, there is more gas around the organism. When more of this gas is available, the organism produces more heat and looks more purple.**",
         ),
       ], `${IMG}3_explanation1.png`,
@@ -200,10 +200,10 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
     // Bioenergy's account of the algae: a reply to the team's question when the
     // evidence came first, otherwise the continuation of its first message
     const algaeParagraphs = [
-      `There are even smaller living things called algae that live inside the organism (the green ovals in the picture below). And **the organism can produce ${anom} only with the help of the algae.**`,
+      `There are even smaller living things called algae that live inside the organism. And **the organism can produce ${anom} only with the help of the algae.**`,
       `**The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more ${anom}. When there is too little liquid water, they become less active and produce less ${anom}.`,
       `As the weather gets colder, more gas is available in the air, and the algae use the extra gas to produce more ${anom} (see the left side of the picture).`,
-      `**But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less ${anom}**, even though more gas is available (see the right side of the picture, where the algae are grey).`,
+      `**But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less ${anom}**, even though more gas is available (see the right side of the picture).`,
       `**The organism produces ${other} on its own, without the algae.** So it ${O.keeps} as the weather gets colder.`,
     ];
     const figure = `${IMG}5_explanation2_${c.anomaly}_anomaly.png`;
@@ -280,8 +280,8 @@ function finalMeasures() {
     likert("trust_tell", "main", "Source trust / Cooperativeness (primary)", "trust",
       "How much do you trust the company to tell your team what it needs to know?", "Not at all", "Completely"),
     // reverse-coded: a higher answer means less trust (recode as SCALE_POINTS + 1 - answer)
-    { ...likert("trust_own_interest", "main", "Source trust / Cooperativeness (primary), reverse-coded", "trust",
-      "When explaining the technology, how much does the company put its own interests ahead of what is best for your team?", "Not at all", "Very much"), reverse: true },
+    { ...likert("trust_ignore", "main", "Source trust / Cooperativeness (primary), reverse-coded", "trust",
+      "When explaining the technology, how much does the company ignore what is best for your team?", "Not at all", "Very much"), reverse: true },
     likert("trust_help", "main", "Source trust / Cooperativeness (primary)", "trust",
       "When the company chose what to explain, how much was it trying to help your team make a good decision?", "Not at all", "Very much"),
     // the first two have the wording of the two part 3 organism questions (pilot), of which each participant saw one

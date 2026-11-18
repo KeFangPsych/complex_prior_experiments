@@ -17,7 +17,7 @@ Three-factor between-participants design.
 
 In the question tables below, Pilot marks pilot-only questions and Main marks questions included in the main study. Alternative marks questions that are kept in this document as alternatives; they are not asked. All rating scales have 5 points.
 
-The participant takes the role of a member of the construction team. Text in block quotes is a written message, shown as a speech bubble with its sender label (Bioenergy's on the left in green with the company logo, the team's on the right in blue with a hard hat). A block quote labelled "Lab report" is shown as a report box instead. All other text is the narrator's. Figures are shown below the text. On the two explanation pages, Bioenergy's message refers to its picture in the text (for example "see the left side of the picture"). The laboratory observations picture is shown inside the lab report; the line marked *Picture note* is shown as a caption directly below it, says how to read it, and does not count toward the page's reading time. In the lab report, the four temperature words are colored: warm in orange, cool in light blue, cold in blue and freezing in dark blue.
+The participant takes the role of a member of the construction team. Text in block quotes is a written message, shown as a speech bubble with its sender label (Bioenergy's on the left in green with the company logo, the team's on the right in blue with a hard hat). A block quote labelled "Lab report" is shown as a report box instead. All other text is the narrator's. Figures are shown below the text. On the two explanation pages, Bioenergy's message refers to its picture in the text with brief pointers such as "see the left side of the picture". The laboratory observations picture is shown inside the lab report; the line marked *Picture note* is shown as a caption directly below it, says how to read it, and does not count toward the page's reading time. In the lab report, the four temperature words are colored: warm in orange, cool in light blue, cold in blue and freezing in dark blue.
 
 Underlined parts are manipulated independently (50% per version).
 
@@ -163,7 +163,7 @@ Bioenergy writes to your team to recommend its technology.
 >
 > Our technology uses part of the biological process found in a specific type of organism.
 >
-> In this process, **the organism uses a certain gas from the planet's air to produce heat. It also uses this gas to produce a purple substance called a pigment that makes it look purple** (the pigment is harmless and has no other practical use). See the left side of the picture below, where the yellow balls are the gas.
+> In this process (see the left side of the picture), **the organism uses a certain gas from the planet's air to produce heat. It also uses this gas to produce a purple substance called a pigment that makes it look purple** (the pigment is harmless and has no other practical use).
 >
 > **The planet's air holds more of this gas when the weather is colder** (see the right side of the picture). **So in colder weather, there is more gas around the organism. When more of this gas is available, the organism produces more heat and looks more purple.**
 
@@ -276,13 +276,13 @@ Bioenergy replies.
 >
 > Thank you for reaching out about your test. This is because:
 >
-> There are even smaller living things called algae that live inside the organism (the green ovals in the picture below). And **the organism can produce heat only with the help of the algae.**
+> There are even smaller living things called algae that live inside the organism. And **the organism can produce heat only with the help of the algae.**
 >
 > **The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
 >
 > As the weather gets colder, more gas is available in the air, and the algae use the extra gas to produce more heat (see the left side of the picture).
 >
-> **But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less heat**, even though more gas is available (see the right side of the picture, where the algae are grey).
+> **But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less heat**, even though more gas is available (see the right side of the picture).
 >
 > **The organism produces purple pigment on its own, without the algae.** So it keeps looking more purple as the weather gets colder.
 
@@ -302,13 +302,13 @@ Bioenergy replies.
 >
 > Thank you for reaching out about your test. This is because:
 >
-> There are even smaller living things called algae that live inside the organism (the green ovals in the picture below). And **the organism can produce purple pigment only with the help of the algae.**
+> There are even smaller living things called algae that live inside the organism. And **the organism can produce purple pigment only with the help of the algae.**
 >
 > **The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
 >
 > As the weather gets colder, more gas is available in the air, and the algae use the extra gas to produce more purple pigment (see the left side of the picture).
 >
-> **But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less purple pigment**, even though more gas is available (see the right side of the picture, where the algae are grey).
+> **But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less purple pigment**, even though more gas is available (see the right side of the picture).
 >
 > **The organism produces heat on its own, without the algae.** So it keeps producing more heat as the weather gets colder.
 
@@ -325,7 +325,7 @@ Bioenergy replies.
 | :---- | :---- | :---- |
 | Main | Causal knowledge: dependence on algae | Which of these can the organism produce only with the help of the algae? (Heat only; Purple pigment only; Both heat and purple pigment; Neither heat nor purple pigment; I don't remember) |
 | Main | Source trust / Cooperativeness (primary) | How much do you trust the company to tell your team what it needs to know? (1 \= Not at all; 5 \= Completely) |
-| Main | Source trust / Cooperativeness (primary), reverse-coded | When explaining the technology, how much does the company put its own interests ahead of what is best for your team? (1 \= Not at all; 5 \= Very much) |
+| Main | Source trust / Cooperativeness (primary), reverse-coded | When explaining the technology, how much does the company ignore what is best for your team? (1 \= Not at all; 5 \= Very much) |
 | Main | Source trust / Cooperativeness (primary) | When the company chose what to explain, how much was it trying to help your team make a good decision? (1 \= Not at all; 5 \= Very much) |
 | Main | Complexity (primary) | Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
 | Main | Complexity (primary) | Besides what the company has said, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |
@@ -360,13 +360,13 @@ Bioenergy's message continues.
 
 > **From Bioenergy to your team (continued)**
 >
-> There are even smaller living things called algae that live inside the organism (the green ovals in the picture below). And **the organism can produce heat only with the help of the algae.**
+> There are even smaller living things called algae that live inside the organism. And **the organism can produce heat only with the help of the algae.**
 >
 > **The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more heat. When there is too little liquid water, they become less active and produce less heat.
 >
 > As the weather gets colder, more gas is available in the air, and the algae use the extra gas to produce more heat (see the left side of the picture).
 >
-> **But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less heat**, even though more gas is available (see the right side of the picture, where the algae are grey).
+> **But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less heat**, even though more gas is available (see the right side of the picture).
 >
 > **The organism produces purple pigment on its own, without the algae.** So it keeps looking more purple as the weather gets colder.
 
@@ -376,13 +376,13 @@ Bioenergy's message continues.
 
 > **From Bioenergy to your team (continued)**
 >
-> There are even smaller living things called algae that live inside the organism (the green ovals in the picture below). And **the organism can produce purple pigment only with the help of the algae.**
+> There are even smaller living things called algae that live inside the organism. And **the organism can produce purple pigment only with the help of the algae.**
 >
 > **The algae need liquid water to stay active.** When the algae are active, more gas leads them to produce more purple pigment. When there is too little liquid water, they become less active and produce less purple pigment.
 >
 > As the weather gets colder, more gas is available in the air, and the algae use the extra gas to produce more purple pigment (see the left side of the picture).
 >
-> **But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less purple pigment**, even though more gas is available (see the right side of the picture, where the algae are grey).
+> **But when it is freezing, water turns into ice, so there is less liquid water available to the algae. As a result, the algae become less active and produce less purple pigment**, even though more gas is available (see the right side of the picture).
 >
 > **The organism produces heat on its own, without the algae.** So it keeps producing more heat as the weather gets colder.
 
@@ -459,7 +459,7 @@ Your team's lab tests the sample at four different temperatures. **During the te
 | Use | Measure | Question |
 | :---- | :---- | :---- |
 | Main | Source trust / Cooperativeness (primary) | How much do you trust the company to tell your team what it needs to know? (1 \= Not at all; 5 \= Completely) |
-| Main | Source trust / Cooperativeness (primary), reverse-coded | When explaining the technology, how much does the company put its own interests ahead of what is best for your team? (1 \= Not at all; 5 \= Very much) |
+| Main | Source trust / Cooperativeness (primary), reverse-coded | When explaining the technology, how much does the company ignore what is best for your team? (1 \= Not at all; 5 \= Very much) |
 | Main | Source trust / Cooperativeness (primary) | When the company chose what to explain, how much was it trying to help your team make a good decision? (1 \= Not at all; 5 \= Very much) |
 | Main | Complexity (primary) | Thinking about this organism as a whole, not just what the company has said, how simple or complex do you expect it to be? (1 \= Very simple; 5 \= Very complex) |
 | Main | Complexity (primary) | Besides what the company has said, how much more do you think there is to know about how this organism works? (1 \= Nothing more; 5 \= A great deal more) |

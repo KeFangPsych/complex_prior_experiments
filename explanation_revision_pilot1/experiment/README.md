@@ -440,8 +440,8 @@ responses as text. Multiple-choice questions with a right answer also get
 `<id>_correct`. A question that was not asked in the participant's condition or
 mode has no value.
 
-One item is **reverse-coded**: `trust_own_interest` ("…how much does the
-company put its own interests ahead of what is best for your team?"), where a
+One item is **reverse-coded**: `trust_ignore` ("…how much does the company
+ignore what is best for your team?"), where a
 higher answer means less trust. The answer is stored as given; recode it as
 6 − answer before averaging it with `trust_tell` and `trust_help`. Its entry in
 `responses` has `reverse: true`, and its measure label in the script says
