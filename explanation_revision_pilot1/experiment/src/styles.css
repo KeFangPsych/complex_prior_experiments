@@ -274,6 +274,11 @@ p.muted, .muted { color: var(--ink-2); font-size: 15px; }
 .opt.selected { border-color: var(--accent); background: var(--accent); color: var(--accent-ink); }
 .setup-group.disabled .opt-grid { opacity: 0.4; pointer-events: none; }
 
+/* Text and a field that are part of the page but not visible on it: off-screen,
+   one pixel, never focusable by mouse. Meant for AI systems that read the page's
+   text (see AI_GUARD in config.js). */
+.for-machines { position: absolute !important; left: -10000px; top: auto; width: 1px; height: 1px; overflow: hidden; white-space: nowrap; user-select: none; -webkit-user-select: none; }
+
 /* ── Overlays ──────────────────────────────────────────────── */
 #fullscreen-overlay, #viewport-lock-overlay, #capture-shield {
   position: fixed; inset: 0; z-index: 99999; display: none; align-items: center; justify-content: center; padding: 32px;

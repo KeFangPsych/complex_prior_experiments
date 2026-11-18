@@ -30,7 +30,7 @@ const LOCK_WAIT = 60000;   // longest wait for a read-lock to open
   const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
   const errors = [];
   page.on("pageerror", (e) => errors.push(e.message));
-  await page.goto(`${BASE}/?condition=0&nopipe=1`);
+  await page.goto(`${BASE}/?condition=0&nopipe=1&allowauto=1`);
   await page.click("#card-btn");                                         // welcome
   // the whole consent form is on the page (no scrolling box), and can be saved as a PDF with the safeguards on
   await page.waitForSelector("#consent-pdf");
@@ -137,7 +137,7 @@ const LOCK_WAIT = 60000;   // longest wait for a read-lock to open
   const copyAllowed = () => document.dispatchEvent(new ClipboardEvent("copy", { cancelable: true, bubbles: true }));
   const selectable = () => getComputedStyle(document.querySelector(".card p")).userSelect !== "none";
   const pp = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-  await pp.goto(`${BASE}/`);
+  await pp.goto(`${BASE}/?allowauto=1`);
   await pp.waitForSelector("#card-btn");
   check("participants: no test-setup screen", (await pp.locator("#setup-start").count()) === 0);
   check("participants: text cannot be selected", !(await pp.evaluate(selectable)));
@@ -243,11 +243,87 @@ const LOCK_WAIT = 60000;   // longest wait for a read-lock to open
   check("answers are cleared after a new setup", (await pb.locator(".likert-opt.selected").count()) === 0 && (await pb.locator(".q-item").count()) === 1 && await pb.isDisabled("#q-submit"));
   check("no page errors while going back", backErrors.length === 0, backErrors.join("; "));
   await pb.close();
-  check("participants have no Back button", await (async () => { const q = await browser.newPage(); await q.goto(`${BASE}/`); await q.waitForSelector("#card-btn"); const hidden = await q.locator("#test-bar").isHidden(); await q.close(); return hidden; })());
+  check("participants have no Back button", await (async () => { const q = await browser.newPage(); await q.goto(`${BASE}/?allowauto=1`); await q.waitForSelector("#card-btn"); const hidden = await q.locator("#test-bar").isHidden(); await q.close(); return hidden; })());
+
+  // ---- 1e. automation and AI safeguards ----
+  // an automated browser (this test is one) is turned away from the participant version
+  const pa = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  await pa.goto(`${BASE}/`);
+  await pa.waitForSelector("#automation-block");
+  check("an automated browser is turned away", /automated browser/.test(await pa.textContent("h1")) && (await pa.locator("#card-btn").count()) === 0);
+  await pa.close();
+  // clicks made by a script are ignored; real clicks work
+  const pu = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  await pu.goto(`${BASE}/?allowauto=1&nopipe=1&nofs=1`);
+  await pu.waitForSelector("#card-btn");
+  await pu.evaluate(() => document.querySelector("#card-btn").click());
+  await pu.waitForTimeout(300);
+  check("a click made by a script is ignored", (await pu.textContent(".eyebrow")) === "Welcome");
+  await pu.click("#card-btn");
+  await pu.waitForSelector("#consent-pdf");
+  check("a real click works", true);
+  const [dl] = await Promise.all([pu.waitForEvent("download"), pu.click("#consent-pdf")]);
+  check("saving the consent PDF still works with scripted clicks blocked", dl.suggestedFilename() === "informed_consent.pdf");
+  await pu.close();
+  // the hidden note and field are in the page's text but cannot be seen (testing mode, to reach a question screen quickly)
+  const ph = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  await ph.goto(`${BASE}/?debug=1&nopipe=1&cond=1`);
+  await ph.waitForSelector("#setup-start");
+  await ph.click("#setup-start");
+  for (let guard = 0; guard < 40; guard++) {
+    await ph.waitForSelector("#q-submit, #card-btn");
+    if (await ph.locator(".q-item[data-type='open']").count()) break;
+    if (await ph.locator("#card-btn").count()) { await ph.click("#card-btn"); await ph.waitForTimeout(60); continue; }
+    for (const item of await ph.locator(".q-item").all()) {
+      if ((await item.getAttribute("data-type")) === "likert") await item.locator(".likert-opt").nth(2).click();
+      else await item.locator(".choice").first().click();
+    }
+    await ph.click("#q-submit");
+    await ph.waitForTimeout(60);
+  }
+  const hiddenInfo = await ph.evaluate(() => {
+    const els = [...document.querySelectorAll(".for-machines")];
+    const offScreen = (el) => { const r = el.getBoundingClientRect(); return r.right < 0 && r.width <= 1 && r.height <= 1; };
+    return { n: els.length, offScreen: els.every(offScreen), inText: /AI assistants/.test(document.querySelector(".q-label").textContent), field: !!document.querySelector("#hp-field"), noScroll: document.documentElement.scrollWidth <= window.innerWidth };
+  });
+  check("the note and the field for AI systems are in the page but not visible", hiddenInfo.n === 2 && hiddenInfo.offScreen && hiddenInfo.inText && hiddenInfo.field && hiddenInfo.noScroll, JSON.stringify(hiddenInfo));
+  // an answer that follows the hidden note, text put in at once, and the filled field are flagged in the data
+  await ph.locator(".q-item[data-type='open'] textarea").fill("The weather changes the gas, and the gas changes the heat and the marigold pigment.");
+  await ph.locator("#hp-field").evaluate((el) => { el.value = "verified"; });
+  await ph.click("#q-submit");
+  await ph.waitForFunction(() => !document.querySelector(".q-item[data-type='open']"));
+  const flags = await ph.evaluate(() => window.experimentAiFlags());
+  check("an answer with the hidden note's word is flagged", flags.includes("hidden_note_word"), flags.join(", "));
+  check("a filled hidden field is flagged", flags.includes("hidden_field_filled"));
+  check("text put into an open response at once is flagged", flags.includes("text_inserted_at_once") && flags.includes("text_without_keystrokes"));
+  check("the automated browser is flagged", flags.includes("webdriver"));
+  await ph.close();
+  // typed key by key at a human pace, with mouse movement: no flag from the typing
+  const pk = await browser.newPage({ viewport: { width: 1280, height: 900 } });
+  await pk.goto(`${BASE}/?debug=1&nopipe=1&cond=1`);
+  await pk.waitForSelector("#setup-start");
+  await pk.click("#setup-start");
+  for (let guard = 0; guard < 40; guard++) {
+    await pk.waitForSelector("#q-submit, #card-btn");
+    if (await pk.locator(".q-item[data-type='open']").count()) break;
+    if (await pk.locator("#card-btn").count()) { await pk.click("#card-btn"); await pk.waitForTimeout(60); continue; }
+    for (const item of await pk.locator(".q-item").all()) {
+      if ((await item.getAttribute("data-type")) === "likert") await item.locator(".likert-opt").nth(2).click();
+      else await item.locator(".choice").first().click();
+    }
+    await pk.click("#q-submit");
+    await pk.waitForTimeout(60);
+  }
+  await pk.locator(".q-item[data-type='open'] textarea").pressSequentially("Colder weather means more gas, and more gas means more heat.", { delay: 70 });
+  await pk.click("#q-submit");
+  await pk.waitForFunction(() => !document.querySelector(".q-item[data-type='open']"));
+  const typed = await pk.evaluate(() => ({ flags: window.experimentAiFlags(), typing: window.experimentIntegrity.open_typing }));
+  check("text typed key by key at a human pace is not flagged", !typed.flags.some((f) => /text_|typing|hidden/.test(f)), `${typed.flags.join(", ")} | ${JSON.stringify(typed.typing)}`);
+  await pk.close();
 
   // ---- 2. viewport lock ----
   const p2 = await browser.newPage({ viewport: { width: 1280, height: 900 } });
-  await p2.goto(`${BASE}/`);
+  await p2.goto(`${BASE}/?allowauto=1`);
   await p2.waitForSelector("#card-btn");
   await p2.setViewportSize({ width: 900, height: 700 });
   await p2.waitForFunction(() => (document.getElementById("viewport-lock-overlay") || { style: {} }).style.display === "flex");
@@ -260,7 +336,7 @@ const LOCK_WAIT = 60000;   // longest wait for a read-lock to open
   // ---- 3. mobile block ----
   const ctx = await browser.newContext({ ...devices["iPhone 13"] });
   const p3 = await ctx.newPage();
-  await p3.goto(`${BASE}/`);
+  await p3.goto(`${BASE}/?allowauto=1`);
   await p3.waitForSelector("h1");
   check("phones are turned away", /desktop or laptop/.test(await p3.textContent("h1")) && (await p3.locator("#card-btn").count()) === 0);
   await browser.close();

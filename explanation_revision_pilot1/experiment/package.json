@@ -18,10 +18,9 @@
   "dependencies": {
     "@fontsource/ibm-plex-sans": "^5.3.0",
     "@fontsource/lora": "^5.3.0",
-    "@jspsych/extension-pipe": "0.2.0",
     "@jspsych/plugin-call-function": "^2.1.0",
     "@jspsych/plugin-preload": "^2.1.0",
-    "datapipe-client": "0.1.0",
+    "datapipe-client": "0.2.0",
     "jspdf": "^4.2.1",
     "jspsych": "^8.3.0"
   },

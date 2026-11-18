@@ -143,6 +143,50 @@ function onCaptureKey(e) {
   }
 }
 
+// ---- automation and AI use ----
+// What the browser gives away about being driven by a program. Browsers run by
+// automation tools (Playwright, Puppeteer, Selenium and the AI agents built on
+// them) set navigator.webdriver; headless ones also say so in their name.
+export function automationSignals() {
+  const s = [];
+  try {
+    if (navigator.webdriver) s.push("webdriver");
+    if (/HeadlessChrome|PhantomJS|Puppeteer|Playwright|Selenium/i.test(navigator.userAgent || "")) s.push("headless_browser");
+    if (window.callPhantom || window._phantom || window.__nightmare || window.domAutomation || window.domAutomationController) s.push("automation_tool");
+    if (document.documentElement.getAttribute("webdriver") !== null || Object.getOwnPropertyNames(window).some((k) => /^\$?cdc_|^__(selenium|webdriver|puppeteer|nightmare)/.test(k))) s.push("automation_marks");
+  } catch (e) { /* a browser that refuses these checks is treated as ordinary */ }
+  return s;
+}
+
+// With the safeguards on, clicks, key presses and text input that a script made
+// (event.isTrusted is false) are ignored inside the study, and counted. This
+// stops answers being filled in by code run in the page, a bookmarklet or a
+// simple extension. Tools that drive the browser from outside make trusted
+// events and are not stopped by this; the counters below are for those.
+function installAutomationListeners() {
+  ["click", "mousedown", "mouseup", "keydown", "keyup", "input", "change"].forEach((ev) => document.addEventListener(ev, (e) => {
+    if (e.isTrusted || !state.safeguards) return;
+    const t = e.target;
+    if (!(t instanceof Element) || !t.closest("#jspsych-target, #capture-shield, #fullscreen-overlay")) return;
+    e.stopImmediatePropagation();
+    e.preventDefault();
+    integrity.untrusted_event_count++;
+  }, true));
+  // how the page is operated: mouse movements, clicks, keys (counted always, never blocked)
+  document.addEventListener("mousemove", (e) => { if (e.isTrusted) integrity.pointer_move_count++; }, { capture: true, passive: true });
+  document.addEventListener("keydown", (e) => { if (e.isTrusted) integrity.key_count++; }, true);
+  document.addEventListener("click", (e) => {
+    if (!e.isTrusted) return;
+    integrity.click_count++;
+    // a click on the exact centre of a button: where automation tools click, and people almost never do
+    const el = e.target instanceof Element ? e.target.closest(".likert-opt, .choice, .btn") : null;
+    if (el && e.detail > 0) {
+      const r = el.getBoundingClientRect();
+      if (Math.abs(e.clientX - (r.left + r.width / 2)) <= 1 && Math.abs(e.clientY - (r.top + r.height / 2)) <= 1) integrity.dead_center_click_count++;
+    }
+  }, true);
+}
+
 // ---- protections ----
 let protectionsApplied = false;
 function applyProductionProtections() {
@@ -197,6 +241,7 @@ export function disableSafeguards() {
 
 // ---- listeners that are always on (logging only) ----
 export function installIntegrityListeners() {
+  installAutomationListeners();
   document.addEventListener("fullscreenchange", onFullscreenChange);
   document.addEventListener("webkitfullscreenchange", onFullscreenChange);
   window.addEventListener("resize", checkViewport);

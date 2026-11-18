@@ -36,8 +36,7 @@
 import { initJsPsych } from "jspsych";
 import jsPsychPreload from "@jspsych/plugin-preload";
 import jsPsychCallFunction from "@jspsych/plugin-call-function";
-import PipeExtension from "@jspsych/extension-pipe";
-import { saveData as pipeSaveData } from "datapipe-client";
+import { getCondition, createSession, saveData } from "datapipe-client";
 // fonts are bundled, so the page makes no third-party requests
 import "@fontsource/lora/latin-400.css";
 import "@fontsource/lora/latin-500.css";
@@ -51,10 +50,10 @@ import PagePlugin from "./page-plugin.js";
 import { CONFIG, DATAPIPE, pipeExperimentId, ASSIGNMENT, PROLIFIC, STUDY, WELCOME, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, CONSENT, fillStudyValues, readLockSeconds } from "./config.js";
 import { CONDITIONS, STAGE_SEQUENCE, assignmentCells, cellFromCounter, assignmentFromIndex, indexFromAssignment, scenario, countWords, pageWordCount, questionPages, randomizePages } from "./content.js";
 import { imageUrl } from "./images.js";
-import { state, integrityProps, fullscreenRequired, DEBUG, DEV_FLAGS, NOFS, NOPIPE, URL_PARAMS, prolificPID, studyID, sessionID, subjectId } from "./state.js";
-import { buildFrame, setPhase, setProgress, setTestBar, card, lockButton, rich, questionsHtml, bindQuestions, N_STAGES } from "./ui.js";
+import { state, integrity, integrityProps, aiFlags, fullscreenRequired, DEBUG, DEV_FLAGS, NOFS, NOPIPE, ALLOW_AUTO, URL_PARAMS, prolificPID, studyID, sessionID, subjectId } from "./state.js";
+import { buildFrame, setPhase, setProgress, setTestBar, card, lockButton, rich, questionsHtml, bindQuestions, honeypotHtml, honeypotValue, hasCanaryWord, N_STAGES } from "./ui.js";
 import { saveConsentPdf } from "./consent-pdf.js";
-import { requestFullscreenSafe, isFullscreen, hideFullscreenOverlay, isMobileDevice, enableSafeguards, disableSafeguards, installIntegrityListeners } from "./integrity.js";
+import { requestFullscreenSafe, isFullscreen, hideFullscreenOverlay, isMobileDevice, enableSafeguards, disableSafeguards, installIntegrityListeners, automationSignals } from "./integrity.js";
 
 document.title = STUDY.title;
 // read-lock of a scenario page: its fixed lock if it has one, otherwise by its
@@ -83,39 +82,73 @@ const COMPLETION_URL = `https://app.prolific.com/submissions/complete?cc=${PROLI
 const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 const endCard = (inner) => { target.innerHTML = `<div class="end-wrap">${card(`${eyebrow(STUDY.title)}${inner}`, "card-narrow card-center")}</div>`; };
 
+// Resolves with the promise's value, or with undefined after `ms` if it has not
+// settled by then (a write to DataPipe's staging database never settles while the
+// database cannot be reached, and the end of the study must not wait for it).
+const withTimeout = (promise, ms) => Promise.race([Promise.resolve(promise).catch(() => undefined), wait(ms)]);
+
+// Saving as the study runs (DATAPIPE.stream): after consent, every screen's row
+// is also sent to DataPipe's staging database as it is finished, so that a
+// participant who quits leaves a partial file. Nothing is sent before consent.
+let pipeSession = null;
+function startStreaming() {
+  if (!PIPE_ON || !DATAPIPE.stream || pipeSession) return;
+  // returns at once; rows recorded before the session is ready are held and sent then
+  pipeSession = createSession({ experiment_id: PIPE_ID, filename: DATA_FILE });
+  // the screens seen so far (welcome, consent), now that consent is given
+  jsPsych.data.get().values().forEach(stageRow);
+}
+function stageRow(row) {
+  // staging must never break the study: the complete file is sent at the end regardless
+  try { if (pipeSession) pipeSession.record(row); } catch (e) { console.warn("A screen could not be staged.", e); }
+}
+
 const jsPsych = initJsPsych({
   display_element: "jspsych-target",
-  // DataPipe's extension uploads the whole data file when the timeline ends, and
-  // only then runs on_finish below. (It is not a trial, so nothing is added to the timeline.)
-  extensions: [{
-    type: PipeExtension,
-    params: {
-      experiment_id: PIPE_ID,
-      filename: DATA_FILE,
-      enabled: PIPE_ON,
-      stream: DATAPIPE.stream,
-      wait_message: card(`<h2>Saving your responses…</h2><div class="spinner"></div><p class="muted">Please do not close this window.</p>`, "card-narrow card-center"),
-      on_save: (result) => { state.saveResult = result; },
-    },
-  }],
-  on_finish: endOfStudy,
+  on_data_update: stageRow,
+  on_finish: endOfStudy,     // jsPsych waits for it, so the upload finishes before the study ends
 });
 
-// After the last screen: makes sure the data are stored, then sends a Prolific
-// participant back to Prolific. If the upload did not reach DataPipe it is tried
-// again; if the data still cannot be stored, the participant can download the
-// file and is not left without a way back.
+// One upload of the complete data file. `sessionId` tells DataPipe that this file
+// completes the staged copy, which is then discarded instead of becoming a partial file.
+async function uploadData() {
+  try {
+    return await saveData({
+      experiment_id: PIPE_ID, filename: DATA_FILE, data: jsPsych.data.get().csv(),
+      ...(pipeSession && pipeSession.sessionId ? { sessionId: pipeSession.sessionId } : {}),
+    });
+  } catch (e) {
+    return { ok: false, status: 0, body: e };
+  }
+}
+
+// After the last screen: stores the data, then sends a Prolific participant back
+// to Prolific. If the upload did not reach DataPipe it is tried again; if the
+// data still cannot be stored, the participant can download the file and is not
+// left without a way back.
 async function endOfStudy() {
-  let stored = !PIPE_ON || !!(state.saveResult && state.saveResult.ok);
-  for (let n = 2; PIPE_ON && !stored && n <= DATAPIPE.save_attempts; n++) {
-    // a refusal (data collection off, session limit, invalid data) would be refused again
-    if (state.saveResult && state.saveResult.status >= 400 && state.saveResult.status < 500) break;
-    await wait(DEBUG ? 100 : 1500);
-    jsPsych.data.addProperties({ save_attempts: n });
-    const r = await pipeSaveData({ experimentID: PIPE_ID, filename: DATA_FILE, data: jsPsych.data.get().csv() });
-    state.saveResult = r;
-    // "FILE_EXISTS": the earlier attempt did arrive, only its answer was lost
-    stored = r.ok || !!(r.body && r.body.error === "FILE_EXISTS");
+  let stored = !PIPE_ON;
+  if (PIPE_ON) {
+    target.innerHTML = `<div class="end-wrap">${card(`<h2>Saving your responses…</h2><div class="spinner"></div><p class="muted">Please do not close this window.</p>`, "card-narrow card-center")}</div>`;
+    if (pipeSession) {
+      await withTimeout(pipeSession.ready(), 5000);    // the session's id, needed for the upload
+      await withTimeout(pipeSession.flush(), 4000);    // the last screens of the staged copy
+    }
+    for (let n = 1; !stored && n <= DATAPIPE.save_attempts; n++) {
+      if (n > 1) {
+        await wait(DEBUG ? 100 : 1500);
+        jsPsych.data.addProperties({ save_attempts: n });
+      }
+      const r = await uploadData();
+      state.saveResult = r;
+      // "FILE_EXISTS" on a later try: an earlier try did arrive, only its answer was lost
+      stored = r.ok || (n > 1 && !!(r.body && r.body.error === "FILE_EXISTS"));
+      // a refusal (data collection off, session limit, invalid data) would be refused again
+      if (!stored && r.status >= 400 && r.status < 500) break;
+    }
+    // closes the staged copy: finished if the file arrived, otherwise left to be
+    // recovered as a partial file
+    if (pipeSession) await withTimeout(pipeSession.close({ submitted: stored }), 4000);
   }
   state.saved = true;                      // from here on, leaving the page gives no warning
   const back = prolificPID
@@ -146,6 +179,8 @@ jsPsych.data.addProperties({
   debug_mode: DEBUG,
   nofs_mode: NOFS,
   datapipe: PIPE_ON ? (DEBUG ? "test" : "main") : "off",   // which DataPipe experiment the run uses
+  datapipe_stream: PIPE_ON && DATAPIPE.stream,             // whether the screens are also sent as they happen
+  automation_allowed: ALLOW_AUTO,                          // true only in browser tests (?allowauto=1)
   user_agent: navigator.userAgent,
   screen_width: window.screen.width,
   screen_height: window.screen.height,
@@ -200,6 +235,7 @@ function applyAssignment(index, source, counter = null) {
     stage_order: JSON.stringify(state.stages),
   });
   buildScreens();
+  startStreaming();      // consent is given and the condition is known: from here on screens are also sent as they happen
 }
 
 // The screens between consent and saving, in order: instructions, then for each
@@ -253,7 +289,7 @@ const assignCondition = {
     };
     setTimeout(() => settle(null), DATAPIPE.condition_timeout_ms);
     // getCondition rejects when DataPipe cannot be reached or condition assignment is switched off
-    PipeExtension.getCondition(PIPE_ID).then((c) => settle(c), (e) => { console.warn("No condition from DataPipe; drawing a cell at random.", e); settle(null); });
+    getCondition({ experiment_id: PIPE_ID }).then((c) => settle(c), (e) => { console.warn("No condition from DataPipe; drawing a cell at random.", e); settle(null); });
   },
 };
 
@@ -363,7 +399,7 @@ function setupGroups() {
     { key: "locks", title: "Read-locks", cols: 2,
       options: [{ value: "off", label: "Off · Continue works at once" }, { value: "on", label: "On · as for participants" }] },
     { key: "safeguards", title: "Safeguards", cols: 2,
-      note: `Full screen, the minimum window size, blocked text selection, copy and paste, right-click, printing, devtools shortcuts and screenshot keys, hiding the study while its window is not active, and the leave-page warning.${NOFS && CONFIG.require_fullscreen ? " The address contains <code>nofs=1</code>, so full screen and the window-size lock stay off either way." : ""}`,
+      note: `Full screen, the minimum window size, blocked text selection, copy and paste, right-click, printing, devtools shortcuts and screenshot keys, hiding the study while its window is not active, ignoring clicks and typing made by scripts, and the leave-page warning.${NOFS && CONFIG.require_fullscreen ? " The address contains <code>nofs=1</code>, so full screen and the window-size lock stay off either way." : ""}`,
       options: [{ value: "off", label: "Off · copy, paste and any window allowed" }, { value: "on", label: "On · as for participants" }] },
   ];
 }
@@ -615,6 +651,21 @@ function showScenario(el, s) {
   });
 }
 
+// AI safeguards on a question screen that is being left: text in the hidden
+// field, the hidden note's word in an open response, and how each open response
+// was typed (see "AI safeguards" in the README). Nothing here stops the study.
+function noteHiddenChecks(el, openResults) {
+  const hp = honeypotValue(el);
+  if (hp) integrity.honeypot_value = hp;
+  openResults.forEach((r) => {
+    if (hasCanaryWord(r.response) && !integrity.canary_items.includes(r.id)) integrity.canary_items.push(r.id);
+    if (r.typing) {
+      integrity.open_typing = integrity.open_typing.filter((t) => t.id !== r.id);   // (a tester may answer a screen twice)
+      integrity.open_typing.push({ id: r.id, chars: r.typing.chars, keys: r.typing.keys, median_key_interval_ms: r.typing.median_key_interval_ms });
+    }
+  });
+}
+
 function showQuestions(el, s) {
   const { page, stageIdx: i } = s;
   state.currentItems = page.items;
@@ -628,6 +679,7 @@ function showQuestions(el, s) {
   btn.addEventListener("click", () => {
     if (!q.isComplete()) return;
     const results = q.results();
+    noteHiddenChecks(el, results.filter((r) => r.type === "open"));
     // every answer also becomes a participant-level column named after the item id
     const props = {};
     results.forEach((r) => {
@@ -651,9 +703,11 @@ function showComments(el) {
   el.innerHTML = card(`${eyebrow("Almost done")}
     <p class="q-label">${rich(FEEDBACK_PROMPT)}</p>
     <textarea class="open-textarea" id="text-answer" rows="5" placeholder="Type your answer here (optional)"></textarea>
+    ${honeypotHtml()}
     <div class="btn-row"><button class="btn btn-lg" id="text-submit">Continue</button></div>`, "card-narrow");
   const ta = el.querySelector("#text-answer");
   el.querySelector("#text-submit").addEventListener("click", () => {
+    noteHiddenChecks(el, [{ id: "general_feedback", response: ta.value, typing: null }]);
     jsPsych.data.addProperties({ general_feedback: ta.value.trim() });
     go(+1, { task: "general_feedback", response: ta.value.trim() });
   });
@@ -751,7 +805,15 @@ const timeline = [
 // 8. START
 // ============================================================================
 installIntegrityListeners();
-if (CONFIG.block_mobile && isMobileDevice() && !NOFS && !DEBUG) {
+// A browser that is driven by a program is turned away from the participant
+// version (testing mode, and the browser tests with ?allowauto=1, are let through).
+integrity.automation_signals = automationSignals();
+if (integrity.automation_signals.length && !DEBUG && !ALLOW_AUTO) {
+  document.getElementById("frame-top").style.display = "none";
+  target.innerHTML = `<div class="end-wrap" id="automation-block">${card(`${eyebrow(STUDY.title)}
+    <h1>This study cannot be opened in an automated browser</h1>
+    <p>The study has to be completed by a person, in an ordinary browser window, without AI tools or automation. If you are seeing this by mistake, please close any automation or testing software and open the study link again.</p>`, "card-narrow")}</div>`;
+} else if (CONFIG.block_mobile && isMobileDevice() && !NOFS && !DEBUG) {
   document.getElementById("frame-top").style.display = "none";
   target.innerHTML = `<div class="end-wrap">${card(`${eyebrow(STUDY.title)}
     <h1>Please use a desktop or laptop computer</h1>
@@ -763,7 +825,7 @@ if (CONFIG.block_mobile && isMobileDevice() && !NOFS && !DEBUG) {
   if (DEBUG) {
     // dev only: expose internals and load the bot (a separate chunk, never fetched in production)
     document.documentElement.classList.add("testing");
-    Object.assign(window, { jsPsych, experimentState: state });
+    Object.assign(window, { jsPsych, experimentState: state, experimentIntegrity: integrity, experimentAiFlags: aiFlags });
     import("./autoplay.js").then(start);
   } else {
     start();

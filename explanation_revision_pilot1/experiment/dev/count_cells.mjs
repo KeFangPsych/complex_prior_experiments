@@ -5,8 +5,10 @@
  *   npm run cells -- <folder with the data files> [--per-cell N] [--include-tests]
  *
  * Download the data folder from Google Drive (or point this at a synced copy).
- * Every .csv file in it is one participant who finished; DataPipe's
- * ".partial.json" files (participants who quit, when streaming is on) are ignored.
+ * Every .csv file in it is one participant who finished. DataPipe's
+ * ".partial.json" files are participants who quit part-way; they never count
+ * toward a cell, and are summarized separately (how many, and the last screen
+ * each one finished).
  * A file counts when its last row has completion_status = "completed" and it is
  * not a test run (debug_mode), unless --include-tests is given. If the same
  * Prolific ID finished more than once, only the earliest file counts and the
@@ -35,7 +37,8 @@ const includeTests = args.includes("--include-tests");
 const perCellArg = perCellAt >= 0 ? parseInt(args[perCellAt + 1]) : null;
 
 const files = fs.readdirSync(folder).filter((f) => f.toLowerCase().endsWith(".csv")).sort();
-const partial = fs.readdirSync(folder).filter((f) => f.endsWith(".partial.json")).length;
+const partialFiles = fs.readdirSync(folder).filter((f) => f.endsWith(".partial.json")).sort();
+const partial = partialFiles.length;
 const skipped = { unreadable: [], incomplete: [], test: [], duplicate: [] };
 const kept = [];
 for (const f of files) {
@@ -63,7 +66,7 @@ perCell.forEach((n, k) => { const c = assignmentFromIndex(k).cond; perCond[c] = 
 
 console.log(`${files.length} data file(s) in ${folder}; ${counted.length} completed participant(s) counted.`);
 Object.entries(skipped).forEach(([why, list]) => { if (list.length) console.log(`  not counted, ${why}: ${list.length} (${list.slice(0, 5).join(", ")}${list.length > 5 ? ", …" : ""})`); });
-if (partial) console.log(`  ${partial} partial file(s) from participants who did not finish (ignored).`);
+if (partial) console.log(`  ${partial} partial file(s) from participants who did not finish (not counted; summarized at the end).`);
 const fallback = counted.filter((p) => p.source === "random_fallback").length;
 if (fallback) console.log(`  ${fallback} participant(s) got a random cell because DataPipe's counter did not answer.`);
 
@@ -91,4 +94,33 @@ else {
   console.log(`${list.length} more participant(s) needed. For a top-up batch, set in src/config.js:\n`);
   console.log(`  top_up_cells: [${list.join(", ")}],\n`);
   console.log(`and recruit ${list.length} more on Prolific. Set it back to null afterwards.`);
+}
+
+// ---- participants who quit part-way (partial files): where they stopped ----
+if (partial) {
+  // a partial file is the list of the screens' rows that reached DataPipe, as JSON
+  const rowsOf = (f) => {
+    let data = JSON.parse(fs.readFileSync(path.join(folder, f), "utf8"));
+    if (!Array.isArray(data)) data = data.trials || data.data || Object.values(data);
+    return data.map((r) => (typeof r === "string" ? JSON.parse(r) : r)).filter((r) => r && typeof r === "object");
+  };
+  const stops = {}, finishedPids = new Set(counted.map((p) => p.pid).filter((x) => x && x !== "null"));
+  let unreadable = 0, tests = 0, alsoFinished = 0;
+  for (const f of partialFiles) {
+    let rows;
+    try { rows = rowsOf(f); } catch (e) { unreadable++; continue; }
+    const screens = rows.filter((r) => r.screen);
+    const last = screens[screens.length - 1] || rows[rows.length - 1];
+    if (!last) { unreadable++; continue; }
+    if ((last.debug_mode === true || last.debug_mode === "true") && !includeTests) { tests++; continue; }
+    if (last.prolific_pid && finishedPids.has(last.prolific_pid)) alsoFinished++;
+    const where = `${last.screen || last.task || "?"}${last.cond ? ` (cond ${last.cond})` : ""}`;
+    stops[where] = (stops[where] || 0) + 1;
+  }
+  console.log(`\nParticipants who quit part-way: ${Object.values(stops).reduce((a, b) => a + b, 0)}${tests ? ` (plus ${tests} test run(s))` : ""}${unreadable ? `, ${unreadable} file(s) unreadable` : ""}.`);
+  if (alsoFinished) console.log(`  ${alsoFinished} of them have the Prolific ID of someone who also finished (a second attempt, or a file DataPipe recovered twice).`);
+  if (Object.keys(stops).length) {
+    console.log("  Last screen finished before quitting:");
+    Object.entries(stops).sort((a, b) => b[1] - a[1]).forEach(([where, n]) => console.log(`    ${String(n).padStart(3)}  ${where}`));
+  }
 }

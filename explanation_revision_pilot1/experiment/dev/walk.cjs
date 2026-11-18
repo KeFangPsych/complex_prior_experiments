@@ -165,6 +165,7 @@ const shotDir = path.join(__dirname, "shots");
       if (!(Number.isInteger(r.rt) && r.rt >= 0)) bad(`${r.screen}: rt is ${JSON.stringify(r.rt)}`);
       if (last[`rt_${r.screen}`] !== r.rt) bad(`rt_${r.screen} is ${JSON.stringify(last[`rt_${r.screen}`])}, the row has ${r.rt}`);
       if (!(Number.isInteger(r.screen_hidden_ms) && Number.isInteger(r.screen_blur_count))) bad(`${r.screen}: no away time`);
+      if (!["screen_pointer_moves", "screen_clicks", "screen_keys"].every((k) => Number.isInteger(r[k]))) bad(`${r.screen}: no record of how it was operated`);
     });
     if (!(Number.isInteger(last.total_time_ms) && last.total_time_ms > 0)) bad(`total_time_ms is ${JSON.stringify(last.total_time_ms)}`);
     // each item has the time of its first and last answer
@@ -173,7 +174,12 @@ const shotDir = path.join(__dirname, "shots");
     const wantWords = stages.flatMap((s) => content.scenario(s, cond, { surpriseText: surprise === "shown", figureVersion: fig }).pages.map(content.pageWordCount));
     expect("n_words", scenarios.map((r) => r.n_words), wantWords);
     expect("lock_seconds", scenarios.map((r) => r.lock_seconds), wantWords.map(() => 0));
-    for (const k of ["screenshot_key_count", "tab_hidden_count", "window_blur_count", "paste_attempts"]) if (!Number.isInteger(last[k])) bad(`${k} is ${JSON.stringify(last[k])}`);
+    for (const k of ["screenshot_key_count", "tab_hidden_count", "window_blur_count", "paste_attempts", "untrusted_event_count", "pointer_move_count", "click_count", "dead_center_click_count", "key_count", "screens_without_pointer_moves", "open_bulk_insert_count"]) if (!Number.isInteger(last[k])) bad(`${k} is ${JSON.stringify(last[k])}`);
+    // the bot is exactly what the AI safeguards look for: an automated browser that never moves the mouse and does not type
+    const aiFlags = String(last.ai_flags).split(",");
+    for (const f of ["webdriver", "no_pointer_movement", ...(mode === "pilot" ? ["text_inserted_at_once", "text_without_keystrokes"] : [])]) if (!aiFlags.includes(f)) bad(`the bot run is not flagged as ${f} (ai_flags: ${last.ai_flags})`);
+    for (const f of ["hidden_note_word", "hidden_field_filled"]) if (aiFlags.includes(f)) bad(`the bot run is flagged as ${f} although it did not trigger it`);
+    answered.filter((a) => a.type === "open").forEach((a) => { if (!(a.typing && Number.isInteger(a.typing.keys) && Number.isInteger(a.typing.bulk_inserts))) bad(`${a.id}: no record of how the text was entered`); });
     return { tag, rows: data.length, screens: scenarios.length + gotPages.length, questions: items.length };
   }
 

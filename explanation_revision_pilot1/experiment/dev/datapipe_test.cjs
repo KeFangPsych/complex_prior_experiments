@@ -16,7 +16,9 @@
  *   - a refused upload shows the download page and is not retried, an upload
  *     that did not reach DataPipe is tried again, a refused condition request
  *     falls back to a random cell, a condition fixed by a tester asks for no
- *     counter value, and ?nopipe=1 contacts DataPipe not at all.
+ *     counter value, and ?nopipe=1 contacts DataPipe not at all;
+ *   - saving as you go starts only after consent, and a staging database that
+ *     cannot be reached does not hold up the end of the study.
  * It needs DATAPIPE.enabled and an experiment ID in src/config.js.
  */
 const { chromium } = require("playwright");
@@ -37,9 +39,12 @@ const EMPTY = ["", "null"];   // how a missing value is written in the CSV
 
   // One run of the study. `condition` and `data` say how the two DataPipe endpoints answer:
   // a number / "ok", an HTTP error { status, error }, or "abort" (the request never arrives).
-  async function run({ query = "", condition = 37, data = ["ok"], prolific = true }) {
+  // `session`: how the "save as you go" session request is answered: "unavailable"
+  // (HTTP 503, so only the final upload is used) or "started" (a session whose
+  // staging database cannot be reached from the test, like a network that blocks it).
+  async function run({ query = "", condition = 37, data = ["ok"], prolific = true, session = "unavailable" }) {
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 }, acceptDownloads: true });
-    const seen = { condition: [], data: [], other: [], prolific: null };
+    const seen = { condition: [], data: [], session: [], other: [], prolific: null };
     const body = (req) => {
       const buf = req.postDataBuffer();
       const gz = (req.headers()["content-encoding"] || "") === "gzip";
@@ -60,9 +65,17 @@ const EMPTY = ["", "null"];   // how a missing value is written in the CSV
         if (answer === "abort") return route.abort("failed");
         return answer === "ok" ? json(201, { message: "Success" }) : json(answer.status, { error: answer.error, message: "refused" });
       }
+      if (url.pathname === "/api/session/") {
+        seen.session.push({ ...body(req), afterCondition: seen.condition.length > 0 });
+        return session === "started"
+          ? json(200, { sessionId: "mockSession123", databaseURL: "https://datapipe-mock-default-rtdb.firebaseio.com", maxTrialBytes: 16384, maxTrials: 1000, flushIntervalMs: 10000, flushEveryNTrials: 10, maxDisconnects: 20 })
+          : json(503, { error: "SESSION_START_ERROR", message: "unavailable" });
+      }
       seen.other.push(url.pathname);
       return json(404, { error: "NOT_MOCKED" });
     });
+    // the staging database itself is not reachable from the test
+    await page.route(/firebaseio\.com|firebasedatabase\.app/, (route) => route.abort("failed"));
     await page.route("https://app.prolific.com/**", (route) => {
       seen.prolific = route.request().url();
       return route.fulfill({ status: 200, contentType: "text/html", body: "<h1 id='prolific-stub'>Prolific</h1>" });
@@ -96,6 +109,8 @@ const EMPTY = ["", "null"];   // how a missing value is written in the CSV
     check("A: the file is the complete record", row.completion_status === "completed" && row.subject_id + ".csv" === up.filename && Number(row.rt_debrief) >= 0 && row.rt_debrief !== "" && row.trust_tell !== "");
     check("A: the participant is sent to Prolific's completion URL", end === "prolific" && seen.prolific === `https://app.prolific.com/submissions/complete?cc=${PROLIFIC.completion_code}`, seen.prolific);
     check("A: nothing else is sent to DataPipe", seen.other.length === 0, seen.other.join());
+    check("A: saving as you go is asked for once, after consent, under the same file name", seen.session.length === 1 && seen.session[0].experimentID === TEST_ID && seen.session[0].filename === up.filename && row.datapipe_stream === "true", JSON.stringify(seen.session));
+    check("A: without a staging session the upload carries no session id", up.sessionId === undefined);
     await page.close();
   }
   // ---- B. DataPipe refuses the data (for example data collection is switched off) ----
@@ -147,6 +162,14 @@ const EMPTY = ["", "null"];   // how a missing value is written in the CSV
     check("H: nopipe=1 sends nothing to DataPipe", seen.condition.length + seen.data.length + seen.other.length === 0 && end === "prolific");
     await page.close();
   }
+  // ---- J. a staging session starts but its database cannot be reached: the study still ends, and the upload names the session ----
+  {
+    const t0 = Date.now();
+    const { page, seen, end } = await run({ session: "started" });
+    check("J: a blocked staging database does not hold up the end of the study", end === "prolific" && seen.data.length === 1, `${Math.round((Date.now() - t0) / 1000)} s`);
+    check("J: the upload names the staging session, so DataPipe can discard the staged copy", seen.data[0] && seen.data[0].sessionId === "mockSession123");
+    await page.close();
+  }
   // ---- I. a participant (no testing mode) is assigned by the real experiment ----
   {
     const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
@@ -157,12 +180,15 @@ const EMPTY = ["", "null"];   // how a missing value is written in the CSV
       asked.push({ path: new URL(req.url()).pathname, id: JSON.parse(req.postData() || "{}").experimentID });
       return route.fulfill({ status: 200, contentType: "application/json", headers: { "access-control-allow-origin": "*" }, body: JSON.stringify({ message: "Success", condition: 3 }) });
     });
-    await page.goto(`${BASE}/?nofs=1&PROLIFIC_PID=${PID}`);
+    await page.goto(`${BASE}/?nofs=1&allowauto=1&PROLIFIC_PID=${PID}`);
     await page.click("#card-btn");                       // welcome
     await page.waitForSelector("#consent-pdf");
+    check("I: nothing is sent to DataPipe before consent", asked.length === 0, JSON.stringify(asked));
     await page.click("#card-btn");                       // consent -> assignment
     await page.waitForSelector(".eyebrow:text('Instructions')");
-    check("I: a participant's condition comes from the real experiment", asked.length === 1 && asked[0].path === "/api/condition/" && asked[0].id === DATAPIPE.experiment_id && asked[0].id !== TEST_ID, JSON.stringify(asked));
+    await page.waitForTimeout(500);
+    check("I: after consent a participant's condition and staging session come from the real experiment",
+      asked.length === 2 && asked[0].path === "/api/condition/" && asked[1].path === "/api/session/" && asked.every((a) => a.id === DATAPIPE.experiment_id && a.id !== TEST_ID), JSON.stringify(asked));
     await page.close();
   }
   await browser.close();

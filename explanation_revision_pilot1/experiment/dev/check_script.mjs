@@ -24,7 +24,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { LOCK_EXTRA, LOCK_FIXED, CONDITIONS, STAGE_SEQUENCE, N_CELLS, assignmentCells, cellFromCounter, assignmentFromIndex, indexFromAssignment, scenario, pageParagraphs, questions, questionPages, randomizePages, orderNotes, scriptText, RANDOMIZATIONS } from "../src/content.js";
-import { CONFIG, WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, fillStudyValues } from "../src/config.js";
+import { CONFIG, AI_GUARD, WELCOME, CONSENT, INSTRUCTIONS, FEEDBACK_PROMPT, DEBRIEF, fillStudyValues } from "../src/config.js";
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const SCRIPT = path.join(here, "../../explanation_revision_pilot1_vignette1_script.md");
@@ -372,6 +372,10 @@ for (const [cond, stage] of [[1, "planet"], [1, "evidence"], [5, "planet"], [5, 
     same(`${where}, cond ${cond}`, "pages with their own lock", [...special].sort().join("; "),
       [`explanation1 1: +${LOCK_EXTRA.explanation1_intro}, fixed null`, `explanation1 2: +0, fixed ${LOCK_FIXED.explanation1_message}`, `evidence 2: +${LOCK_EXTRA.lab_report}, fixed null`, `elaboration ${algaePage}: +${LOCK_EXTRA.algae}, fixed null`].sort().join("; "));
   }
+  // the two hidden texts for AI systems are quoted in the script
+  same(where, "hidden note for AI systems", intro.find((l) => l.startsWith("* Hidden note")) || null, `* Hidden note on every open-response question: ${AI_GUARD.canary_note}`);
+  same(where, "hidden field for AI systems", intro.find((l) => l.startsWith("* Hidden field")) || null, `* Hidden field on every question screen: ${AI_GUARD.honeypot_label}`);
+  same(where, "the hidden note names its word", AI_GUARD.canary_note.includes(`"${AI_GUARD.canary_word}"`), true);
   const openLine = `Open responses: each open-response question needs at least ${CONFIG.open_min_chars} characters. The final comments are optional.`;
   same(where, "open-response sentence", intro.find((l) => l.startsWith("Open responses:")) || null, openLine);
 }

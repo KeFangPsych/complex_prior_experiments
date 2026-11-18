@@ -2,9 +2,9 @@
  * ui.js — the fixed frame (phase stepper + progress bar), cards, the read-lock,
  * and the question components (7-point scale, multiple choice, open response).
  */
-import { CONFIG } from "./config.js";
+import { CONFIG, AI_GUARD } from "./config.js";
 import { SCALE_POINTS } from "./content.js";
-import { state } from "./state.js";
+import { state, integrity } from "./state.js";
 
 // ============================================================================
 // FRAME: PHASE STEPPER + PROGRESS BAR
@@ -90,6 +90,7 @@ export function lockButton(btn, seconds, label, onUnlock) {
   }, 1000);
 }
 
+const median = (list) => { if (!list.length) return null; const s = [...list].sort((x, y) => x - y); return Math.round(s[Math.floor(s.length / 2)]); };
 const esc = (s) => String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
 /** Plain text to HTML; **double asterisks** become bold. */
 export const rich = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
@@ -99,11 +100,21 @@ export const rich = (s) => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>
 // ============================================================================
 const STATEMENT_SPLIT = "this statement? ";
 
+// Not visible on the page (styles.css, .for-machines), but part of its text: a
+// note to AI systems on every open-response question, and a field on every
+// question screen that only a program would fill in. See AI_GUARD in config.js.
+const canaryHtml = () => `<span class="for-machines">${esc(AI_GUARD.canary_note)}</span>`;
+export const honeypotHtml = () => `<div class="for-machines"><label>${esc(AI_GUARD.honeypot_label)} <input type="text" id="hp-field" tabindex="-1" autocomplete="off"></label></div>`;
+/** What was entered into the hidden field of the screen in `root` ("" for a human). */
+export const honeypotValue = (root) => { const f = root.querySelector("#hp-field"); return f ? f.value.trim() : ""; };
+/** True if `text` contains the hidden note's word. */
+export const hasCanaryWord = (text) => new RegExp(`\\b${AI_GUARD.canary_word}\\b`, "i").test(text || "");
+
 function promptHtml(q) {
   // "How much do you agree ... with this statement? <statement>" -> statement on its own line
   const i = q.prompt.indexOf(STATEMENT_SPLIT);
   // (**double asterisks** in a question mark emphasis, as in the script)
-  if (i < 0) return `<p class="q-label">${rich(q.prompt)}</p>`;
+  if (i < 0) return `<p class="q-label">${rich(q.prompt)}${q.type === "open" ? canaryHtml() : ""}</p>`;
   const cut = i + STATEMENT_SPLIT.length;
   return `<p class="q-label">${rich(q.prompt.slice(0, cut).trim())}</p><div class="statement">${rich(q.prompt.slice(cut))}</div>`;
 }
@@ -129,13 +140,15 @@ function itemHtml(q) {
   return `<div class="q-item" data-id="${q.id}" data-type="${q.type}">${promptHtml(q)}${body}</div>`;
 }
 
-export function questionsHtml(items) { return items.map(itemHtml).join(""); }
+export function questionsHtml(items) { return items.map(itemHtml).join("") + honeypotHtml(); }
 
 /**
  * Wires the items rendered by questionsHtml inside `root`. Calls onChange() after
  * every answer. `initial` optionally pre-fills answers. Returns { isComplete(), results() }; results() has one entry per
  * item: { id, use, type, measure, response, response_index, correct, position,
- * option_order, first_ms, last_ms, n_changes } (times since the screen appeared;
+ * option_order, first_ms, last_ms, n_changes, typing } (times since the screen appeared;
+ * typing, for open responses only, says how the text was entered: { chars, keys,
+ * backspaces, typing_ms, median_key_interval_ms, bulk_inserts, bulk_chars };
  * response_index is the option's index in the script, option_order the display
  * order of those indices, position the item's place on the screen).
  */
@@ -181,6 +194,29 @@ export function bindQuestions(root, items, onChange, initial = {}) {
       }));
     } else {
       const ta = el.querySelector("textarea");
+      // how the text is entered: keys pressed and the gaps between them, and text
+      // that arrives more than two characters at once (pasted, dropped or inserted by a program)
+      const typing = answers[q.id].typing = { keys: 0, backspaces: 0, first: null, last: null, gaps: [], bulk_inserts: 0, bulk_chars: 0, prevLen: ta.value.length };
+      ta.addEventListener("keydown", (e) => {
+        if (!e.isTrusted || e.ctrlKey || e.metaKey) return;
+        if (e.key === "Backspace" || e.key === "Delete") typing.backspaces++;
+        else if (e.key.length !== 1 && e.key !== "Enter") return;
+        const now = performance.now();
+        typing.keys++;
+        if (typing.first === null) typing.first = now;
+        if (typing.last !== null) typing.gaps.push(now - typing.last);
+        typing.last = now;
+      });
+      ta.addEventListener("input", (e) => {
+        const grown = ta.value.length - typing.prevLen;
+        typing.prevLen = ta.value.length;
+        // (a word chosen from an input method or a spelling correction arrives at once and is ordinary)
+        if (grown > 2 && !e.isComposing && !/Composition|Replacement/.test(e.inputType || "")) {
+          typing.bulk_inserts++;
+          typing.bulk_chars += grown;
+          integrity.open_bulk_insert_count++;
+        }
+      });
       // shows how much of the minimum is written
       const count = el.querySelector(".open-count");
       const showCount = () => {
@@ -209,6 +245,12 @@ export function bindQuestions(root, items, onChange, initial = {}) {
         position: position + 1,
         option_order: q.type === "choice" ? (q.optionOrder || q.options.map((_, i) => i)) : null,
         first_ms: a.first_ms, last_ms: a.last_ms, n_changes: a.n_changes,
+        typing: a.typing ? {
+          chars: (a.value || "").trim().length, keys: a.typing.keys, backspaces: a.typing.backspaces,
+          typing_ms: a.typing.first === null ? null : Math.round(a.typing.last - a.typing.first),
+          median_key_interval_ms: median(a.typing.gaps),
+          bulk_inserts: a.typing.bulk_inserts, bulk_chars: a.typing.bulk_chars,
+        } : null,
       };
     }),
   };

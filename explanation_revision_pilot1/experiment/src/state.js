@@ -10,6 +10,9 @@ export const URL_PARAMS = urlParams;
 export const DEV_FLAGS = import.meta.env.DEV || CONFIG.allow_dev_flags;
 export const DEBUG = DEV_FLAGS && urlParams.get("debug") === "1";
 export const NOFS = (DEV_FLAGS && urlParams.get("nofs") === "1") || !CONFIG.require_fullscreen;
+// ?allowauto=1 (testing only): lets an automated browser open the participant
+// version, which is otherwise turned away (the browser tests need this)
+export const ALLOW_AUTO = DEV_FLAGS && urlParams.get("allowauto") === "1";
 // ?nopipe=1 (testing only): nothing is sent to DataPipe; the data can be downloaded at the end
 export const NOPIPE = DEV_FLAGS && urlParams.get("nopipe") === "1";
 // a testing flag's value, if it is one of `allowed` (testing mode only)
@@ -84,8 +87,39 @@ export const integrity = {
   paste_attempts: 0,
   screenshot_key_count: 0,       // presses of a screenshot key or shortcut (see integrity.js)
   screenshot_key_log: [],        // [{t, phase, key}]
+  // ---- signs of automation or AI use (see "AI safeguards" in the README) ----
+  automation_signals: [],        // what the browser gives away at the start, e.g. "webdriver"
+  untrusted_event_count: 0,      // clicks / keys / input made by a script, not by the user (ignored when the safeguards are on)
+  pointer_move_count: 0,         // mouse movements
+  click_count: 0,
+  dead_center_click_count: 0,    // clicks on the exact centre of a button (automation tools click there)
+  key_count: 0,
+  screens_total: 0,              // screens left with a click ...
+  screens_without_pointer_moves: 0,   // ... of which without any mouse movement before it
+  open_bulk_insert_count: 0,     // times more than two characters entered an open response at once
+  open_typing: [],               // per open response: { id, keys, median_key_interval_ms }
+  canary_items: [],              // open responses that contain the hidden note's word
+  honeypot_value: "",            // text entered into the hidden field
   _hiddenSince: null,
 };
+/**
+ * The signs of automation or AI use that this run shows, as short names. They are
+ * prompts for a closer look at the participant's data, not proof.
+ */
+export function aiFlags() {
+  const f = [...integrity.automation_signals];
+  if (integrity.untrusted_event_count > 0) f.push("scripted_events");
+  if (integrity.canary_items.length > 0) f.push("hidden_note_word");
+  if (integrity.honeypot_value) f.push("hidden_field_filled");
+  if (integrity.open_bulk_insert_count > 0) f.push("text_inserted_at_once");
+  // typing faster than any person: the middle gap between keys under 40 ms over at least 20 keys
+  if (integrity.open_typing.some((t) => t.keys >= 20 && t.median_key_interval_ms !== null && t.median_key_interval_ms < 40)) f.push("machine_fast_typing");
+  // text in an open response that was not typed key by key
+  if (integrity.open_typing.some((t) => t.chars >= 20 && t.keys < t.chars / 2)) f.push("text_without_keystrokes");
+  if (integrity.screens_total >= 6 && integrity.screens_without_pointer_moves >= integrity.screens_total / 2) f.push("no_pointer_movement");
+  if (integrity.dead_center_click_count >= 5 && integrity.dead_center_click_count >= integrity.click_count / 2) f.push("dead_center_clicks");
+  return f;
+}
 /** Total ms the tab has been hidden so far, including a period that is still running. */
 export const hiddenMsNow = () => integrity.tab_hidden_total_ms + (integrity._hiddenSince === null ? 0 : performance.now() - integrity._hiddenSince);
 export function integrityProps() {
@@ -100,5 +134,16 @@ export function integrityProps() {
     paste_attempts: integrity.paste_attempts,
     screenshot_key_count: integrity.screenshot_key_count,
     screenshot_key_log: JSON.stringify(integrity.screenshot_key_log),
+    ai_flags: aiFlags().join(","),
+    automation_signals: integrity.automation_signals.join(","),
+    untrusted_event_count: integrity.untrusted_event_count,
+    pointer_move_count: integrity.pointer_move_count,
+    click_count: integrity.click_count,
+    dead_center_click_count: integrity.dead_center_click_count,
+    key_count: integrity.key_count,
+    screens_without_pointer_moves: integrity.screens_without_pointer_moves,
+    open_bulk_insert_count: integrity.open_bulk_insert_count,
+    hidden_note_word_items: integrity.canary_items.join(","),
+    hidden_field_value: integrity.honeypot_value,
   };
 }

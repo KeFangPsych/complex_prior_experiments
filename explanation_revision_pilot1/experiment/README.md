@@ -74,6 +74,7 @@ you switched them on.
 | `nofs=1` | without `debug=1`: the participant version, but with no fullscreen requirement and no viewport lock |
 | `condition=k` | forces assignment cell `k` (0–31) when DataPipe is not used |
 | `nopipe=1` | nothing is sent to DataPipe: no counter request, no upload; the last screen offers the data as a download |
+| `allowauto=1` | lets an automated browser open the participant version, which otherwise turns it away (the browser tests use this) |
 
 The flags always work on the dev server. On the built site they work only while
 `CONFIG.allow_dev_flags` is `true`.
@@ -312,14 +313,104 @@ All of these are off in testing mode unless Safeguards (or Read-locks) is
 switched on on the test setup screen.
 
 The page loads nothing from other servers: jsPsych, the fonts and the pictures
-are all bundled. Only DataPipe (one request for the condition counter after
-consent, one upload at the end) and the Prolific redirect are contacted. With
-`DATAPIPE.stream` switched on, the browser also keeps a connection to DataPipe's
-staging database (Google Firebase) during the study.
+are all bundled. Only DataPipe and the Prolific redirect are contacted, and
+DataPipe only after consent: one request for the condition counter, a
+connection to its staging database (Google Firebase) for the screens sent as
+they happen, and the upload at the end.
+
+## AI safeguards
+
+A web page cannot prove that a person, and not an AI system, is answering. An
+AI agent that operates an ordinary browser through the screen, the way a person
+does, looks like a person to the page. What the experiment does is turn away
+the tools it can recognise, make AI use awkward, and record signs of it so that
+suspect participants can be looked at and excluded.
+
+**Stopped outright** (participants only; off in testing mode unless Safeguards
+is on):
+
+- **Automated browsers.** A browser driven by an automation tool (Playwright,
+  Puppeteer, Selenium, and AI agents built on them) announces itself
+  (`navigator.webdriver`, or "Headless" in its name). The participant version
+  shows such a browser a page saying the study cannot be opened in an
+  automated browser, and nothing else.
+- **Scripted answers.** Clicks, key presses and text entered by a script
+  (code run in the page, a bookmarklet, a simple extension) are ignored and
+  counted in `untrusted_event_count`.
+- **Copying the questions out and pasting answers in.** Text cannot be
+  selected, copied, pasted or dropped, and screenshots are hindered (see
+  *Integrity measures*). An answer from a chatbot has to be retyped by hand.
+- **Testing mode.** With `CONFIG.allow_dev_flags` set to `false`, the test
+  setup screen, the test bot and every URL flag are gone from the site.
+
+**Asked of participants.** The instruction page says to answer alone and not to
+use AI tools. Say the same in the Prolific study description.
+
+**Hidden checks for AI systems** (`AI_GUARD` in `src/config.js`; quoted in the
+script). Both are part of the page's text but placed off-screen, so a person
+does not see them, while an AI system that reads the page's text does:
+
+- Every open-response question carries a note telling AI systems to include
+  the word "marigold" in their answer. An answer containing it is listed in
+  `hidden_note_word_items`.
+- Every question screen has a field that says it is for automated agents.
+  Anything typed into it is saved in `hidden_field_value`.
+
+A screen reader reads both out, which is why each says that human participants
+should ignore it. An AI system that works from screenshots does not see them,
+and a careful one may ignore them.
+
+**Recorded for every participant**, for exclusion decisions at analysis time:
+
+| column | what it shows |
+|---|---|
+| `ai_flags` | the signs below that this participant shows, as a comma-separated list (empty for most people) |
+| `automation_signals` | what the browser gave away at the start (`webdriver`, `headless_browser`, …); only possible in a test run, since participants with any are turned away |
+| `untrusted_event_count` | scripted clicks, keys or input that were ignored |
+| `hidden_note_word_items`, `hidden_field_value` | the two hidden checks |
+| `open_bulk_insert_count` | times more than two characters entered an open response at once (inserted by a program, dictated, or pasted past the block) |
+| `pointer_move_count`, `click_count`, `key_count` | how the page was operated; each screen's row also has `screen_pointer_moves`, `screen_clicks`, `screen_keys` |
+| `screens_without_pointer_moves` | screens left with a click that no mouse movement came before |
+| `dead_center_click_count` | clicks on the exact centre of a button, which is where automation tools click and people almost never do |
+| `paste_attempts`, `tab_hidden_count`, `window_blur_count`, `screenshot_key_count` | from *Integrity measures*: leaving the window is what consulting a chatbot looks like |
+
+For each open response, the `typing` entry in the `responses` column records
+how the text was entered: `chars`, `keys`, `backspaces`, `typing_ms`,
+`median_key_interval_ms`, `bulk_inserts`, `bulk_chars`. Text typed by a person
+has about as many keys as characters, some backspaces, and a middle gap between
+keys of roughly 80 to 250 ms.
+
+The names that can appear in `ai_flags`:
+
+| flag | rule |
+|---|---|
+| `webdriver`, `headless_browser`, `automation_tool`, `automation_marks` | the browser's own signs of automation |
+| `scripted_events` | `untrusted_event_count` above 0 |
+| `hidden_note_word` | an open response contains the hidden note's word |
+| `hidden_field_filled` | the hidden field has text |
+| `text_inserted_at_once` | `open_bulk_insert_count` above 0 |
+| `text_without_keystrokes` | an open response of 20 or more characters with fewer than half as many keys |
+| `machine_fast_typing` | an open response typed with a middle gap between keys under 40 ms, over 20 or more keys |
+| `no_pointer_movement` | at least half of the screens were left without any mouse movement |
+| `dead_center_clicks` | 5 or more dead-centre clicks, making up at least half of all clicks |
+
+A flag is a reason to look at a participant's data, not proof: dictation
+software inserts text at once, and someone using only the keyboard moves no
+mouse. The test bot, which is an automated browser that never moves the mouse
+and does not type, is flagged with `webdriver`, `no_pointer_movement`,
+`text_inserted_at_once` and `text_without_keystrokes`, and the tests check
+that.
+
+Not covered: a person who reads the questions aloud to a voice assistant or
+photographs the screen and retypes the answers, and an AI agent that operates
+the participant's own browser through the screen. For those, the timing, the
+window-leaving counts and the content of the open responses are the evidence.
+Prolific's own authenticity checks work only with Qualtrics, Gorilla and
+Prolific's task builder, not with a site like this one.
 
 ## Data
 
-One CSV per participant, uploaded through DataPipe to the storage connected to
+One CSV per participant who finishes, uploaded through DataPipe to the storage connected to
 the DataPipe experiment (a Google Drive folder) when the participant clicks the
 button on the debrief screen. The file is named after `subject_id`, a random ID
 (`p_…` for Prolific participants, `test_…` for testing-mode runs and visits
@@ -329,7 +420,9 @@ up to `DATAPIPE.save_attempts` times (`save_attempts` in the data is set when a
 retry was needed). If the data still cannot be stored, or DataPipe refuses
 them, the participant gets a page with a download button and the way back to
 Prolific. Without DataPipe (`?nopipe=1`, or `DATAPIPE.enabled: false`) the
-debrief screen offers the file as a download.
+debrief screen offers the file as a download. A participant who quits
+part-way leaves a `….partial.json` file instead (see *Unfinished sessions* under
+*DataPipe and Prolific*).
 
 **Every answer is a participant-level column** named after the item's `id` in
 `content.js` (for example `complexity_overall`, `trust_tell`, `pred_heat`,
@@ -345,9 +438,10 @@ Other participant-level columns: `subject_id`, `prolific_pid`, `study_id`,
 `order`, `complexity`, `anomaly`, `goal_relevance`, `evidence_figure`,
 `surprise_text` (`shown` / `hidden` / `not_applicable`), `stage_order`,
 `general_feedback`, `completion_status`, `start_time`, `completion_time`,
-`total_time_ms`, `debug_mode`, `nofs_mode`, `datapipe` (`main`, `test` or `off`), `safeguards`, the screen times
-`rt_<screen>` (see *Timing* below) and the
-integrity counters above. The random orders that were drawn are recorded in
+`total_time_ms`, `debug_mode`, `nofs_mode`, `automation_allowed`, `datapipe`
+(`main`, `test` or `off`), `datapipe_stream`, `safeguards`, the screen times
+`rt_<screen>` (see *Timing* below), the integrity counters above and the
+columns of *AI safeguards*. The random orders that were drawn are recorded in
 `order_planet_blocks` (for example `planet_understanding,planet_complexity`),
 `order_final_blocks` (for example `trust,complexity,utility`),
 `order_agree_statements` (evidence-first conditions),
@@ -363,7 +457,7 @@ Row-level detail, by `task`:
 | `welcome`, `general_feedback` | `rt`; `general_feedback` also has `response` |
 | `instructions` | `n_words`, `lock_seconds`, `rt` |
 | `scenario` | one row per scenario page: `stage_index`, `stage`, `scenario_page`, `n_scenario_pages`, `layout`, `figure`, `figure_width_px` (displayed width), `compact_text`, `needed_scrolling`, `viewport_width`, `viewport_height`, `n_words`, `lock_seconds`, `rt` (reading time, ms) |
-| `questions` | `stage_index`, `stage`, `page`, `page_index`, `item_ids`, `rt`, and `responses`: JSON with one entry per item (`id`, `use`, `type`, `measure`, `response`, `response_index`, `correct`, `position`, `option_order`, `first_ms`, `last_ms`, `n_changes`) |
+| `questions` | `stage_index`, `stage`, `page`, `page_index`, `item_ids`, `rt`, and `responses`: JSON with one entry per item (`id`, `use`, `type`, `measure`, `response`, `response_index`, `correct`, `position`, `option_order`, `first_ms`, `last_ms`, `n_changes`, and for open responses `typing`) |
 | `consent` | `consented`, `fullscreen_ok`, `consent_pdf_saves` |
 | `test_back` | testing mode only: a Back or Change settings press (`from_task`, or `to: "setup"`) |
 | `test_setup` | testing mode only: `test_cond`, `test_figure`, `test_surprise`, `test_organism_question`, `test_mode`, `test_locks`, `test_safeguards` |
@@ -379,6 +473,8 @@ Row-level detail, by `task`:
 - `screen_hidden_ms` and `screen_blur_count`: how much of `rt` the tab was
   hidden, and how often the window lost focus during it, so that a long time can
   be told apart from a participant who was away;
+- `screen_pointer_moves`, `screen_clicks`, `screen_keys`: mouse movements,
+  clicks and key presses during the screen (see *AI safeguards*);
 - `time_elapsed` (added by jsPsych): milliseconds from the start of the
   experiment to the end of that screen.
 
@@ -442,8 +538,12 @@ npm run test:integrity
   locked until every item is answered, the open-response minimum, blocked
   selection and copy, the viewport lock and the mobile block. It also checks that
   testing mode has all of these off unless they are switched on, and that its
-  settings bar, Back (with answers refilled) and Change settings work. It takes
-  about two minutes, because it waits out the read-locks.
+  settings bar, Back (with answers refilled) and Change settings work, and it
+  checks the AI safeguards: an automated browser is turned away, a scripted
+  click is ignored, the hidden note and field cannot be seen, and an answer
+  with the hidden word, a filled hidden field and text that was not typed are
+  flagged while text typed at a human pace is not. It takes about two minutes,
+  because it waits out the read-locks.
 
 - `test:datapipe` runs the whole study eight times with stand-ins for DataPipe
   and Prolific (the browser's requests to both are answered by the test, in the
@@ -452,7 +552,9 @@ npm run test:integrity
   file (name, format, Prolific IDs, assignment, every screen time), the return
   to Prolific with the completion code, the retry of an upload that did not
   arrive, the download page when DataPipe refuses the data, the random fallback
-  when the counter is switched off, and that `nopipe=1` contacts nothing.
+  when the counter is switched off, that `nopipe=1` contacts nothing, that
+  nothing is sent before consent, and that a staging database that cannot be
+  reached does not hold up the end of the study.
 
 Set `BASE_URL` to test another address (for example the built site under
 `npm run preview`), and `CHROME_PATH` to use an existing Chrome.
@@ -463,15 +565,30 @@ This follows DataPipe's documentation after its September 2026 update
 (<https://pipe.jspsych.org/docs>) and Prolific's help centre
 (<https://researcher-help.prolific.com>, articles dated May to September 2026).
 
-**How it is wired.** The experiment uses DataPipe's jsPsych extension,
-`@jspsych/extension-pipe`, which is the integration DataPipe now recommends;
-the older `jsPsychPipe` save trial is no longer used. The version is pinned in
-`package.json`. After consent the experiment asks DataPipe for the next
-condition number. When the participant leaves the debrief screen, the extension
-uploads the whole CSV, and only after DataPipe has answered is a Prolific
-participant sent to `https://app.prolific.com/submissions/complete?cc=<code>`.
+**How it is wired.** The experiment uses DataPipe's client library,
+`datapipe-client` (version pinned in `package.json`), which is also what
+DataPipe's jsPsych extension is built on. The extension itself is not used
+because it starts sending data when the page opens, before consent.
 
-### 1. Two DataPipe experiments, and how to test
+1. Nothing is sent to DataPipe before consent.
+2. On consent, the experiment asks DataPipe for the next condition number and
+   opens a "save as you go" session. From then on every finished screen is also
+   sent to DataPipe's staging database (the welcome and consent screens are
+   sent at that moment too).
+3. When the participant leaves the debrief screen, the whole CSV is uploaded.
+   DataPipe then discards the staged copy. Only after DataPipe has answered is
+   a Prolific participant sent to
+   `https://app.prolific.com/submissions/complete?cc=<code>`.
+4. A participant who quits part-way leaves no CSV. About 10 minutes after their
+   connection drops, DataPipe turns the staged screens into a file named
+   `<file name>-<id>.partial.json` in the same folder (it can take another
+   quarter of an hour to appear).
+
+If the staging database cannot be reached (some networks block it), the study
+runs and saves as usual; only the partial-file safety net is missing for that
+participant.
+
+### 1. The two DataPipe experiments
 
 `src/config.js` names two DataPipe experiments:
 
@@ -484,42 +601,58 @@ So a testing-mode run never writes into the participants' folder and never
 uses up one of their counter values. The column `datapipe` in the data says
 which one a run used (`main`, `test` or `off`).
 
-Both experiments need the same settings on their DataPipe dashboards:
+What each experiment's page on DataPipe should show:
 
-| setting | set to |
-|---|---|
-| Accept new data | on |
-| Assign conditions in sequence | on, **32** conditions (type the number in) |
-| Stop after a set number of sessions | off while testing |
-| Accept base64 file uploads | off (not needed) |
-| Validation | leave as it is: on, CSV allowed, required field `trial_type` |
-| Psych-DS metadata | your choice, but decide before the first file arrives, because it locks then. Off gives one plain CSV per participant. |
+| setting | test experiment | real experiment |
+|---|---|---|
+| Accept new data | on | on from the preview run until collection ends, then off |
+| Accept base64 file uploads | off | off |
+| Assign conditions in sequence | on, **32** conditions | on, **32** conditions |
+| Stop after a set number of sessions | off | on, well above the Prolific places (for example 130 for 96) |
+| Check submissions before storing them (validation) | on; Allow CSV and Allow JSON ticked; required field `trial_type` | the same |
+| Generate Psych-DS metadata | off | off, unless you want that layout; it locks when the first file arrives |
 
-Then:
+Notes on these settings:
 
-1. Open the site with `?debug=1`, leave Condition on Random, and run through
-   (`__autoplay()` in the browser console does it in a few seconds). The bar
-   under the progress bar shows `DataPipe test experiment`.
-2. A file `test_….csv` should appear in the **test** experiment's Google Drive
-   folder, and that dashboard's count of completed sessions should go up. In
-   the file's last row, `condition_source` is `datapipe`, and
-   `assignment_counter` goes up by one from run to run.
-3. On the test experiment, switch *Accept new data* off and finish a run: you
+- **32 conditions** is the number of assignment cells (8 conditions × 2 figure
+  versions × 2 surprise-text settings). The field starts at a smaller number;
+  type 32 in. Never change it during collection.
+- **The session limit counts finished participants only.** Partial files do
+  not count. A participant who finishes after the limit is refused and gets
+  the download page, so keep it above the number of Prolific places.
+- **Validation** only checks that a finished file is well-formed and has a
+  `trial_type` column, which every file from this experiment has. Partial
+  files skip validation.
+- **A counter cannot be reset.** Every participant-view visit that passes the
+  consent page uses up one number of the real experiment for good.
+
+### 2. Test in testing mode
+
+1. Open the testing address (`…/pilot1_vignette1/?debug=1`), leave Condition on
+   Random, press Start and go through the study (`__autoplay()` in the browser
+   console does it in a few seconds). The bar under the progress bar shows
+   `DataPipe test experiment`.
+2. In the **test** experiment's Drive folder a file `test_….csv` should
+   appear, and its dashboard should count one more completed session. In the
+   file's last row, `condition_source` is `datapipe`, `datapipe` is `test`,
+   and `assignment_counter` goes up by one from run to run.
+3. Start another run, stop after a few screens and close the tab. Within about
+   half an hour a `test_….partial.json` file should appear in the same folder.
+   While you wait, the dashboard lists the session under *Sessions in
+   progress*, first as *Connection lost*, then as *Stopped, being recovered*.
+4. Switch *Accept new data* off on the test experiment and finish a run: you
    should get the "Your responses could not be saved" page with its download
-   button.
+   button. Switch it on again.
 
-Add `&nopipe=1` to a testing address when a run should upload nothing at all.
+Add `&nopipe=1` to a testing address when a run should send nothing at all.
 
-A visit **without** `debug=1` is a participant: it takes the next number from
-the real experiment's counter and, if finished, writes a file into the real
-folder. Do that only for the one preview run in step 3 below.
-
-### 2. Set up the Prolific study
+### 3. Set up the Prolific study
 
 - **Study details.** Mark the study as desktop only and say so in the
-  description. Prolific shows the device setting to participants but does not
-  enforce it; the experiment itself turns phones and tablets away. The study
-  name may not contain the word "Prolific".
+  description; say there too that AI tools must not be used. Prolific shows
+  the device setting to participants but does not enforce it; the experiment
+  itself turns phones and tablets away. The study name may not contain the
+  word "Prolific".
 - **Data collection, study URL.** Choose the external study link, select
   *I'll use URL parameters*, and use
   `https://kefangpsych.github.io/explanation_revision_experiments/pilot1_vignette1/?PROLIFIC_PID={{%PROLIFIC_PID%}}&STUDY_ID={{%STUDY_ID%}}&SESSION_ID={{%SESSION_ID%}}`.
@@ -535,26 +668,30 @@ folder. Do that only for the one preview run in step 3 below.
   submission per participant. To keep pilot participants out of a later study,
   use the *Exclude participants from other studies* filter there (both studies
   must be in the same project).
-- **Preview** the study from Prolific from start to finish before publishing.
+- Save the study as a draft. Do not publish yet.
 
-### 3. Go live
+### 4. Go live
 
-1. On the real experiment (`explanation_revision_pilot1`), switch on *Stop
-   after a set number of sessions* with a limit comfortably above the target
-   (for example 130 for 96 places). Prolific decides how many people take
-   part; a participant who finishes after DataPipe's limit is refused and gets
-   the download page. Its counter cannot be reset, so every participant-view
-   visit that passes the consent page uses up one number for good.
-2. In `src/config.js`: put the Prolific completion code in
-   `PROLIFIC.completion_code`, set `CONFIG.mode`, and set
-   `CONFIG.allow_dev_flags` to `false`. Testing mode then no longer exists on
-   the site, so a participant cannot use it to skip the read-locks.
-3. Push, wait for the site to republish, and preview once from Prolific. That
-   run uses up one counter value and writes one file. Delete the file, and let
-   the count in step 4 pick up the cell that is one short.
-4. Publish. Do not push to `main` until collection is over.
+1. In `src/config.js`: put the Prolific completion code in
+   `PROLIFIC.completion_code`, set `CONFIG.mode` (`"pilot"` or `"main"`), and
+   set `CONFIG.allow_dev_flags` to `false`. Testing mode then no longer exists
+   on the site, so nobody can use it to skip the read-locks and safeguards.
+2. Push, and wait for the site to republish (the *Actions* tab on GitHub shows
+   a green tick after about a minute).
+3. On the real DataPipe experiment, check the settings in the table above and
+   switch on the session limit.
+4. **Preview once from Prolific**, from start to finish, in an ordinary
+   browser window. Check that a `p_….csv` file arrives in the real folder with
+   your Prolific ID inside, and that you end up back on Prolific with the
+   submission marked complete. This run uses up counter value 0 and counts as
+   one session; delete the file afterwards (step 5 then tops up that cell).
+5. Publish the study. Do not push to `main` until collection is over: every
+   push republishes the site.
 
-### 4. Keep the conditions balanced
+While it runs, the real experiment's DataPipe dashboard shows the completed
+sessions and the sessions in progress.
+
+### 5. Keep the conditions balanced
 
 DataPipe hands out the 32 cells in a fixed order and moves on as soon as a
 participant asks, whether or not that participant finishes. Prolific replaces
@@ -576,7 +713,10 @@ counter then runs through only those cells. Set it back to `null` afterwards.
 Leave DataPipe's number of conditions at 32 for a top-up. A top-up batch has
 dropouts too, so run the count once more at the end.
 
-### 5. Afterwards
+The same command summarizes the partial files: how many participants quit, and
+the last screen each one finished.
+
+### 6. Afterwards
 
 - Switch *Accept new data* and *Assign conditions in sequence* off on DataPipe.
   Anyone who reads the site's code can see the experiment ID, and the ID is all
@@ -585,14 +725,24 @@ dropouts too, so run the count once more at the end.
 - The files contain Prolific IDs (`prolific_pid`, `study_id`, `session_id`).
   Keep the Drive folder private and remove these columns before sharing data.
 
-### Sending each screen as it happens (off)
+### Unfinished sessions (partial files)
 
-DataPipe can also receive every screen as it happens (`DATAPIPE.stream: true`),
-so that a participant who quits leaves a `….partial.json` file. It is off
-because it keeps data from people who left, and the consent form says
-participants may withdraw at any time. If the protocol allows keeping such
-data, switching it on shows where in the study people drop out. Partial files
-do not count toward the session limit and are ignored by `npm run cells`.
+`DATAPIPE.stream: true` is what keeps the screens of participants who quit.
+Things to know about the partial files:
+
+- They are JSON, a list with one entry per screen that reached DataPipe, each
+  with the same columns as a row of the CSV at that moment. The condition and
+  the Prolific IDs are in every entry, because sending starts after consent
+  and assignment.
+- They hold data from people who left, some of whom meant to withdraw. The
+  protocol has to allow keeping it; Prolific counts returning a study as one
+  way of withdrawing consent. To stop collecting them, set
+  `DATAPIPE.stream: false`.
+- A participant whose connection drops for less than 10 minutes and who then
+  carries on leaves no partial file.
+- A screen whose row is larger than 16 KiB (a very long open response) is
+  missing from a partial file. Finished files are not affected.
+- They do not count toward the session limit or toward a cell.
 
 ## Before collecting data
 
