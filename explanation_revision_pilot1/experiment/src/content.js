@@ -87,6 +87,7 @@ const IMG = "vignette1_img";
 //   scenario(stage, cond, { surpriseText, figureVersion }) -> { pages: [...] }
 //   Each page: { blocks, figure (file name or null), alt, layout, figureInReport, lockExtra }
 //     figureInReport  the picture is shown inside the page's lab report box
+//     pictureNote     a caption shown directly above the picture, or null
 //     lockExtra       seconds added to the page's read-lock (LOCK_EXTRA below)
 //     lockSeconds     a fixed read-lock for the page, instead of the word-count rule (LOCK_FIXED below)
 //     blocks  in reading order, each { kind: "narration", paragraphs },
@@ -105,11 +106,13 @@ const narration = (...paragraphs) => ({ kind: "narration", paragraphs });
 const message = (label, ...paragraphs) => ({ kind: "message", label, paragraphs });
 const report = (label, ...paragraphs) => ({ kind: "report", label, paragraphs });
 const LAB_REPORT = "Lab report from your team's lab";
-// A narrator's sentence between a message and its picture that says how to read
-// the picture (shown as a caption above the picture).
-const PICTURE_GUIDE = {
+// A sentence shown as a caption directly above a picture that says how to read it
+// (the script marks these lines "Picture note"). It is not part of the page's
+// blocks, so it does not count toward the page's words or its read-lock.
+const PICTURE_NOTE = {
   explanation1: "In the picture below, the yellow balls are the gas. The right side shows how the weather changes the amount of gas in the air.",
   algae: "In the picture below, the oval shapes inside the organism are the algae: green when active, grey when less active.",
+  lab: "In the picture below, the results go from warm on the left to freezing on the right. More yellow balls mean more gas, a darker organism means more purple, and more red waves mean more heat.",
 };
 // Read-locks follow the word count (config.js), with these exceptions, which come
 // from reading times in testing and are stated in the script:
@@ -127,7 +130,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
   const evidenceFirst = c.order === "evidence_first";
   // the underlined sentences exist only in the evidence-first conditions
   const s = evidenceFirst && surpriseText;
-  const page = (blocks, figure = null, alt = "", layout = "text", extra = {}) => ({ blocks, figure, alt, layout, figureInReport: false, lockExtra: 0, lockSeconds: null, ...extra });
+  const page = (blocks, figure = null, alt = "", layout = "text", extra = {}) => ({ blocks, figure, alt, layout, figureInReport: false, pictureNote: null, lockExtra: 0, lockSeconds: null, ...extra });
 
   if (stage === "planet") {
     return { pages: [page([narration(
@@ -168,9 +171,8 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
           "In this process, **the organism uses a certain gas from the planet's air to produce heat. It also uses this gas to produce a purple substance called a pigment that makes it look purple** (the pigment is harmless and has no other practical use).",
           "**The planet's air holds more of this gas when the weather is colder. So in colder weather, there is more gas around the organism. When more of this gas is available, the organism produces more heat and looks more purple.**",
         ),
-        narration(PICTURE_GUIDE.explanation1),
       ], `${IMG}3_explanation1.png`,
-      "Bioenergy's explanation: with more gas, the organism can produce more heat and more purple pigment, which makes it look more purple. Colder weather means more gas in the air.", "stacked", { lockSeconds: LOCK_FIXED.explanation1_message }),
+      "Bioenergy's explanation: with more gas, the organism can produce more heat and more purple pigment, which makes it look more purple. Colder weather means more gas in the air.", "stacked", { lockSeconds: LOCK_FIXED.explanation1_message, pictureNote: PICTURE_NOTE.explanation1 }),
     ] };
   }
 
@@ -191,7 +193,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
           `* ${A.lessCaps} than when it is cold.` + (s ? " This is unexpected, because more gas is there for the organism to use." : ""),
         ),
       ], `${IMG}4_evidence_${c.anomaly}_anomaly${figureVersion === "line" ? "_line" : ""}.png`,
-      "Laboratory observations at four temperatures, from warm to freezing: gas available, organism color and heat output.", "stacked", { figureInReport: true, lockExtra: LOCK_EXTRA.lab_report }),
+      "Laboratory observations at four temperatures, from warm to freezing: gas available, organism color and heat output.", "stacked", { figureInReport: true, lockExtra: LOCK_EXTRA.lab_report, pictureNote: PICTURE_NOTE.lab }),
     ] };
   }
 
@@ -208,7 +210,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
     const figure = `${IMG}5_explanation2_${c.anomaly}_anomaly.png`;
     const alt = "Bioenergy's explanation of what happens inside the organism when it is cold and when it is freezing.";
     if (!evidenceFirst) {
-      return { pages: [page([narration("Bioenergy's message continues."), message(`${FROM_BIOENERGY} (continued)`, ...algaeParagraphs), narration(PICTURE_GUIDE.algae)], figure, alt, "stacked", { lockSeconds: LOCK_FIXED.algae })] };
+      return { pages: [page([narration("Bioenergy's message continues."), message(`${FROM_BIOENERGY} (continued)`, ...algaeParagraphs)], figure, alt, "stacked", { lockSeconds: LOCK_FIXED.algae, pictureNote: PICTURE_NOTE.algae })] };
     }
     return { pages: [
       page([
@@ -216,7 +218,7 @@ export function scenario(stage, cond, { surpriseText = true, figureVersion = "ta
         message(FROM_TEAM, `We tested the sample. When it was freezing, the organism ${A.lessPast} than when it was cold.` +
           (s ? " This is not what we expected." : "") + " Can you explain why?"),
       ]),
-      page([narration("Bioenergy replies."), message(FROM_BIOENERGY, "Thank you for reaching out about your test. This is because:", ...algaeParagraphs), narration(PICTURE_GUIDE.algae)], figure, alt, "stacked", { lockSeconds: LOCK_FIXED.algae }),
+      page([narration("Bioenergy replies."), message(FROM_BIOENERGY, "Thank you for reaching out about your test. This is because:", ...algaeParagraphs)], figure, alt, "stacked", { lockSeconds: LOCK_FIXED.algae, pictureNote: PICTURE_NOTE.algae }),
     ] };
   }
 

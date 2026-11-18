@@ -10,9 +10,11 @@ sender label (the company's on the left in green with its logo, the team's on
 the right in blue with a hard hat), and the test results as a lab report box
 that also holds the laboratory-observations picture and colors the four
 temperature words (warm, cool, cold, freezing); everything else is the
-narrator's text. On the two explanation pages, a narrator's sentence between
-the message and the picture says how to read the picture, and is shown as a
-caption above it.
+narrator's text. Three pictures have a caption directly above them that says
+how to read them: the two explanation pictures (below the message) and the
+laboratory-observations picture (inside the lab report). The script marks these
+lines "Picture note". They are not counted in a page's words (`n_words`) and do
+not lengthen its read-lock.
 
 It is a Node project: jsPsych and its plugins come from npm and
 [Vite](https://vite.dev) bundles everything into a static site. The UI and the
