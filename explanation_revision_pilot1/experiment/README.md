@@ -84,6 +84,13 @@ you switched them on.
 The flags always work on the dev server. On the built site they work only while
 `CONFIG.allow_dev_flags` is `true`.
 
+**It is currently `false`**, for data collection: the online version has no
+testing mode, ignores every flag above, and turns automated browsers away. To
+test, run the dev server on your own computer (`npm run dev`, then
+<http://localhost:8765/?debug=1>), where testing mode always works and uses the
+DataPipe test experiment. To bring testing mode back on the site, set
+`allow_dev_flags` to `true` and push, but not while data are being collected.
+
 Build the static site (output in `dist/`, deployable to any static host):
 
 ```bash
@@ -101,7 +108,8 @@ and publishes it (workflow `.github/workflows/deploy-pages.yml`; it runs
 `npm run check:script` first and does not publish if that fails):
 
 - participant version: <https://kefangpsych.github.io/explanation_revision_experiments/pilot1_vignette1/>
-- testing mode: <https://kefangpsych.github.io/explanation_revision_experiments/pilot1_vignette1/?debug=1>
+- testing mode (only while `CONFIG.allow_dev_flags` is `true`; it is currently
+  off): <https://kefangpsych.github.io/explanation_revision_experiments/pilot1_vignette1/?debug=1>
 
 These addresses contain the repository's name
 (`explanation_revision_experiments`). If the repository is renamed again, they

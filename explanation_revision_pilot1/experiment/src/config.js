@@ -83,7 +83,7 @@ export const fillStudyValues = (text) => text.replace(/\bXX\b/g, () => STUDY.min
 
 export const CONFIG = {
   experiment_name: "explanation_revision_pilot1_vignette1",
-  experiment_version: "1.0.0",
+  experiment_version: "1.0.1",
 
   // "pilot": every question of the script (Main + Pilot).
   // "main":  only the questions tagged Main.
@@ -93,7 +93,7 @@ export const CONFIG = {
   // The URL flags used for testing (?debug=1, ?nofs=1, ?condition=k, ...) always
   // work on the dev server. This decides whether they also work on the built
   // site: keep true to test a build, set to false before collecting data.
-  allow_dev_flags: true,
+  allow_dev_flags: false,
 
   // Read-lock of the instruction page, in seconds.
   instruction_lock_seconds: 10,
